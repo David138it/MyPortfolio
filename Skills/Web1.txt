@@ -1,0 +1,559 @@
+Mail for feedback: David138it@gmail.com
+
+Работа с HTML
+	Task:
+	Создание HTML-списков 
+	Decision:
+	<ul>
+		<li>Linux Server Administration</li>
+		<li>Working with websites</li>
+	</ul>
+	Source:
+	https://html5book.ru/html-lists/?ysclid=lis7im73ng615064864
+
+Мини-проекты
+	Task:
+	Нужно разработать таблицу в формате Single Page Application.
+	Требования к таблице.
+	1. Таблица должна содержать 4 колонки: Дата, Название, Количество, Расстояние
+	2. База данных может быть mySQL/PostgreSQL
+	3. Таблица должна иметь сортировку по всем полям кроме даты. Фильтрация должна быть в виде двух выпадающих списков и текстового поля: Выбор колонки, по которой будет фильтрация, Выбор условия (равно, содержить, больше, меньше), Поле для ввода значения для фильтрации
+	4. Таблица должна содержать пагинацию
+	Вся таблица должна работать без перезагрузки страницы.
+	Можно использовать:
+	1. возможности нативного JS и PHP
+	2. jQuery/Vue/React/Axios
+	3. CSS библиотеки
+	4. модули Symfony/Zend для работы с БД
+	Нельзя использовать:
+	1. Библиотеки с готовыми компонентами или плагины для jQuery/Vue/React, которые предоставляют готовый функционал, требуемый в задании
+	2. Библиотеки и плагины для валидации
+	3. CMS системы
+	Критерии оценки:
+	1. Названия переменных
+	2. Адекватность архитектуры приложения
+	3. Оптимизация работы приложения и его масштабируемость
+	4. Безопасность
+
+Шаблоны для веб-страниц
+	Task:
+	как реализовать отправку формы на электронную почту (email). Давайте настроим форму обратной связи и добавим возможность ее отправки на email
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/Form/
+	Decision:
+	приготовим форму:
+	    <form action="test.html" name="f1">
+	    <input class="footer__name" placeholder="Ваше имя" type="text" name="name1" required>
+	    <input class="footer__email" placeholder="Ваш Е-mail" type="email" name="email1" required="required">
+	    <textarea class="footer__textarea" placeholder="Ваш текст" name="text" required="required"></textarea >
+	    <input class="btn btn__form" value="Отправить" type="submit" name="sab">
+	    </form>
+	В файле test.html простое уведомление:
+		<div class="footer__text"> Спасибо, что написали! Cкоро свяжусь с вами. </div> 
+	Теперь попробуем настроить на хостинге нашу форму. ДЛя этого нужно добавить в форме action="http://ct.tmweb.ru/php/b0.php" - обработчик, к которому обращаются данные формы при их отправке на сервер method="post" - метод посылающий на сервер данные в запросе браузера. target="_blank" - загружает страницу в новое окно браузера.
+	    <form action="http://ct.tmweb.ru/php/b0.php" method="post" target="_blank" name="f1"> 
+	Код обработчика b0.php:
+	    <meta charset="utf-8">
+	    <?php
+	    $urok="Question";
+	    error_reporting( E_ERROR ); //Отключение предупреждений и нотайсов (warning и notice) на сайте
+	    // создание переменных из полей формы
+	    if (isset($_POST['name1'])) {$name1 = $_POST['name1']; if ($name1 == '') {unset($name1);}}
+	    if (isset($_POST['email1'])) {$email1 = $_POST['email1']; if ($email1 == '') {unset($email1);}}
+	    if (isset($_POST['text'])) {$text = $_POST['text']; if ($text == '') {unset($text);}}
+	    if (isset($_POST['sab'])) {$sab = $_POST['sab']; if ($sab == '') {unset($sab);}}
+	    //стирание треугольных скобок из полей формы
+	    if (isset($name1) ) { $name1=stripslashes($name1); $name1=htmlspecialchars($name1);}
+	    if (isset($email1) ) {
+	    $email1=stripslashes($email1);
+	    $email1=htmlspecialchars($email1);
+	    }
+	    if (isset($text) ) { $text=stripslashes($text); $text=htmlspecialchars($text); }
+	    // адрес почты куда придет письмо
+	    $address="Dato138IT@yandex.ru";
+	    // текст письма
+	    $note_text="Тема : $urok \r\nИмя : $name1 \r\n Email : $email1 \r\n Дополнительная информация : $text";
+	    if (isset($name1) && isset ($sab) ) { mail($address,$urok,$note_text,"Content-type:text/plain; windows-1251");
+	    // сообщение после отправки формы
+	    echo "<p style='color:#009900;'>Уважаемый(ая) $name1 Ваше письмо отправленно успешно. Спасибо. Вам скоро ответят на почту $email1. </p>";}
+	    ?> 
+	Мы видим, что после заполнения формы и нажатия на кнопку "отправить", открывается окно, об успешной отправке письма. Сейчас уже так не делают. Допустим мы не хотим, чтобы открывалось это окошко. нужно сделать так, чтобы уведомление об успешной отправки отображалось на этой же странице. Для этого можно просто перенести код с файла b0.php в файл index, где находится наша форма:
+	    <form action="http://ct.tmweb.ru/index.php" method="post" name="f1">
+	    <input class="footer__name" placeholder="Ваше имя" type="text" name="name1" required>
+	    <input class="footer__email" placeholder="Ваш Е-mail" type="email" name="email1" required="required">
+	    <textarea class="footer__textarea" placeholder="Ваш текст" name="text" required="required"></textarea>
+	    <input class="btn btn__form" value="Отправить" type="submit" name="sab">
+	    </form>
+	    <?php
+	    $question="Question";
+	    error_reporting( E_ERROR ); //Отключение предупреждений и нотайсов (warning и notice) на сайте
+	    // создание переменных из полей формы
+	    if (isset($_POST['name1'])) {$name1 = $_POST['name1']; if ($name1 == '') {unset($name1);}}
+	    if (isset($_POST['email1'])) {$email1 = $_POST['email1']; if ($email1 == '') {unset($email1);}}
+	    if (isset($_POST['text'])) {$text = $_POST['text']; if ($text == '') {unset($text);}}
+	    if (isset($_POST['sab'])) {$sab = $_POST['sab']; if ($sab == '') {unset($sab);}}
+	    //стирание треугольных скобок из полей формы
+	    if (isset($name1) ) { $name1=stripslashes($name1); $name1=htmlspecialchars($name1); }
+	    if (isset($email1) ) { $email1=stripslashes($email1); $email1=htmlspecialchars($email1); }
+	    if (isset($text) ) { $text=stripslashes($text); $text=htmlspecialchars($text);}
+	    // адрес почты куда придет письмо
+	    $address="Dato138IT@yandex.ru";
+	    // текст письма
+	    $note_text="Тема : $question \r\nИмя : $name1 \r\n Email : $email1 \r\n Дополнительная информация : $text";
+	    if (isset($name1) && isset ($sab) ) { mail($address,$question,$note_text,"Content-type:text/plain; windows-1251");
+	    // сообщение после отправки формы
+	    echo "<p style='text-align:center;background-color:#3a3e64;font-size:15px;color:#fff;'>Уважаемый(ая) $name1 Ваше письмо отправленно успешно. Спасибо. Вам скоро ответят на почту $email1.</p>";}
+	    ?>
+	Только теперь наша наш файл с расширениеv html нужно переимновать в расшрение php. Так как код написанный на языке php, работает только с расширением php. И в форме action мы указываем именно тот путь где находится наша форма. также нужно убрать target="_blank", чтобы не открывалось пустое окно
+	Теперь нужно сделать якорб для формы, чтобы после нажатия на кнопку "отправить", страница оставалась на том же месте. Для этого добавим ссылку:
+	    <a name="form__anchor"></a>
+	    <form action="http://ct.tmweb.ru/index.php#form__anchor" method="post" name="f1">
+	    <input class="footer__name" placeholder="Ваше имя" type="text" name="name1" required>
+	    <input class="footer__email" placeholder="Ваш Е-mail" type="email" name="email1" required="required">
+	    <textarea class="footer__textarea" placeholder="Ваш текст" name="text" required="required"></textarea>
+	    <input class="btn btn__form" value="Отправить" type="submit" name="sab">
+	    </form> 
+	На этом все. теперь у нас рабочая форма. Можем смело отправлять письмо и проверять почту. 
+	Source:
+	1. https://www.youtube.com/playlist?list=PLmaZf_calrAZizvrAlKPV0RW8nn6LsTE6
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/Spinner1/
+	Task:
+	Верстка фильтрации для списков
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/JsFilter/
+	Task:
+	Верстка страниц с помощью FlexBox
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/Flexbox/
+	Task:
+	Анимации с помощью CSS
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/CssAnimation/
+	Source:
+	1. https://www.youtube.com/playlist?list=PL30ZzYn5yk1meyhJ4hH3Rvr1E-w0zQ81J
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/MailBella/	
+	Task:
+	Верстка окна лицензий
+    1. Сверстать приведенный ниже дизайн
+    2. Тип лицензии выводить шрифтом Bebas - выводить через font-face
+    3. Отображать тип выбранной лицензии и итоговую сумму
+    4. Формат ссылки в кнопке Buy Now сформируйте по вашему усмотрению
+	P.S. Все исходники залить на GitHub. Ссылку отправить через HH.ru/SJ.
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/BuyNow/
+
+Веб-страницы
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/ActiveBox/
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/AsusRog/
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/MdBootstrap1/
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/Jetro/
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/Mogo/
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/MyCompany/
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/Portfolio/
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/Awesome/
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/Tele2/
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/OXXO/
+	Decision:
+	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu/Web/Mamon/
+
+Администрирование Веб-серверов
+	Task:
+	Сборка Nginx из исходного кода (Ubuntu 20.04)
+	Decision:
+	$ sudo apt-get update
+	$ sudo apt-get -y install build-essential
+	$ wget https://nginx.org/download/nginx-1.21.1.tar.gz
+	$ tar -zxvf nginx-1.21.1.tar.gz
+	$ cd nginx-1.21.1/     
+	$ sudo apt-get install libpcre3 libpcre3-dev libpcrecpp0v5 libssl-dev zlib1g-dev
+	$ ls -l
+	  total 812
+	  -rw-r--r-- 1 ubuntu ubuntu 313379 Jul  6 09:59 CHANGES
+	  -rw-r--r-- 1 ubuntu ubuntu 478586 Jul  6 09:59 CHANGES.ru
+	  -rw-r--r-- 1 ubuntu ubuntu   1397 Jul  6 09:59 Li-cENSE
+	  -rw-r--r-- 1 ubuntu ubuntu     49 Jul  6 09:59 README
+	  drwxr-xr-x 6 ubuntu ubuntu   4096 Jul 31 03:28 auto
+	  drwxr-xr-x 2 ubuntu ubuntu   4096 Jul 31 03:28 conf
+	  -rwxr-xr-x 1 ubuntu ubuntu   2590 Jul  6 09:59 configure
+	  drwxr-xr-x 4 ubuntu ubuntu   4096 Jul 31 03:28 contrib
+	  drwxr-xr-x 2 ubuntu ubuntu   4096 Jul 31 03:28 html
+	  drwxr-xr-x 2 ubuntu ubuntu   4096 Jul 31 03:28 man
+	  drwxr-xr-x 9 ubuntu ubuntu   4096 Jul 31 03:28 src
+	$ ./configure --sbin-path=/usr/bin/nginx --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --with-debug --with-pcre --with-http_ssl_module
+	$ make
+	$ sudo make install
+	$ ls -l /etc/nginx/
+	  total 68
+	  -rw-r--r-- 1 root root 1077 Jul 31 03:50 fastcgi.conf
+	  -rw-r--r-- 1 root root 1077 Jul 31 03:50 fastcgi.conf.default
+	  -rw-r--r-- 1 root root 1007 Jul 31 03:50 fastcgi_params
+	  -rw-r--r-- 1 root root 1007 Jul 31 03:50 fastcgi_params.default
+	  -rw-r--r-- 1 root root 2837 Jul 31 03:50 koi-utf
+	  -rw-r--r-- 1 root root 2223 Jul 31 03:50 koi-win
+	  -rw-r--r-- 1 root root 5290 Jul 31 03:50 mime.types
+	  -rw-r--r-- 1 root root 5290 Jul 31 03:50 mime.types.default
+	  -rw-r--r-- 1 root root 2656 Jul 31 03:50 nginx.conf
+	  -rw-r--r-- 1 root root 2656 Jul 31 03:50 nginx.conf.default
+	  -rw-r--r-- 1 root root  636 Jul 31 03:50 scgi_params
+	  -rw-r--r-- 1 root root  636 Jul 31 03:50 scgi_params.default
+	  -rw-r--r-- 1 root root  664 Jul 31 03:50 uwsgi_params
+	  -rw-r--r-- 1 root root  664 Jul 31 03:50 uwsgi_params.default
+	  -rw-r--r-- 1 root root 3610 Jul 31 03:50 win-utf
+	$ nginx
+	  nginx: [alert] could not open error log file: open() "/var/log/nginx/error.log" failed (13: Per-tission denied)
+	  2021/07/31 03:52:04 [emerg] 6512#0: mkdir() "/usr/local/nginx/client_body_temp" failed (13: Per-tission denied)
+	$ sudo nginx
+	$ ifconfig
+	  enp0s3: flags=4163<UP,BROADCAST,RUNNING,MULTi-cAST>  mtu 1500
+	          inet 192.168.0.105
+
+	Web - 192.168.0.105/
+	Source:
+	1. https://www.asozykin.ru/courses/sql
+
+
+	Task:
+	Установка веб сервера с помощью Nginx, Php-fpm, PhpMyAdmin, Vsftpd
+	Decision:
+	В качестве веб сервера будет выступать Nginx с PHP-FPM, в качестве СУБД – MariaDB, в качестве ftp сервера – vsftpd настроенный на использование виртуальных пользователей, чтобы избежать проблем с правами и владельцами файлов при загрузке. А также поставим PHPMyAdmin
+	$ sudo su
+	# apt update
+	# apt upgrade
+	# add-apt-repository ppa:ondrej/php
+	# add-apt-repository ppa:nginx/stable
+	# apt update
+	# apt install nginx
+	# apt install php7.2-cli php7.2-fpm php7.2-curl php7.2-gd php7.2-mysql php7.2-mbstring zip unzip
+	Task:
+	После установки в целях безопасности отключим cgi.fix_pathinfo. В файле /etc/php/7.2/fpm/php.ini
+	Decision:
+	# vim /etc/php/7.2/fpm/php.ini
+	;cgi.fix_pathinfo=1
+	и меняем ее на
+	cgi.fix_pathinfo=0
+	# mv /etc/nginx/sites-available/default ~/
+	# vim /etc/nginx/sites-available/default
+	Содержимое должно быть таким:
+	    server {
+	        listen   80;
+	        root /var/www/default;
+	        index index.php index.html index.htm;
+	        server_name  example.com www.example.com;
+	        location / {
+	                try_files $uri $uri/ /index.html;
+	        }
+	        error_page 404 /404.html;
+	        error_page 500 502 503 504 /50x.html;
+	        location = /50x.html {
+	              root /usr/share/nginx/www;
+	        }
+	        location ~ .php$ {
+	                try_files $uri =404;
+	                fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+	                fastcgi_index index.php;
+	                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+	                include fastcgi_params;
+	        }
+	    }
+	Task:
+	Дальше посмотрим, сколько ядер имеется в нашей системе. И укажем это количество в качестве параметра worker_processes в файле /etc/nginx/nginx.conf
+	Decision:
+	# cat /proc/cpuinfo | grep processor | wc -l
+	2
+	# vim /etc/nginx/nginx.conf
+	worker_processes 2;
+	Task:
+	Далее создадим папку для нашего сайта и в этой папке создадим файлик index.php.
+	Decision:
+	# mkdir /var/www/default
+	# vim /var/www/default/index.php
+	# cat /var/www/default/index.php
+	    <?php
+	        phpinfo();
+	    ?>
+	# chown -R www-data:www-data /var/www
+	# /etc/init.d/nginx restart
+	[ ok ] Restarting nginx (via systemctl): nginx.servi-ce.
+	# /etc/init.d/php7.2-fpm restart
+	[ ok ] Restarting php7.2-fpm (via systemctl): php7.2-fpm.servi-ce.
+	# ifconfig
+	enp0s8: flags=4163 mtu 1500
+	inet 192.168.0.51 netmask 255.255.255.0 broadcast 192.168.0.255
+	inet6 fe80::8e4a:9ec8:8bb7:dd53 prefixlen 64 scopeid 0x20
+	ether 08:00:27:2f:ca:92 txqueuelen 1000 (Ethernet)
+	RX packets 52059 bytes 57651545 (57.6 MB)
+	RX errors 0 dropped 0 overruns 0 frame 0
+	TX packets 41290 bytes 5027564 (5.0 MB)
+	TX errors 0 dropped 0 overruns 0 carrier 0 collisions 0
+	lo: flags=73 mtu 65536
+	inet 127.0.0.1 netmask 255.0.0.0
+	inet6 ::1 prefixlen 128 scopeid 0x10
+	loop txqueuelen 1000 (Локальная петля (Loopback))
+	RX packets 3202 bytes 323497 (323.4 KB)
+	RX errors 0 dropped 0 overruns 0 frame 0
+	TX packets 3202 bytes 323497 (323.4 KB)
+	TX errors 0 dropped 0 overruns 0 carrier 0 collisions 0
+	Web - 192.168.0.51
+	Task:
+	Далее поставим mariadb. Опять добавляем необходимый репозиторий, обновляем список пакетов и устанавливаем mariadb-server и mariadb-client
+	Decision:
+	# sudo apt-key adv —recv-keys —keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
+	# sudo add-apt-repository ‘deb [arch=amd64,ar-t64,ppc64el] http://mirror.timeweb.ru/mariadb/repo/10.3/ubuntu bioni-c main’
+	# apt update
+	# apt install mariadb-server mariadb-client
+	# /etc/init.d/mysql restart
+	[ ok ] Restarting mysql (via systemctl): mysql.servi-ce.
+	# mysql -u root -p
+	Enter password:
+	Welcome to the MariaDB monitor. Commands end with ; or \g.
+	Your MariaDB connection id is 37
+	Server version: 10.3.20-MariaDB-1:10.3.20+maria~bioni-c-log mariadb.org binary distribution
+	Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+	Type ‘help;’ or ‘\h’ for help. Type ‘\c’ to clear the current input statement.
+	MariaDB [(none)]> q
+	-> Ctrl-C — exit!
+	Aborted
+	Task:
+	В Ubuntu 18.04 вы можете столкнуться с ситуацией, что после установки mariadb прекрасно работает, но после перезагрузки сервера, внезапно перестает запускаться – очень долго думает, но не запускается. Наиболее вероятная причина подобного поведения – app ar-tor. Что бы его отключить для mariadb необходимо выполнить
+	Decision:
+	# apt install appar-tor-utils
+	# aa-disable /usr/sbin/mysqld
+	Task:
+	Теперь, давайте поставим phpMyAdmin, что бы упростить обслуживание баз данных. Ссылку на последнюю версию phpMyAdmin вы можете найти на сайте www.phpmyadmin.net.
+	Decision:
+	Скачаем архив, разарзхивируем его, создадим папку в папке с нашим сайтом и перенесем туда файлы.
+	# cd /tmp
+	# wget https://files.phpmyadmin.net/phpMyAdmin/4.9.2/phpMyAdmin-4.9.2-all-languages.zip
+	# unzip phpMyAdmin-4.9.2-all-languages.zip
+	# mkdir /var/www/default/phpmyadmin
+	# mv phpMyAdmin-4.9.2-all-languages/* /var/www/default/phpmyadmin/
+	# cp /var/www/default/phpmyadmin/config.sample.inc.php /var/www/default/phpmyadmin/config.inc.php
+	# vim /var/www/default/phpmyadmin/config.inc.php
+	В этом файле нужно задать значение для параметра $cfg[‘blowfish_secret’]. Значением должен быть случайный набор симоволов, например:
+	$cfg[‘blowfish_secret’] = ‘af897a09df0897adf’;
+	# chown -R www-data:www-data /var/www/default/phpmyadmin
+	Web - 192.168.0.51/phpmyadmin/index.php
+	Task:
+	Теперь необходимо поставить ftp сервер. Если мы будем делать ftp сервер, с реальными пользователями, то будут проблемы с правами и владельцами файлов. Самый простой способ этого избежать – использовать виртуальных пользователей. Т.е. мы будем подключаться под пользователем vasya, но система будет считать, что работает пользователь www-data. Сегодня покажу, как такое сделать в vsftpd.Ставим vsftp и db-util. Обратите внимание, что на момент написания статьи актуальной версией является db5.3-util. Когда вы будете это читать, версия может быть другой. Нужно ставить актуальную версию.
+	Decision:
+	# apt install vsftpd db5.3-util
+	# mkdir /etc/vsftpd
+	# touch /etc/vsftpd/vsftpdusers
+	# chmod 0600 /etc/vsftpd/vsftpdusers
+	Отредактируем файл, тут первая строчка – имя пользователя, вторая – пароль, дальше по аналогии можно добавить несколько пользователей – сперва имя, ниже пароль.
+	# vim /etc/vsftpd/vsftpdusers
+	    ftpuser
+	    123
+	Захешируем наш файл и отредактируем разрешения на полученный:
+	# db5.3_load -T -t hash -f /etc/vsftpd/vsftpdusers /etc/vsftpd/users.db
+	# chmod 0600 /etc/vsftpd/users.db
+	# mv /etc/vsftpd.conf ~/
+	# vim /etc/vsftpd.conf
+	Содержимое конфига должно быть следующим:
+	listen=YES
+	anonymous_enable=NO
+	local_enable=YES
+	xferlog_enable=YES
+	user_sub_token=$USER
+	local_root=/var/www/
+	chroot_local_user=YES
+	hide_ids=YES
+	guest_enable=YES
+	guest_username=www-data
+	virtual_use_local_privs=YES
+	write_enable=YES
+	pasv_enable=YES
+	#если сервер за натом — реальный адрес
+	#pasv_address=1.2.3.4
+	pasv_max_port=20200
+	pasv_min_port=20400
+	pam_servi-ce_name=vsftpd.virtual
+	rsa_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
+	rsa_private_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+	ssl_enable=NO
+	connect_from_port_20=YES
+	xferlog_file=/var/log/vsftpd.log
+	xferlog_std_for-tat=YES
+	idle_session_timeout=600
+	data_connection_timeout=120
+	ascii_upload_enable=YES
+	ascii_download_enable=YES
+	allow_writeable_chroot=YES
+	seccomp_sandbox=NO
+	local_umask=022
+	Тут стоит обратить внимание на следующие параметры:
+	local_root=/var/www/ — коревая папка, куда будут попадать пользователя, после подключения к серверу.
+	guest_username=www-data – имя реального пользователя, который будет виден системе, от его имени будут происходить все операции с файлами.
+	#pasv_address=1.2.3.4 – если у вас сервер за NAT, то тут нужно указать реальный, внешний адрес.
+	И остался последний шаг – создадим конфиг для pam.d, что бы наши виртуальные пользователи могли подключаться:
+	# vim /etc/pam.d/vsftpd.virtual
+	Содержимое файла должно быть таким:
+	auth       required     pam_userdb.so db=/etc/vsftpd/users
+	account    required     pam_userdb.so db=/etc/vsftpd/users
+	session    required     pam_loginuid.so
+	# /etc/init.d/vsftpd restart
+	[ ok ] Restarting vsftpd (via systemctl): vsftpd.servi-ce.
+	Task:
+	Установить Node.js в Ubuntu для настройки Webpack
+	Decision:
+	Заранее подготовим проект вебпак:
+	$ ls
+	  assets  package.json  package-lock.json  public  README.md  src  webpack
+	Сначала давайте проверим установлена ли у вас эта программа:
+	$ dpkg --get-selections | grep node
+	Чтобы установить Node.js Ubuntu 20.04 с помощью NVM нам понадобится компилятор C++ в системе, а также другие инструменты для сборки. По умолчанию система не поставляется с этими программами, поэтому их необходимо установить. Также нам понадобится libssl. Для этого выполните команду:
+	$ sudo apt update -y
+	$ sudo apt -y install build-essential checkinstall
+	$ sudo apt install libssl-dev
+	Скачать и установить менеджер версий NVM можно с помощью следующей команды:
+	$ wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
+	После завершения установки вам понадобится перезапустить терминал. Или можно выполнить:
+	$ source /etc/profile
+	Затем смотрим список доступных версий Node js:
+	$ nvm ls-remote
+	        v0.1.14
+	        ...
+	        v15.1.0
+	        v15.2.0
+	        v15.2.1
+	Дальше можно устанавливать Node js в Ubuntu, при установке обязательно указывать версию (но у меня она уже установлена):
+	$ nvm install 14.0
+	  v14.0.0 is already installed.
+	  Now using node v14.0.0 (npm v6.14.4)
+	Список установленных версий вы можете посмотреть выполнив:
+	$ nvm list
+	  ->      v14.0.0
+	  default -> 14.0 (-> v14.0.0)
+	  node -> stable (-> v14.0.0) (default)
+	  stable -> 14.0 (-> v14.0.0) (default)
+	  iojs -> N/A (default)
+	  lts/* -> lts/fermium (-> N/A)
+	  lts/argon -> v4.9.1 (-> N/A)
+	  lts/boron -> v6.17.1 (-> N/A)
+	  lts/carbon -> v8.17.0 (-> N/A)
+	  lts/dubnium -> v10.23.0 (-> N/A)
+	  lts/erbium -> v12.19.1 (-> N/A)
+	  lts/fermium -> v14.15.1 (-> N/A)
+	Дальше необходимо указать менеджеру какую версию нужно использовать:
+	$ nvm use 14.0
+	  Now using node v14.0.0 (npm v6.14.4)
+	Как только появятся более новые версии node.js, вы сможете их установить и активировать в системе. Посмотреть версию вы можете выполнив команду:
+	$ node -v
+	  v14.0.0
+	$ npm -v
+	  6.14.4
+	Установим npm:
+	$ npm i
+	Чтоб просмотреть какие ошибки есть у проектора и исправить их:
+	$ npm audit fix
+	Запускаем проект:
+	$ npm start
+	  ...
+	  ｢wdm｣: Compiled successfully.
+	Сonclusion:
+	Можно проверить запустив браузер и набрав localhost
+	Чтобы удалить эту версию node js, ее нужно деактивировать:
+	$ nvm deactivate 14.0
+	Затем можно удалить:
+	$ nvm uninstall 14.0
+	Source:
+	1. https://losst.ru/ustanovka-node-js-ubuntu-18-04
+	Task:
+	Поднять на VDS или локально виртуальный сервер с linux (желательно самостоятельно на virtualbox). 
+	Поставить LEMP (Linux Nginx Mysql PHP)
+	Настроить wordpress:
+	1. Создать директорию в /var/www/wp
+	2. Скачать wordpress с оф. сайта https://ru.wordpress.org/download/
+	3. Разархивировать в нужную директорию
+	4. Настроить отдачу по url-у. Если на VDS (по бесплатному техническому поддомену). Если настраивали на локальной машине, то по localhost.
+	Task:
+	Настроить nginx проксирование на php-fpm на сервере, который настроили по заданию 3.
+	Учесть, чтобы по url-ам либо по домену, отдавался phpinfo с указанной версией php:
+	1. IP/php5
+	2. IP/php7.1
+	3. IP/php7.3
+	Task:
+	Во время настройки NginX в качестве сервиса и обновление кастомного билда в Ubuntu 20.04 не мог запустить Nginx
+	:/etc/init.d$ sudo service nginx start
+	  ==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ===
+	  Authentication is required to start 'nginx.service'.
+	  Authenticating as: Ubuntu,,, (ubuntu)
+	  Password:
+	  ==== AUTHENTICATION COMPLETE ===
+	  Job for nginx.service failed because the control process exited with error code.
+	  See "systemctl status nginx.service" and "journalctl -xe" for details.
+	:/etc/init.d$ sudo systemctl status nginx
+	  ● nginx.service - LSB: nginx init.d dash script for Ubuntu or other *nix.
+	       Loaded: loaded (/etc/init.d/nginx; generated)
+	       Active: failed (Result: exit-code) since Sat 2021-07-31 04:27:04 CDT; 49s ago
+	         Docs: man:systemd-sysv-generator(8)
+	      Process: 8612 ExecStart=/etc/init.d/nginx start (code=exited, status=7)
+	  Jul 31 04:27:02 u nginx[8617]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+	  Jul 31 04:27:02 u nginx[8617]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+	  Jul 31 04:27:03 u nginx[8617]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+	  Jul 31 04:27:03 u nginx[8617]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+	  Jul 31 04:27:04 u nginx[8617]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+	  Jul 31 04:27:04 u nginx[8617]: nginx: [emerg] still could not bind()
+	  Jul 31 04:27:04 u nginx[8612]:    ...fail!
+	  Jul 31 04:27:04 u systemd[1]: nginx.service: Control process exited, code=exited, status=7/NOTRUNNING
+	  Jul 31 04:27:04 u systemd[1]: nginx.service: Failed with result 'exit-code'.
+	  Jul 31 04:27:04 u systemd[1]: Failed to start LSB: nginx init.d dash script for Ubuntu or other *nix..
+	Decision:
+	:/etc/init.d$ sudo netstat -antp | grep LISTEN
+	  tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      512/systemd-resolve
+	  tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      761/sshd: /usr/sbin
+	  tcp        0      0 127.0.0.1:631           0.0.0.0:*               LISTEN      657/cupsd           
+	  tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      6521/nginx: master  
+	  tcp6       0      0 :::22                   :::*                    LISTEN      761/sshd: /usr/sbin
+	  tcp6       0      0 ::1:631                 :::*                    LISTEN      657/cupsd           
+	  tcp6       0      0 :::33060                :::*                    LISTEN      766/mysqld          
+	  tcp6       0      0 :::3306                 :::*                    LISTEN      766/mysqld          
+	:/etc/init.d$ sudo kill -9 6521
+	:/etc/init.d$ sudo netstat -antp | grep LISTEN
+	  tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      512/systemd-resolve
+	  tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      761/sshd: /usr/sbin
+	  tcp        0      0 127.0.0.1:631           0.0.0.0:*               LISTEN      657/cupsd           
+	  tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      6522/nginx: worker  
+	  tcp6       0      0 :::22                   :::*                    LISTEN      761/sshd: /usr/sbin
+	  tcp6       0      0 ::1:631                 :::*                    LISTEN      657/cupsd           
+	  tcp6       0      0 :::33060                :::*                    LISTEN      766/mysqld          
+	  tcp6       0      0 :::3306                 :::*                    LISTEN      766/mysqld
+	:/etc/init.d$ sudo kill -9 6522
+	:/etc/init.d$ sudo service nginx stop
+	:/etc/init.d$ sudo netstat -antp | grep LISTEN
+	  tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      512/systemd-resolve
+	  tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      761/sshd: /usr/sbin
+	  tcp        0      0 127.0.0.1:631           0.0.0.0:*               LISTEN      657/cupsd           
+	  tcp6       0      0 :::22                   :::*                    LISTEN      761/sshd: /usr/sbin
+	  tcp6       0      0 ::1:631                 :::*                    LISTEN      657/cupsd           
+	  tcp6       0      0 :::33060                :::*                    LISTEN      766/mysqld          
+	  tcp6       0      0 :::3306                 :::*                    LISTEN      766/mysqld
+	:/etc/init.d$ sudo service nginx start
+	:/etc/init.d$ sudo service nginx status
+	  ● nginx.service - LSB: nginx init.d dash script for Ubuntu or other *nix.
+	       Loaded: loaded (/etc/init.d/nginx; generated)
+	       Active: active (running) since Sat 2021-07-31 05:14:17 CDT; 10s ago
+	         Docs: man:systemd-sysv-generator(8)
+	      Process: 9125 ExecStart=/etc/init.d/nginx start (code=exited, status=0/SUCCESS)
+	     Main PID: 9131 (nginx)
+	        Tasks: 2 (limit: 2313)
+	       Memory: 2.1M
+	       CGroup: /system.slice/nginx.service
+	               ├─9131 nginx: master process /usr/bin/nginx -c /etc/nginx/nginx.conf
+	               └─9132 nginx: worker process
+	  Jul 31 05:14:17 u systemd[1]: Starting LSB: nginx init.d dash script for Ubuntu or other *nix....
+	  Jul 31 05:14:17 u nginx[9125]:  * Starting Nginx Server...
+	  Jul 31 05:14:17 u nginx[9125]:    ...done.
+	  Jul 31 05:14:17 u systemd[1]: Started LSB: nginx init.d dash script for Ubuntu or other *nix..

@@ -1,0 +1,10 @@
+1) tar -9cfvz quiz.tar.gz /home/de13ma/de/files/*.log
+2) chmod +x quiz.sh
+	chmod ug+w quiz.sh
+	chmod o-r quiz.sh
+	chmod 400 quiz.sh
+5) 55 23 * * * /home/de13ma/gabn/daily1.sh > /home/de13ma/gabn/addtestfile
+	0 8-17 * * * /home/de13ma/gabn/daily2.sh > /home/de13ma/gabn/addtestfile
+	0 8-17 * * 1-5 /home/de13ma/gabn/hourly.sh > /home/de13ma/gabn/addtestfile
+	0 0 1 1 * /home/de13ma/gabn/happy_new_year.sh > /home/de13ma/gabn/addtestfile
+	* */4 * * * /home/de13ma/gabn/quatre.sh > /home/de13ma/gabn/addtestfile
