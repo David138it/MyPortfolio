@@ -6252,6 +6252,40 @@ Terraform
   	1. https://www.youtube.com/playlist?list=PLg5SS_4L6LYuu1RAT4l1tCkZrJzkIaNgL
 
 Git
+    Task:
+    Добавляем новый репозиторий
+    Decision:
+    $ mkdir tProjects
+    $ cd tProjects/
+    $ vim tFile1
+    $ cat tFile1
+    $ git init
+    $ git add .
+    $ git commit -m "first commit"
+    $ git branch -M main
+    $ git remote add origin https://github.com/David138it/tProject.git
+    $ git push -u origin main
+    Task:
+    Вносим новые изменения
+    Decision:
+    $ git status
+    $ git add .
+    $ git commit -m "Add information in the file"
+    $ git push -u origin main
+    Task:
+    Скопируем проект в другом компе
+    Decision:
+    $ git clone https://github.com/David138it/tProject
+    $ cd tProject/
+    Task:
+    Возвращаемся в первый комп и там уже вносим копируем данные другого компа 
+    Decision:
+    $ git fetch origin
+    $ cat tFile1 
+    $ git merge
+    $ cat tFile1
+    Source:
+    1. https://docs.github.com/ru/repositories/creating-and-managing-repositories/cloning-a-repository
 	Task:   
 	Как сделать rebase на main branch? и что это значит?
 	Decision:
@@ -6260,29 +6294,6 @@ Git
 	Когда вы сделаете готовый branch, вы хотите все обнволения main добавить себе в branch
     Source:
     1. https://www.youtube.com/playlist?list=PLg5SS_4L6LYuu1RAT4l1tCkZrJzkIaNgL
-	Task:
-	Клонирование репозитория
-	Decision:
-	$ git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY
-	Source:
-	https://docs.github.com/ru/repositories/creating-and-managing-repositories/cloning-a-repository
-	Task:
-	Create a new repository on the command line
-	Decision:
-	$ echo "# YOUR-REPOSITORY" >> README.md
-	$ git init
-	$ git add README.md
-	$ git commit -m "first commit"
-	$ git branch -M main
-	$ git remote add origin https://github.com/YOUR-USERNAME/YOUR-REPOSITORY
-	$ git push -u origin main
-	Task:
-	Измененение проекта
-	Decision:
-	$ git status
-	$ git add .
-	$ git commit -m "secomd commit"
-	$ git push -u origin main
 	Task:
 	Я не хочу кидать в гитхаб репозитория папку Env. Показать последний коммит, последние 2 коммита и статистику внесенных ими изменений.
 	Decision:
@@ -6310,197 +6321,6 @@ Git
 	subl .
 	$ git commit -a -m "Устранение конфликта"
 	Task:
-	Допустим, имеются файлы, которые нам не нужны. Например, я не хочу кидать в Гитхаб репозитория файлы макетов Maket.psd Maket.png.
-	Decision:
-	создадим файл .gitignore - напишем
-	    img/MAKET.png
-	    img/MAKET.psd
-	//.../Мои документы/Git/Web ActiveBox (master)$ cd img
-	//.../Мои документы/Git/Web ActiveBox/img (master)$ git status
-	Task:
-	Тут выводятся все директории которые гит видит. Однако он не покажет файлы. А нам бы хотелось увидеть какие именно файлы ГИт увидит. Ведь мы же скрыли два файла.
-	Decision:
-	//.../Мои документы/Git/Web ActiveBox/img (master)$ git status --untracked-files=all
-
-	    On branch master
-	    No commits yet
-	    Untracked files: (use "git add ..." to include in what will be committed)
-	    ../.gitignore
-	    ../css/style.css
-	    ...
-	    ../js/app.js
-	    nothing added to commit but untracked files present (use "git add" to track)
-	    //.../Мои документы/Git/Web ActiveBox/img (master)
-	Task:
-	Еще момент, что бы скрыть полность директорию, например, "img", нам нужно в файле .gitignore написать
-	Decision:
-	    img/ #игнорируем папку img
-	    img/*.svg #игнорируем в папке img все файлы с форматом svg
-	Task:
-	нужно добавить к отслеживанию конкретный файл
-	Decision:
-	$ git status
-	$ git add text.txt
-	Task:
-	запуск оболочки интерактивного индексирования для добавления в индекс только выбранных файлов
-	Decision:
-	$ git add -i
-	Task:
-	поочередный просмотр файлов с показом изменений и задаваемым вопросом об отслеживании/индексировании (удобно для добавления в коммит только каких-то конкретных файлов)
-	Decision:
-	$ git add -p
-	Task:
-	Если хотим удалить какой-нибудь файл из отслеживаемых (файл останется на месте)
-	Decision:
-	$ git rm --cached index.html
-	Task:
-	удалить папку из отслеживаемых (папка останется на месте)
-	Decision:
-	$ git rm —cached -r folder
-	Task:
-	убрать из индекса все индексированные файлы
-	Decision:
-	$ git reset HEAD
-	Task:
-	убрать из индекса указанный файл
-	Decision:
-	$ git reset HEAD text.txt
-	Task:
-	Просмотр непроиндексированных изменений (если есть, иначе ничего не выведет)
-	Decision:
-	$ git diff
-	Task:
-	Просмотр проиндексированных изменений (если есть, иначе ничего не выведет)
-	Decision:
-	$ git diff —staged
-	Task:
-	Теперь зафиксируем файлы, которые добавили в репозbторий(указано название коммита, не требует git add, не добавит в коммит неотслеживаемые файлы)
-	Decision:
-	$ git commit -a -m"init"
-	Task:
-	закоммитить отслеживаемые индексированные файлы (указано название коммита)
-	Decision:
-	$ git commit -m "Name of commit"
-	Task:
-	закоммитить отслеживаемые индексированные файлы (откроется редактор для введения названия коммита)
-	Decision:
-	$ git commit
-	Task:
-	изменить последний коммит (Insert — режим ввода, : — командный режим; в командном режиме: :wq — сохранить и выйти)
-	Decision:
-	$ git commit —amend
-	Task:
-	переименовать последний коммит (только если ещё не был отправлен в удалённый репозиторий)
-	Decision:
-	$ git commit —amend -m "Новое название"
-	Task:
-	создать новый коммит, отменяющий изменения последнего коммита без запуска редактора сообщения
-	Decision:
-	$ git revert HEAD —no-edit
-	Task:
-	создать новый коммит, отменяющий изменения указанного (b9533bb) коммита без запуска редактора сообщения (указаны первые 7 символов хеша коммита).  вернуть репозиторий в состояние коммита с указанным хешем ОПАСНО! пропадет вся работа, сделанная после этого коммита
-	Decision:
-	$ git revert b9533bb —no-edit
-	$ git reset —hard 75e2d51
-	Task:
-	Временно переключиться на другой коммит с указанным хешем. вернуться к последнему коммиту в указанной ветке
-	Decision:
-	$ git checkout b9533bb
-	$ git checkout master
-	Task:
-	Изменим какой-нибудь файл. Добавим измененный файл
-	Decision:
-	$ git status
-	$ git add index.html
-	$ git commit -m»add file»
-	Task:
-	Если хотим вернуть старые изменения внесенные в отслеживаемый файл со времени предыдущего коммита (файл не добавлен в индекс)
-	Decision:
-	$ git checkout --index.html
-	Task:
-	отменить изменения во всех непроиндексированных отслеживаемых файлах. отменить изменения в непроиндексированном файле
-	Decision:
-	$ git checkout — .
-	$ git checkout text.txt
-	Task:
-	удалить из отслеживаемых неиндексированный файл (файл будет удален из папки)
-	Decision:
-	$ git rm text.txt
-	Task:
-	удалить из отслеживаемых индексированный файл (файл будет удален из папки)
-	Decision:
-	$ git rm -f text.txt
-	Task:
-	удалить из отслеживаемых всё содержимое папки log/ (папка будет удалена)
-	Decision:
-	$ git rm -r log/
-	Task:
-	удалить из отслеживаемых все файлы с именем, начинающимся на «ind» в текущей папке (файлы будут удалены из папки)
-	Decision:
-	$ git rm ind*
-	Task:
-	удалить из отслеживаемых индексированный файл (файл останется на месте)
-	Decision:
-	$ git rm —cached readme.txt
-	Task:
-	переименовать файл «text.txt» в «test_new.txt»
-	Decision:
-	$ git mv text.txt test_new.txt
-	Task:
-	переместить файл readme_new.md в папку folder/ (должна существовать)
-	Decision:
-	$ git mv readme_new.md folder/
-	Task:
-	Если мы хотим посмотреть какие изменения в коммитах проводились:
-	Decision:
-	$ git log
-	Task:
-	показать последние 4 коммита с форматированием выводимых данных
-	Decision:
-	$ git log —pretty=format:"%h - %an, %ar : %s" -4
-	Task:
-	Чтобы посмотреть коммиты за 2 недели
-	Decision:
-	$ git log --since=2.week
-	Task:
-	показать последние 22 коммита и внесенную ими разницу на уровне строк
-	Decision:
-	$ git log -p -22 показать историю изменений файла index.html
-	$ git log -p index.html
-	Task:
-	показать историю изменений файла index.html (последние 5 коммитов)
-	Decision:
-	$ git log -p -5 index.html
-	Task:
-	показать последние 2 коммита и статистику внесенных ими изменений
-	Decision:
-	$ git log -2
-	$ git log -2 —stat
-	Task:
-	показать последние 10 коммитов с ASCII-представлением ветвления
-	Decision:
-	$ git log —graph -10
-	Task:
-	показать коммиты из ветки branch_99, которые не влиты в master
-	Decision:
-	$ git log master..branch_99
-	$ git log branch_99..master
-	Task:
-	показать изменения из коммита с указанным хешем
-	Decision:
-	$ git show 60d6582
-	Task:
-	показать данные о предыдущем коммите
-	Decision:
-	$ git show HEAD^
-	Task:
-	Создаем ветку с указанным именем и перейти в неё
-	Decision:
-	$ git branch
-	$ git checkout -b new_vetka
-	$ git branch -v
-	$ git checkout new_vetka
-	Task:
 	Если в разных ветках, в одних и тех же файлов, разные изменения, значит будет конфликт. Для этого установим утилиту kdiff3 с официального сайта. Укажем утилиту в Гит
 	Decision:
 	$ git config --global merge.tool kdiff3
@@ -6517,99 +6337,24 @@ Git
 	$ git branch —no-merged
 	$ git branch -a
 	Task:
-	переименовать локально ветку old_branch_name в new_branch_name
-	Decision:
-	$ git branch -m old_branch_name new_branch_name
-	$ git branch -m new_branch_name
-	$ git push origin :old_branch_name new_branch_name
-	$ git branch —unset-upstream
-	Task:
-	показать список удалённых репозиториев
-	Decision:
-	$ git remote -v
-	$ git remote remove origin
-	$ git remote add origin git@github.com:nicothin/test.git
-	$ git remote rm origin
-	$ git remote show origin
-	$ git fetch origin
-	$ git fetch origin master
-	$ git checkout origin/github_branch
-	$ git checkout —track origin/github_branch
-	$ git push origin master
-	$ git pull origin
-	$ git pull origin master
-	$ git clean -f -d
-	Task:
-	Есть master (публичная версия сайта), хотим масштабно что-то поменять (переверстать «шапку»), но по ходу работ возникает необходимость подправить критичный баг (неправильно указан контакт в «подвале»).создадим новую ветку для задачи изменения «шапки» и перейдём в неё
+	Есть master (публичная версия сайта), хотим масштабно что-то поменять (переверстать «шапку»), но по ходу работ возникает необходимость подправить критичный баг (неправильно указан контакт в «подвале»).создадим новую ветку для задачи изменения «шапки» и перейдём в неё. устраняем баг и сохраняем разметку.  «подвала». удаляем ветку footer_hotfix
 	Decision:
 	$ git checkout -b new_page_header
 	subl inc/header.html
 	$ git commit -a -m "Новая шапка: смена логотипа"
 	$ git checkout master
 	$ git checkout -b footer_hotfix
-	Task:
-	устраняем баг и сохраняем разметку «подвала»
-	Decision:
-	subl inc/footer.html
+    $ subl inc/footer.html
 	$ git commit -a -m "Исправление контакта в подвале"
 	$ git checkout master
-	$ git merge footer_hotfix
-	удаляем ветку footer_hotfix
+	$ git merge footer_hotfix	
 	$ git branch -d footer_hotfix
 	$ git checkout new_page_header
-	subl inc/header.html
+	$ subl inc/header.html
 	$ git commit -a -m "Новая шапка: смена навигации"
 	$ git checkout master
 	$ git merge new_page_header
 	$ git branch -d new_page_header
-	Task:
-	Отредактировать и сохранить разметку «шапки»
-	Decision:
-	subl inc/header.html
-	$ git add inc/header.html
-	$ git commit -m "Убрал телефон из шапки"
-	$ git add inc/header.html
-	$ git commit —amend -m "«Шапка»: выполнена Task №34 (вставить-вынуть)"
-	Task:
-	Нужно добавить еще один проект в тот же репозиторий
-	Decision:
-	$ git status
-	  On branch first
-	  Your branch is up to date with 'origin/first'.
-	  Changes not staged for commit:
-	    (use "git add <file>..." to update what will be committed)
-	    (use "git restore <file>..." to discard changes in working directory)
-	          modified:   main/main.cpp
-	  no changes added to commit (use "git add" and/or "git commit -a")
-	$ git add .
-	$ git status
-	  On branch first
-	  Your branch is up to date with 'origin/first'.
-	  Changes to be committed:
-	    (use "git restore --staged <file>..." to unstage)
-	          modified:   main/main.cpp
-	$ git commit -m "step2 CPP-Chess1"
-	  [first 8416059] step2 CPP-Chess1
-	   1 file changed, 38 insertions(+), 16 deletions(-)
-	   rewrite main/main.cpp (77%)
-	$ git branch -M second
-	$ git push -u origin second
-	  Username for 'https://github.com': Dt
-	  Password for 'https://Dt@github.com':
-	  Enumerating objects: 7, done.
-	  Counting objects: 100% (7/7), done.
-	  Delta compression using up to 4 threads
-	  Compressing objects: 100% (4/4), done.
-	  Writing objects: 100% (4/4), 1.28 KiB | 219.00 KiB/s, done.
-	  Total 4 (delta 1), reused 0 (delta 0)
-	  remote: Resolving deltas: 100% (1/1), completed with 1 local object.
-	  remote:
-	  remote: Create a pull request for 'second' on GitHub by visiting:
-	  remote:      https://github.com/Dt/CPP-Chess1/pull/new/second
-	  remote:
-	  To https://github.com/Dt/CPP-Chess1.git
-	   * [new branch]      second -> second
-	  Branch 'second' set up to track remote branch 'second' from 'origin'.
 	Source:
     1. https://www.youtube.com/playlist?list=PLoonZ8wII66iUm84o7nadL-oqINzBLk5g
 

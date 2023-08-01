@@ -3965,6 +3965,23 @@ Data Conversion
 	$ /bin/python3.11 /home/david/Документы/test/test.py
 	50
 
+Разработка сайта
+	Task:
+	Django
+	Decision:
+	$ mkdir djangosite
+	$ cd djangosite/
+	$ python3 -m venv venv
+	$ source venv/bin/activate
+	$ pip install django
+	$ django-admin startproject coolsite
+	$ cd coolsite/
+	$ python manage.py runserver
+	$ python manage.py runserver 4000
+	$ deactivate
+	Source:
+	1. https://docs.python.org/3/tutorial/venv.html
+
 Инструменты для разработчика
 	Task:
 	Установка Python
