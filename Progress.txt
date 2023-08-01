@@ -11771,6 +11771,20 @@ Mail for feedback: David138it@gmail.com
 	Decision:
 	Win+R ->regedit -> HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\TimeZoneInfor-tation -> Щелкаем правой кнопкой мыши в правой части окна -> новый параметр DWORD(32) -> имя — RealTimeIsUniversal -> щелкаем по новому параметру два раза -> значение 1 -> Перезагружаемся
 	Task:
+	Для воспроизведения видео вам может потребоваться установить необходимые видеокодеки
+	Decision:
+	$ sudo dnf update -y
+	$ sudo dnf config-manager --set-enabled crb
+	$ sudo dnf install -y epel-release epel-next-release
+	$ dnf repolist
+	$ sudo dnf install -y https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-9.noarch.rpm
+	$ sudo dnf install -y https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-9.noarch.rpm
+	$ sudo dnf install -y ffmpeg ffmpeg-devel
+	$ ffmpeg -version
+	Source:
+	1. https://setiwik.ru/kak-vklyuchit-repozitoriy-epel-v-centos-9-stream/
+	2. https://setiwik.ru/kak-ustanovit-ffmpeg-na-centos-9-stream/?ysclid=lkordttfyw687770645
+	Task:
 	Установить программу Qemu-Kvm для виртуализации систем
 	Decision:
 	$ egrep -c '(vmx|svm)' /proc/cpuinfo
