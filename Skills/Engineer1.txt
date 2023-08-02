@@ -30,7 +30,7 @@ Letter of apology
 	Decision:
 	CMD, chkdisk F:/r=> на всяк случ скопир в диск Д (flash seettd), идем в бухг, вставл флешку, пуск, криптопроксп, сервис, обхор, сначала верхн, потом нижн, смотрим, чтоб не было такого (отсут, недоступ) у нас было: ключ под ... не доступен, ок, прогу, установить связь ведерации, ок, порт суфд 
 
-Технические задачи с принтерами и сканерами
+Технические задачи с принтерами, сканерами и компьютерами
 	Task:
 	Не тот адрес у принтера Epson WorkForce Pro WF-5690. у него был адрес 169.254... (это смотришь в самом принтере, возле значка wifi). А нужен адрес 10.38.(свой адрес). Поэтому не все компьютеры, которые подключены к принтеру не видят его. И из-за этого выдавало ошибку, что не подключен принтер к компьюетру.
 	Decision:
@@ -51,6 +51,28 @@ Letter of apology
 	Настроить новый принтер Epson WorkForce Pro WF-5690
 	Decision:
 	включ без кабеля, настраиваем дата и время и язык. подкл кабель, а4, без факса, устанавл дрйвера - soft/epsonwf64, устанвл prtDRV, перезагр, возле часов появится ярлык EPSON, прав кнопка, обновл дрйвера, ок, настройка принтера, прав кнопка, сервис, обвнол ПО, на верх галочки дб, настнавл, 2х галочек больше нету, выход,Сначала делаем на компе своем прошивку через Epson software, обязательно выбираем правильный принтер. обновляем, распечает листовку (2, 3), чтобы узнать какой IP адрес стоит у принтера. Настройки - статус сети - состояние сети - печать (4 лист). IP адреса постоянно меняются, поэтому нужно новый поставить в серверной. был адрес tIp1, general information  9с:АЕ:... Идем в сервер - диспетчер сервера DHCP - резервирование - создать рез-ние - и что еще было ... - идем обратно в наш кабиент - у принтера меняем thost имя, ищем у себя на компе ту сеть - просмотр Web, страницы устройства: adminstrat settle - change - tPassword, contacts add  - name: библиотеки и студенты, адр tIp2\общ папка\библиотека\scan, tIp2\студент\scan 
+	Task:
+	Как протестировать жесткий диск на ошибки? На всех компах устаовлены Raid. Поэтому в биос надо сменить режим Raid на Ide
+	Decision:
+	Bios - integer - SATA [Raid] - запустить с флешки образ - запустить Victoria - smart - тестирование - починить - start - scan
+	Task:
+	Как протестировать блок питания?
+	Decision:
+	Тестер powersupply, 6-пин разъем распиновка
+	Task:
+	После отключения света и перезагрузки, пищит сервер и появляется такое сообщение на сервере.
+	The following VDs are missing: 00. If you proceed (or load the configuration utility), these VDs will be removed from your configuration. If you wish to use them at a later time, they will have to be imported. If you believe these VDs should be present, please power off your system and check your cables to ensure all disks are present. Press any key to continue, or 'C' to load the configuration utility.
+	Нажать пробел и	зайти в программу C:\ПУТЬКПРОГРАММЕ\MegaRAID Storage Manager\startupui.bat 
+	во вкладке \Physical\ видим статус:
+	Slot: 7 Unconfigurate Bad 
+	Нужно менять на новый диск, сервер в моем случае автоматически сделает rebuild. Но пока новго диска нету, настроим временно кнкфитгурацию программы
+	Decision:
+	Во вкладке \Logical\Unconfigurate Drivers\ выбрать Change to Unconfigured Good. 
+	Во вкладке \Logical\LSI Mega raid выбрать Scan Foreign Configuration и перезагрузиться. Зайти в программу C:\ПУТЬКПРОГРАММЕ\MegaRAID Storage Manager\startupui.bat и посмотреть статусы. Если rebuild - смотреть во вкладке \Dashboard\Drive operations in progress
+	Task:
+	Один диск в программе megaraid C:\ПУТЬКПРОГРАММЕ\MegaRAID Storage Manager\startupui.bat показывает статус failed.
+	Decision:
+	Во вкладке Physical выбрать проблемный диск с ошибкой failed, пометить офлайн make drive offline и вернуть обратно в онлайн make drive online
 
 Работа с драйверами
 	Task:

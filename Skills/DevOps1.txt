@@ -7650,6 +7650,11 @@ Docker
 	1. https://stepik.org/course/1612/syllabus
 
 Виртуализация
+    Task:
+    Установил приложение на Windows 10 Oracle Virtual Box 7. И при запуске Virtual Box компьютер каждый раз перезагружается и пишет: 
+    код остановки: SYSTEM SERVICE EXCEPTION, что вызвало проблему: CProCtrl.4.0.0.19.sys.
+    Decision:
+    Обновить версию криптопро скачав на сайте https://cryptopro.ru/products/csp/downloads
 	Task:
 	Установить Hyper-V в Windows Server 2012
 	Decision:

@@ -201,6 +201,211 @@ Mail for feedback: David138it@gmail.com
 	postgres-# DROP DATABASE starter;
 	postgres-# CREATE DATABASE starter;
 	postgres-# \c starter
+	Task:
+	После отключения света в здании служба OracleServiceНАЗВАНИЕСИСТЕМЫ не запускается. При подключении к БСР клиента на сервере выходит следующая ошибка:
+	ОШИБКА ORA-01033. ORACLE INITIALIZATION OR SHUTDOWN IN PROGRESS
+	Не помогает перезапуск службы ORACLE и перезагрузка сервера.
+	Также пробовали подключиться и настроить базу в командной строке через sql plus. После ввода команды выдает ошибку:
+	C:\>sqlplus
+	Enter user-name: СОКРАЩЕННОЕОЕИМЯПОЛЬЗОВАТЕЛЯ as ПОЛНОЕИМЯПОЛЬЗОВАТЕЛЯ
+	SQL> alter pluggable database all open;
+	alter pluggable database all open
+	*
+	ERROR at line 1:
+	ORA-00940: invalid ALTER command
+	Нужно сделать рестарт базы
+	Decision:
+	C:\>sqlplus /nolog
+	SQL> connect СОКРАЩЕННОЕОЕИМЯПОЛЬЗОВАТЕЛЯ/pass@НАЗВАНИЕСИСТЕМЫ as ПОЛНОЕИМЯПОЛЬЗОВАТЕЛЯ
+	ERROR:
+	ORA-01017: invalid username/password; logon denied
+	SQL> conn СОКРАЩЕННОЕОЕИМЯПОЛЬЗОВАТЕЛЯ/oracle@НАЗВАНИЕСИСТЕМЫ as ПОЛНОЕИМЯПОЛЬЗОВАТЕЛЯ
+	SQL> startup mount
+	ORA-01081: cannot start already-running ORACLE - shut it down first
+	SQL> shutdown immediate
+	ORA-01109: database not open
+	Database dismounted.
+	ORACLE instance shut down.
+	SQL> startup mount
+	SQL> col file format a5;
+	SQL> col name format a20;
+	SQL> col status format a10;
+	SQL> select file#,name,status from v$datafile;
+	     FILE# NAME                 STATUS
+	---------- -------------------- ----------
+	         1 C:\ORACLE\ORADATA\GA SYSTEM
+	           S\SYSTEM01.DBF
+	         2 C:\ORACLE\ORADATA\GA ONLINE
+	           S\UNDOTBS01.DBF
+	         3 C:\ORACLE\ORADATA\GA ONLINE
+	           S\CWMLITE01.DBF
+	         4 C:\ORACLE\ORADATA\GA ONLINE
+	           S\DRSYS01.DBF
+	     FILE# NAME                 STATUS
+	---------- -------------------- ----------
+	         5 C:\ORACLE\ORADATA\GA ONLINE
+	           S\EXAMPLE01.DBF
+	         6 C:\ORACLE\ORADATA\GA ONLINE
+	           S\INDX01.DBF
+	         7 C:\ORACLE\ORADATA\GA ONLINE
+	           S\ODM01.DBF
+	         8 C:\ORACLE\ORADATA\GA ONLINE
+	     FILE# NAME                 STATUS
+	---------- -------------------- ----------
+	           S\TOOLS01.DBF
+	         9 C:\ORACLE\ORADATA\GA ONLINE
+	           S\USERS01.DBF
+	        10 C:\ORACLE\ORADATA\GA ONLINE
+	           S\XDB01.DBF
+	        11 C:\ORACLE\ORADATA\GA ONLINE
+	           S\TBLS_BSR.ORA
+	     FILE# NAME                 STATUS
+	---------- -------------------- ----------
+	        12 C:\ORACLE\ORADATA\GA ONLINE
+	           S\DELO_D.DAT
+	        13 C:\ORACLE\ORADATA\GA ONLINE
+	           S\DELO_I.DAT
+	        14 C:\ORACLE\ORADATA\GA ONLINE
+	           S\DELO_O.DAT
+	        15 C:\ORACLE\ORADATA\GA ONLINE
+	           S\KADR_D.DAT
+	     FILE# NAME                 STATUS
+	---------- -------------------- ----------
+	        16 C:\ORACLE\ORADATA\GA ONLINE
+	           S\KADR_I.DAT
+	        17 C:\ORACLE\ORADATA\GA ONLINE
+	           S\KADR_O.DAT
+	        18 C:\ORACLE\ORADATA\GA ONLINE
+	           S\ARCH_D.DAT
+	        19 C:\ORACLE\ORADATA\GA ONLINE
+	     FILE# NAME                 STATUS
+	---------- -------------------- ----------
+	           S\ARCH_I.DAT
+	        20 C:\ORACLE\ORADATA\GA ONLINE
+	           S\EDS_D.DAT
+	        21 C:\ORACLE\ORADATA\GA ONLINE
+	           S\EDS_I.DAT
+	        22 C:\ORACLE\ORADATA\GA ONLINE
+	           S\EDS_O.DAT
+	     FILE# NAME                 STATUS
+	---------- -------------------- ----------
+	        23 C:\ORACLE\ORADATA\GA ONLINE
+	           S\.ORA
+	        24 C:\ORACLE\ORADATA\GA SYSTEM
+	           S\SYSTEM02.ORA
+	        25 C:\ORACLE\ORADATA\GA SYSTEM
+	           S\SYSTEM03.ORA
+	25 rows selected.
+	SQL> recover datafile 1;
+	SQL> select file#,name,status from v$datafile;
+	     FILE# NAME                 STATUS
+	---------- -------------------- ----------
+	         1 C:\ORACLE\ORADATA\GA SYSTEM
+	           S\SYSTEM01.DBF
+	         2 C:\ORACLE\ORADATA\GA ONLINE
+	           S\UNDOTBS01.DBF
+	         3 C:\ORACLE\ORADATA\GA ONLINE
+	           S\CWMLITE01.DBF
+	         4 C:\ORACLE\ORADATA\GA ONLINE
+	           S\DRSYS01.DBF
+	     FILE# NAME                 STATUS
+	---------- -------------------- ----------
+	         5 C:\ORACLE\ORADATA\GA ONLINE
+	           S\EXAMPLE01.DBF
+	         6 C:\ORACLE\ORADATA\GA ONLINE
+	           S\INDX01.DBF
+	         7 C:\ORACLE\ORADATA\GA ONLINE
+	           S\ODM01.DBF
+	         8 C:\ORACLE\ORADATA\GA ONLINE
+	     FILE# NAME                 STATUS
+	---------- -------------------- ----------
+	           S\TOOLS01.DBF
+	         9 C:\ORACLE\ORADATA\GA ONLINE
+	           S\USERS01.DBF
+	        10 C:\ORACLE\ORADATA\GA ONLINE
+	           S\XDB01.DBF
+	        11 C:\ORACLE\ORADATA\GA ONLINE
+	           S\TBLS_BSR.ORA
+	     FILE# NAME                 STATUS
+	---------- -------------------- ----------
+	        12 C:\ORACLE\ORADATA\GA ONLINE
+	           S\DELO_D.DAT
+	        13 C:\ORACLE\ORADATA\GA ONLINE
+	           S\DELO_I.DAT
+	        14 C:\ORACLE\ORADATA\GA ONLINE
+	           S\DELO_O.DAT
+	        15 C:\ORACLE\ORADATA\GA ONLINE
+	           S\KADR_D.DAT
+	     FILE# NAME                 STATUS
+	---------- -------------------- ----------
+	        16 C:\ORACLE\ORADATA\GA ONLINE
+	           S\KADR_I.DAT
+	        17 C:\ORACLE\ORADATA\GA ONLINE
+	           S\KADR_O.DAT
+	        18 C:\ORACLE\ORADATA\GA ONLINE
+	           S\ARCH_D.DAT
+	        19 C:\ORACLE\ORADATA\GA ONLINE
+	     FILE# NAME                 STATUS
+	---------- -------------------- ----------
+	           S\ARCH_I.DAT
+	        20 C:\ORACLE\ORADATA\GA ONLINE
+	           S\EDS_D.DAT
+	        21 C:\ORACLE\ORADATA\GA ONLINE
+	           S\EDS_I.DAT
+	        22 C:\ORACLE\ORADATA\GA ONLINE
+	           S\EDS_O.DAT
+	     FILE# NAME                 STATUS
+	---------- -------------------- ----------
+	        23 C:\ORACLE\ORADATA\GA ONLINE
+	           S\.ORA
+	        24 C:\ORACLE\ORADATA\GA SYSTEM
+	           S\SYSTEM02.ORA
+	        25 C:\ORACLE\ORADATA\GA SYSTEM
+	           S\SYSTEM03.ORA
+	25 rows selected.
+	SQL> alter database open;
+	Task:
+	В ПОДСИСТЕМА не грузятся на сайт 200 дел. Смотрим лог файл:
+	$ cat importer.log.xml
+	...
+	  <Error ReadableDateTime="23.01.2023 12:51:31" FileTimeUtc="133189230912753002">
+	    <Message>Îøèáêà ïðè âûïîëíåíèè çàïðîñà:
+	BEGIN BSR.PK_BSR.CTX_Sinxronize; END;
+	Òåêñò îøèáêè:
+	ORA-20000: Oracle Text error:
+	DRG-50857: oracle error in dreii0fsh
+	ORA-01653: unable to extend table BSR.DR$CTX_SRH$I by 8192 in tablespace SYSTEM
+	ORA-06512: at "CTXSYS.DRUE", line 157
+	ORA-06512: at "CTXSYS.CTX_DDL", line 1328
+	ORA-06512: at "BSR.PK_BSR", line 313
+	ORA-06512: at line 1
+	</Message>
+	    <Details>System.Exception: Îøèáêà ïðè âûïîëíåíèè çàïðîñà:
+	BEGIN BSR.PK_BSR.CTX_Sinxronize; END;
+	Òåêñò îøèáêè:
+	ORA-20000: Oracle Text error:
+	DRG-50857: oracle error in dreii0fsh
+	ORA-01653: unable to extend table BSR.DR$CTX_SRH$I by 8192 in tablespace SYSTEM
+	ORA-06512: at "CTXSYS.DRUE", line 157
+	ORA-06512: at "CTXSYS.CTX_DDL", line 1328
+	ORA-06512: at "BSR.PK_BSR", line 313
+	ORA-06512: at line 1
+	&#xD;
+	   â ImpFunktions.Database.DbaseIns(String cmdString)&#xD;
+	   â ImpFunktions.Importer.synchronize()</Details>
+	  </Error>
+	пуск - все программы - oracle orahome92 - enterprize manager console - ок - databases - gas -  system - oracle - storage - tablespaces
+	Проблема из за того, что у Вас закончилось свободное оракловое ТП SYSTEM и Tbls_bsr, которые надо увеличить вручную путем добавления DATA файла. "Флаг" в чек боксе Авторасширение не поможет.
+	Decision:
+	Обязательно делайте бэкап перед любыми действиями с базой. Дважды щелкните ЛКМ табличное пространство SYSTEM и добавьте в него второй файл. Oracle автоматически подставит расширение ORA. Исправьте его на DBF перед сохранением. 
+	system - add datafile - name - SYSTEM04.ORA - file size - 4096MB - storage - automatically extend datafile when full - increment - 10240KB - value - 32767MB - ok - перезапустить службу BSRImport - В админке обновлять авоматический импорт из СДП
+	Task:
+	Можно сделать это в командной строке, добавив дополнительный файл данных к табличному пространству и изменив размер текущего файла данных, Некоторые версии Oracle не позволяют такого!
+	Decision:
+	ALTER TABLESPACE USERS ADD DATAFILE '/u01/oradata/orcl/users02.dbf' size 25m;
+	ALTER DATABASE DATAFILE '/u01/oradata/orcl/users01.dbf' resize 50M;
+	Необходимо добавить новый датафайл к табличному пространству SYSTEM.
+
 
 Выборка данных
 	Task:

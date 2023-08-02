@@ -425,6 +425,60 @@ Mail for feedback: David138it@gmail.com
     4. https://redos.red-soft.ru/base/server-configuring/dbms/install-postgresql/?sphrase_id=53348
     5. https://redos.red-soft.ru/base/server-configuring/dbms/pgadmin4/
 
+Решение проблемы с резким переполнением базы в Firebird (Sql)
+	Task:
+	Резкое переполнение базы в Firebird
+	Ошибка после ввода пароля в ПИ СДП у всех пользователей - "Не отвечает программа"
+	   ВНЕШНЯЯБАЗА2.exe не работает
+	На одном из объектов автоматизации второй раз за месяц происходит процесс переполнения внешней базы документооборота C:\ПУТЬКБАЗЕ\ВНЕШНЯЯБАЗА1.GDB. База данных увеличивается в размерах с 1.8 Гб до 115Гб за три дня. После проведения инженером филиала процедуры Бэкап/Рестор внешняя база возвращается к прежнему размеру. Данная проблема наблюдается второй раз за месяц с периодичностью в две недели.
+	Task:
+	Отключить службы Firebird, Сделать backup/restore базы ВНЕШНЯЯБАЗА1.GDB, запустив скрипты 
+	1. backup.bat 
+	2. restore.bat
+	после чего сохранится файл ВНЕШНЯЯБАЗА1.GDB в КУДАСОХРАНЯТЬИЗМЕНЕНИЯ. Файл заменить на файл в сервере, который занимал 120 гб. Посмотреть лог файлы:
+	1. uni_viv_retranslator.log
+	2. uni_viv_retranslator_2022-01-11_15-23-40-694.log
+	3. uni_viv_retranslator_2022-01-24_16-36-09-627.log
+	4. uni_viv_retranslator_2022-01-24_16-36-16-806.log
+	Decision:
+	$ cat backup.bat
+	@ echo on
+	SET ISC_USER=ИМЯПОЛЬЗОВАТЕЛЯБАЗЫ
+	SET ISC_PASSWORD=ПАРОЛЬКБАЗЕ
+	SET dbpath=localhost:C:\ПУТЬКБАЗЕ\ВНЕШНЯЯБАЗА1.GDB
+	SET fbpath=C:\ПУТЬFIREBIRD\Firebird_1_5\bin\
+	SET bbpath=C:\КУДАСОХРАНЯТЬИЗМЕНЕНИЯ\
+	"%fbpath%gfix" -shut -force 5 "%dbpath%"
+	"%fbpath%gbak" -b -v -g -y "%bbpath%%date%.log" "%dbpath%" "%bbpath%ВНЕШНЯЯБАЗА1_%date%.gbk"
+	@ pause
+	$ cat restore.bat
+	@ echo on
+	SET ISC_USER=ИМЯПОЛЬЗОВАТЕЛЯБАЗЫ
+	SET ISC_PASSWORD=ПАРОЛЬКБАЗЕ
+	SET fbpath=C:\ПУТЬFIREBIRD\Firebird_1_5\bin\
+	SET bbpath=localhost:C:\КУДАСОХРАНЯТЬИЗМЕНЕНИЯ\
+	"%fbpath%gbak.exe" -c -v -r -y "c:\КУДАСОХРАНЯТЬИЗМЕНЕНИЯ\%date%_fix.log" "c:\КУДАСОХРАНЯТЬИЗМЕНЕНИЯ\ВНЕШНЯЯБАЗА1_backup.gbk" "%bbpath%ВНЕШНЯЯБАЗА1_fix.GDB" 
+	@ pause
+	$ cat uni_viv_retranslator.log
+	...
+	INF|09.12.2022 16:27:36 Сообщения в очереди "viv.client.КОДОА.1" отсутствуют
+	INF|09.12.2022 16:32:39 Отправка запроса id="ИДЕНТИФИКАТОРПРОЦЕССА1", type_id=ИДЕНТИФИКАТОРТИП ...
+	ERR|09.12.2022 16:33:37 Out of memory.
+	    E.ClassName=EOutOfMemory
+	    Sender.ClassName=TWorkThread
+	...
+	INF|11.12.2022 22:28:27 Отправка запроса id="ИДЕНТИФИКАТОРПРОЦЕССА2", type_id=ИДЕНТИФИКАТОРТИП ...
+	ERR|11.12.2022 22:28:53 При отправке запроса id="ИДЕНТИФИКАТОРПРОЦЕССА2" произошла неустранимая ошибка чтения из БД, запрос отклонён. Текст ошибки:
+	    Unsuccessful execution caused by a system error that precludes
+	    successful execution of subsequent statements.
+	    I/O error for file "C:\ПУТЬКБАЗЕ\ВНЕШНЯЯБАЗА1.GDB".
+	    Error while trying to write to file.
+	    Недостаточно места на диске.
+	...
+	Task:
+	при обработке одного запроса id="ИДЕНТИФИКАТОРПРОЦЕССА1", type_id=ИДЕНТИФИКАТОРТИП происходит нехватка памяти, что далее приводит к сбою функционирования. Вероятно в запросе большое вложение. Для дальнейшего анализа смотрим БД ВНЕШНЯЯБАЗА2.gdb, в которой покажет технические ошибки состояния базы ВНЕШНЯЯБАЗА2.gdb.
+	Для их устранения также сделать бэкап/ресторе БД ВНЕШНЯЯБАЗА2.gdb. Далее понаблюдайте за ситуацией с размером БД UNI_EXTERNAL_DF_ATT.GDB, чтобы он весил не больше 19 Гб.
+
 Скрипты на Bash и Python для автоматизации работы (Linux, Windows)
 	Decision:
 	https://github.com/David138it/Engineer-Scripts
