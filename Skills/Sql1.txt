@@ -405,7 +405,15 @@ Mail for feedback: David138it@gmail.com
 	ALTER TABLESPACE USERS ADD DATAFILE '/u01/oradata/orcl/users02.dbf' size 25m;
 	ALTER DATABASE DATAFILE '/u01/oradata/orcl/users01.dbf' resize 50M;
 	Необходимо добавить новый датафайл к табличному пространству SYSTEM.
-
+	Task:
+	Ошибка: DM
+	Unsuccessful execution caused by a system error that precludes successful execution of subsquent statements.
+	Decision:
+	Перезапуск службы FireBird
+	Task:
+	Проверить базу на наличие ошибок. Какими записями забилась база.
+	Decision:
+	программой IbExpert (Подробная инофрмация будет)
 
 Выборка данных
 	Task:
