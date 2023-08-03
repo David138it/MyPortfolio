@@ -4083,9 +4083,113 @@ Data Conversion
 	ALLOWED_HOSTS = ['127.0.0.1']
 	...
 	$ python manage.py runserver
+	$ vim women/models.py
+	$ cat women/models.py
+	from django.db import models
+	# Create your models here.
+	class Women(models.Model):
+		"""docstring for Women"""
+		title=models.CharField(max_length=255)
+		content=models.TextField(blank=True)
+		photo=models.ImageField(upload_to="photos/%Y/%m/%d/")
+		time_create=models.DateTimeField(auto_now_add=True)
+		time_update=models.DateTimeField(auto_now=True)
+		is_published=models.BooleanField(default=True)
+	$ vim coolsite/settings.py
+	$ cat coolsite/settings.py
+	import os
+	from pathlib import Path
+	...
+	DEBUG = True
+	#DEBUG = False
+	#ALLOWED_HOSTS = []
+	...
+	DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+	MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+	MEDIA_URL = '/media/'
+	$ vim coolsite/urls.py
+	$ cat coolsite/urls.py
+	from django.conf.urls.static import static
+	from django.contrib import admin
+	from coolsite import settings
+	from django.urls import path, include
+	#from women.views import index
+	from women.views import *
+	...
+	if settings.DEBUG:
+	    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+	handler404 = pageNotFound
+	$ python manage.py makemigrations
+	$ python manage.py sqlmigrate women 0001
+	$ python manage.py migrate
+	$ sqlite3 db.sqlite3
+	sqlite> SELECT * FROM sqlite_master where type='table';
+	$ python manage.py shell
+	>>> from women.models import Women
+	>>> Women(title='Anjeline Joli', content='Биография Anjeline Joli')
+	>>> w1=_
+	>>> w1
+	>>> w1.save()
+	>>> w1
+	>>> w1.id
+	>>> w1.title
+	>>> w1.time_create
+	>>> w1.pk
+	>>> from django.db import connection
+	>>> connection.queries
+	>>> w2.save()
+	>>> connection.queries
+	>>> w3=Women()
+	>>> w3.title='Juli Roberts'
+	>>> w3.content='Биография Juli Roberts'
+	>>> w3.save()
+	>>> connection.queries
+	>>> # objects
+	>>> Women.objects
+	>>> w4=Women.objects.create(title='Uma Turman', content='Биография Uma Turman')
+	>>> w4
+	>>> Women.objects.create(title='Kira Nightly', content='Биография Kira Nightly')
+	>>> Women.objects.all()
+	>>> exit()
+	$ vim women/models.py
+	$ cat women/models.py
+	...
+		def __str__(self):
+			return self.title
+	$ python manage.py shell
+	>>> from women.models import Women
+	>>> Women.objects.all()
+	>>> w=_
+	>>> w[0]
+	>>> w[1]
+	>>> w[0].title
+	>>> len(w)
+	>>> for wi in w:
+	...     print(wi.title)
+	>>> Women.objects.filter(title='Enn Hatay')
+	>>> from django.db import connection
+	>>> connection.queries
+	>>> Women.objects.filter(pk=2)
+	>>> Women.objects.filter(pk__gte=2)
+	>>> Women.objects.exclude(pk=2)
+	>>> Women.objects.get(pk=2)
+	>>> Women.objects.filter(pk__lte=4).order_by('title')
+	>>> Women.objects.order_by('title')
+	>>> Women.objects.order_by('time_update')
+	>>> Women.objects.order_by('-time_update')
+	>>> wu=Women.objects.get(pk=2)
+	>>> wu.title='Margo Robbi'
+	>>> wu.content='Биография Margo Robbi'
+	>>> wu.save()
+	>>> connection.queries
+	>>> wd=Women.objects.filter(pk__gte=4)
+	>>> wd
+	>>> wd.delete()
+	>>> exit()
 	$ deactivate
 	Source:
 	1. https://docs.python.org/3/tutorial/venv.html
+	2. https://translated.turbopages.org/proxy_u/en-ru.ru.6b298518-64cb356b-c3e4f7d2-74722d776562/https/stackoverflow.com/questions/5334882/how-to-get-list-of-all-the-tables-in-sqlite-programmatically
 
 Инструменты для разработчика
 	Task:
