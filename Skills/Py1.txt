@@ -5227,6 +5227,189 @@ Data Conversion
 	admin.site.register(Women, WomenAdmin)
 	admin.site.register(Category, CategoryAdmin)
 	$ python manage.py runserver
+	$ vim women/views.py
+	$ cat women/views.py
+	...
+	def index(request):
+		#return render(request, 'women/index.html', {'title':'Главная страница'})
+		posts=Women.objects.all()
+		#cats=Category.objects.all()
+		context={'posts':posts, 
+			#'cats':cats,
+			'menu':menu, 
+			'title':'Главная страница',
+			'cat_selected':0}
+		return render(request, 'women/index.html', context=context)
+	...
+	def show_category(request, cat_id):
+		posts=Women.objects.filter(cat_id=cat_id)
+		#cats=Category.objects.all()
+		if len(posts)==0:
+			raise Http404()
+		context={'posts':posts,
+			#'cats':cats,
+			'menu':menu,
+			'title':'Главная страница',
+			'cat_selected':cat_id,}
+		return render(request, 'women/index.html', context=context)
+	$ mkdir women/templatetags
+	$ touch women/templatetags/__init__.py
+	$ touch women/templatetags/women_tags.py
+	$ vim women/templatetags/women_tags.py
+	$ cat women/templatetags/women_tags.py
+	from django import template
+	from women.models import *
+	register=template.Library()
+	@register.simple_tag(name='getcats')
+	def get_categories(filter=None):
+		#return Category.objects.all()
+		if not filter:
+			return Category.objects.all()
+		else:
+			return Category.objects.filter(pk=filter)
+	@register.inclusion_tag('women/list_categories.html')
+	#def show_categories():
+	def show_categories(sort=None, cat_selected=0):
+		#cats=Category.objects.all()
+		#return {"cats": cats}
+		if not sort:
+			cats = Category.objects.all()
+		else:
+			cats = Category.objects.order_by(sort)
+		return {"cats":cats, "cat_selected":cat_selected}
+	$ vim women/templates/women/base.html
+	$ cat women/templates/women/base.html
+	...
+	<!-- Sidebar слева -->
+		<td valign="top" class="left-chapters">
+			<ul id="leftchapters">
+	{% if cat_selected == 0 %}
+				<li class="selected">Все категории</li>
+	{% else %}
+				<li><a href="{% url 'home' %}">Все категории</a></li>
+	{% endif %}
+	{% show_categories cat_selected=cat_selected %}
+				<li class="share"><p>Наш канал</p><a class="share-yt" href="https://www.youtube.com/channel/UClJzWfGWuGJL2t-3dYKcHTA/playlists" target="_blank" rel="nofollow"></a></li>
+			</ul>
+		</td>
+	...
+	$ touch women/templates/women/list_categories.html
+	$ vim women/templates/women/list_categories.html
+	$ cat women/templates/women/list_categories.html
+	{% for c in cats %}
+		{% if c.pk == cat_selected %}
+			<li class="selected">{{c.name}}</li>
+		{% else %}
+			<li><a href="{{ c.get_absolute_url }}">{{c.name}}</a></li>
+		{% endif %}
+	{% endfor %}
+	$ python manage.py runserver
+	$ vim women/views.py
+	$ cat women/views.py
+	from django.http import HttpResponse, HttpResponseNotFound, Http404
+	from django.shortcuts import render, redirect, get_object_or_404
+	from .models import *
+	...
+	#def show_post(request, post_id):
+	def show_post(request, post_slug):
+		#return HttpResponse(f"Отображение статьи с id = {post_id}")
+		#post=get_object_or_404(Women, pk=post_id)
+		post=get_object_or_404(Women, slug=post_slug)
+		context={'post':post,
+			'menu':menu,
+			'title':post.title,
+			'cat_selected':post.cat_id,}
+		return render(request, 'women/post.html', context=context)
+	...
+	$ touch women/templates/women/post.html
+	$ vim women/templates/women/post.html
+	$ cat women/templates/women/post.html
+	{% extends 'women/base.html' %}
+	{% block content %}
+	<h1>{{post.title}}</h1>
+	{% if post.photo %}
+	<p><img class="img-article-left thumb" src="{{post.photo.url}}"></p>
+	{% endif %}
+	{{post.content|linebreaks}}
+	{% endblock %}
+	$ vim women/models.py
+	$ cat women/models.py
+	...
+	class Women(models.Model):
+		"""docstring for Women"""
+		title=models.CharField(max_length=255, verbose_name="Заголовок")
+		slug=models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="URL")
+		content=models.TextField(blank=True, verbose_name="Текст статьи")
+		photo=models.ImageField(upload_to="photos/%Y/%m/%d/", verbose_name="Фото")
+		time_create=models.DateTimeField(auto_now_add=True, verbose_name="Время создания")
+		time_update=models.DateTimeField(auto_now=True, verbose_name="Время изменения")
+		is_published=models.BooleanField(default=True, verbose_name="Публикация")
+		#cat=models.ForeignKey('Category', on_delete=models.PROTECT, null=True, verbose_name="Категории")
+		cat=models.ForeignKey('Category', on_delete=models.PROTECT, verbose_name="Категории")
+		...
+	class Category(models.Model):
+		name=models.CharField(max_length=100, db_index=True, verbose_name="Категория")
+		slug=models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="URL")
+		...
+	$ vim women/admin.py
+	$ cat women/admin.py
+	...
+	class Women(models.Model):
+		"""docstring for Women"""
+		title=models.CharField(max_length=255, verbose_name="Заголовок")
+		slug=models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="URL")
+		content=models.TextField(blank=True, verbose_name="Текст статьи")
+		photo=models.ImageField(upload_to="photos/%Y/%m/%d/", verbose_name="Фото")
+		time_create=models.DateTimeField(auto_now_add=True, verbose_name="Время создания")
+		time_update=models.DateTimeField(auto_now=True, verbose_name="Время изменения")
+		is_published=models.BooleanField(default=True, verbose_name="Публикация")
+		#cat=models.ForeignKey('Category', on_delete=models.PROTECT, null=True, verbose_name="Категории")
+		cat=models.ForeignKey('Category', on_delete=models.PROTECT, verbose_name="Категории")
+		def __str__(self):
+			return self.title
+		def get_absolute_url(self):
+			return reverse('post', kwargs={'post_slug':self.slug})
+		class Meta:
+			verbose_name='Известные женщины'
+			verbose_name_plural='Известные женщины'
+			#ordering=['time_create','title']
+			ordering=['-time_create','title']
+	class CategoryAdmin(admin.ModelAdmin):
+	    list_display = ('id', 'name')
+	    list_display_links = ('id', 'name')
+	    search_fields = ('name',)
+	    prepopulated_fields = {"slug": ("name",)}
+	...
+	$ vim women/urls.py
+	$ cat women/urls.py
+	...
+	urlpatterns = [
+		#path('', index), #http://127.0.0.1:8000/women/
+		#path('home/', index, name='home'), #http://127.0.0.1:8000/
+		path('', index, name='home'), #http://127.0.0.1:8000/
+		#path('cats/', categories), #http://127.0.0.1:8000/women/cats/
+		#path('cats/', categories), #http://127.0.0.1:8000/cats/
+		#path('cats/<int:catid>/', categories), #http://127.0.0.1:8000/cats/1/
+		#re_path(r'^archive/(?P<year>[0-9]{4})/', archive), #http://127.0.0.1:8000/archive/2020/
+		path('about/', about, name='about'), #http://127.0.0.1:8000/
+		path('addpage/', addpage, name='add_page'),
+		path('contact/', contact, name='contact'),
+		path('login/', login, name='login'),
+		#path('post/<int:post_id>/', show_post, name='post'),
+		path('post/<slug:post_slug>/', show_post, name='post'),
+		path('category/<int:cat_id>/', show_category, name='category'),
+	]
+	$ vim women/urls.py
+	$ cat women/urls.py
+	
+	$ rm -rf women/migrations/000*.py
+	$ rm -rf db.sqlite3
+	$ python manage.py makemigrations
+	$ python manage.py migrate
+	$ python manage.py createsuperuser
+	$ python manage.py runserver
+11:40
+	$ python manage.py runserver
 	$ deactivate
 	Source:
 	1. https://docs.python.org/3/tutorial/venv.html
