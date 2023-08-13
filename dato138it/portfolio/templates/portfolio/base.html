@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="{% static 'portfolio/css/style.css' %}" type="text/css">
+    <title>{{title}}</title>
+</head>
+<body>
+    <!--HEADER-->
+    <header class="header fixed" id="header">
+        <div class="container">
+{% block mainmenu %}
+            <div class="header__nav">
+{% for i in menu %}
+                <p><a href="{% url i.url_name %}">{{i.title}}</a></p>
+{% endfor %}
+            </div>
+{% endblock mainmenu %}
+        </div>
+    </header>
+    <!--SECTIONS-->
+    <!--CARDS-->
+    <section>
+        <div class="container">
+            <div class="cards" id="page__fixed">
+{% block progress %}
+{% endblock %}
+            </div>
+        </div>
+    </section> 
+    <!-- JS -->
+    <script src="js/jquery.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
