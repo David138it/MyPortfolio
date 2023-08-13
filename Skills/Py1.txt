@@ -5346,6 +5346,10 @@ Data Conversion
 		is_published=models.BooleanField(default=True, verbose_name="Публикация")
 		#cat=models.ForeignKey('Category', on_delete=models.PROTECT, null=True, verbose_name="Категории")
 		cat=models.ForeignKey('Category', on_delete=models.PROTECT, verbose_name="Категории")
+		def __str__(self):
+			return self.place
+		def get_absolute_url(self):
+			return reverse('post', kwargs={'post_slug':self.slug})
 		...
 	class Category(models.Model):
 		name=models.CharField(max_length=100, db_index=True, verbose_name="Категория")
@@ -5386,9 +5390,6 @@ Data Conversion
 		path('post/<slug:post_slug>/', show_post, name='post'),
 		path('category/<int:cat_id>/', show_category, name='category'),
 	]
-	$ vim women/urls.py
-	$ cat women/urls.py
-	
 	$ rm -rf women/migrations/000*.py
 	$ rm -rf db.sqlite3
 	$ python manage.py makemigrations
