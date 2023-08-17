@@ -1,5 +1,6 @@
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
+from .forms import *
 from .models import *
 # Create your views here.
 #def index(request): #HttpRequest
@@ -38,8 +39,26 @@ def about(request):
 	#return HttpResponse(f"<h1>Архив по годам</h1><p>{year}</p>") #http://127.0.0.1:8000/archive/2020/
 def pageNotFound(request, exception):
 	return HttpResponseNotFound("<h1>Страница не найдена</h1>")
+
 def addpage(request):
-	return HttpResponse("Добавление статьи")
+	#return HttpResponse("Добавление статьи")
+	#return render(request, 'women/addpage.html', {'menu':menu, 'title':'Добавление статьи'})
+	#form=AddPostForm()
+	if request.method=='POST':
+		#form=AddPostForm(request.POST)
+		form=AddPostForm(request.POST, request.FILES)
+		if form.is_valid():
+			#print(form.cleaned_data)
+			#try:
+				#Women.objects.create(**form.cleaned_data)
+			form.save()
+			return redirect('home')
+			#except:
+			#	form.add_error(None,'Ошибка добавления поста')
+	else:
+		form=AddPostForm()
+	return render(request, 'women/addpage.html', {'form':form,'menu':menu, 'title':'Добавление статьи'})
+
 def contact(request):
 	return HttpResponse("Обратная связь")
 def login(request):
