@@ -1,14 +1,14 @@
 from django.db import models
 from django.urls import reverse
 class Portfolio(models.Model):
-	begin=models.DateTimeField(auto_now_add=False, verbose_name="Время создания")
-	finish=models.DateTimeField(auto_now=False, verbose_name="Время изменения")
 	place=models.CharField(max_length=255, verbose_name="Заголовок")
 	slug=models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="URL")
 	specialization=models.CharField(max_length=255, verbose_name="Специальность")
 	responsibilities=models.TextField(blank=True, verbose_name="Обязанности")
 	progress=models.TextField(blank=True, verbose_name="Текст статьи")
 	scan=models.ImageField(upload_to="photos/%Y/%m/%d/", verbose_name="Фото")
+	begin=models.DateTimeField(auto_now_add=False, verbose_name="Время создания")
+	finish=models.DateTimeField(auto_now=False, verbose_name="Время изменения")
 	is_published=models.BooleanField(default=True, verbose_name="Публикация")
 	cat=models.ForeignKey('Category', on_delete=models.PROTECT, verbose_name="Категории")
 	def __str__(self):

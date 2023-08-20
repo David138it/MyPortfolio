@@ -180,7 +180,6 @@ body.modal__noscroll {
     display: flex;
     margin: 40px 0;
 }
-
 @media (max-width: 991px){
     .modal__col{
         width: 100%;
@@ -220,5 +219,3 @@ body.modal__noscroll {
     h1{font-size: 20px;}
     p,a{font-size: 15px;}
 }
-
-
