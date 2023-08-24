@@ -4721,19 +4721,6 @@ Data Conversion
 	</ul>
 	{% endblock %}
 	$ python manage.py runserver
-
-
-
-
-
-
-
-
-
-
-
-
-	
 	$ vim women/templates/women/index.html
 	$ cat women/templates/women/index.html
 	...
@@ -5317,6 +5304,18 @@ Data Conversion
 		{% endif %}
 	{% endfor %}
 	$ python manage.py runserver
+
+
+
+
+
+
+
+
+
+
+
+
 	$ vim women/views.py
 	$ cat women/views.py
 	from django.http import HttpResponse, HttpResponseNotFound, Http404
