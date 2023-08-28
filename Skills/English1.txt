@@ -1,5 +1,112 @@
 Mail for feedback: David138it@gmail.com
 
+Phrases
+	Decision:
+	A
+	B
+	C
+	D
+	E
+	F
+	G
+	H
+	I
+	J
+	K
+	L
+	look for - искать
+	M
+	N
+	O
+	P
+	Q
+	R
+	S
+	T
+	this way - таким образом
+	U
+	V
+	W
+	X
+	Y
+	Z
+
+Dictionary
+	Decision:
+	A
+	assume - считать
+	available - доступ
+	awesome - потрясающий
+	B
+	baked - внедрение
+	blob - блок 
+	C
+	case - случай
+	complex - сложность
+	comprise - содержать
+	composed - состоять 
+	consider - учитывать
+	content - содержание
+	current - текущий
+	D
+	defines - определять
+	deploy - развернуть
+	directly - напрямую 
+	during - происходить
+	E
+	exactly - именно
+	executable - исполняемый
+	existing - существующие
+	F
+	G
+	H
+	handeler - обработчик
+	I
+	impressive - впечатляющий
+	incredibly - невероятно
+	inside - внутри
+	instead - вместо этого
+	introduction - сведения
+	isolated - изолированный
+	J
+	K
+	L
+	look - выглядеть
+	M
+	multiple - несколько
+	N
+	necessary - обязательно
+	nonced - обратить
+	O
+	oven - даже
+	override - переопределить
+	P
+	perform - выполнять
+	pulled - извлечение
+	push - переместить
+	Q
+	R
+	reffering - ссылаться
+	requier - требовать
+	respond - отвечать
+	S
+	scale - масштабирование
+	sharing - совместное использование
+	single - единственный
+	somebody - кто-то
+	specity - указать
+	T
+	U
+	under - под
+	unfamiliar - незнаком
+	uploaded - закачивается
+	V
+	W
+	way - способ
+	X
+	Y
+	Z
+
 Interview (Engineer)
 	Task:
 	Какой электронный прибор называется полупроводниковым диодом?
