@@ -1627,7 +1627,7 @@ Machine Learning
 	                        END) AS results--,
 	                        --dmt.value,
 	                        --dma.min_value,
-	                        --dma.max_value
+	                        --dma.max_value 
 	                FROM de13ma.gabn_med_easy AS dmt
 	                LEFT JOIN de.med_name AS dmn
 	                        ON dmt.patient_code = dmn.id
