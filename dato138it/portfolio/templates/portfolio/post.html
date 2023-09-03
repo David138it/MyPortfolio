@@ -1,8 +1,0 @@
-{% extends 'portfolio/base.html' %}
-{% block progress %}
-<h1>{{post.place}}</h1>
-{% if post.scan %}
-<p><img class="" src="{{post.scan.url}}"></p>
-{% endif %}
-{{post.progress|linebreaks}}
-{% endblock %}
