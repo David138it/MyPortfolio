@@ -8,9 +8,12 @@ Phrases
 	D
 	E
 	F
+	for the sake of simplicity - для простоты
+	from within - извнутри
 	G
 	H
 	I
+	it does not get much simpler than that - проще уже просто невозможно
 	J
 	K
 	L
@@ -34,6 +37,10 @@ Phrases
 Dictionary
 	Decision:
 	A
+	although - хотя
+	allocate - выделять
+	allow - позволять, разрешить
+	among - среди
 	assume - считать
 	available - доступ
 	awesome - потрясающий
@@ -45,57 +52,97 @@ Dictionary
 	complex - сложность
 	comprise - содержать
 	composed - состоять 
+	consequently - следовательно
+	constantly - постоянно
+	confirm - подтвердить
 	consider - учитывать
 	content - содержание
+	cover - получить, охватывать
 	current - текущий
+	currently - настоящий
 	D
 	defines - определять
 	deploy - развернуть
 	directly - напрямую 
+	discusse - обсуждать
 	during - происходить
 	E
+	each - каждый
+	especially - особенность
+	enough - достаточно
+	environment - среда
+	even - даже
 	exactly - именно
 	executable - исполняемый
 	existing - существующие
+	exit - выходить
+	external - внешний
 	F
+	flat - прозрачный
+	full-fledged - полноценный
 	G
 	H
 	handeler - обработчик
 	I
+	immediate - сразу
 	impressive - впечатляющий
 	incredibly - невероятно
+	include - включать
 	inside - внутри
 	instead - вместо этого
 	introduction - сведения
 	isolated - изолированный
+	itself - самостоятельный
 	J
 	K
+	keen - острый
+	keep - держаться
 	L
+	leave - опустить
+	list - перечислить
 	look - выглядеть
 	M
+	multi-node - многоузловой
 	multiple - несколько
 	N
 	necessary - обязательно
+	node - узел
 	nonced - обратить
 	O
+	once - после того
 	oven - даже
 	override - переопределить
+	own - собственный
 	P
+	path - путь
 	perform - выполнять
+	point - указывать
+	prove - доказывать
+	providу - предоставлять
 	pulled - извлечение
 	push - переместить
+	pushing - отправка
 	Q
 	R
 	reffering - ссылаться
+	registry - хранилище
 	requier - требовать
+	roughly - грубо говоря
 	respond - отвечать
 	S
 	scale - масштабирование
+	sequence - последовательность
 	sharing - совместное использование
+	shorthand - сокращениие
 	single - единственный
+	single-node - одноузловой
 	somebody - кто-то
+	spans - охватывать
 	specity - указать
+	suggest - предлагать
 	T
+	topic - тема
+	truly - действительно
 	U
 	under - под
 	unfamiliar - незнаком
