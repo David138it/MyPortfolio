@@ -5644,6 +5644,117 @@ Data Conversion
 			return reverse('category', kwargs={'cat_slug':self.slug})
 	...
 	$ python manage.py runserver
+	$ vim women/views.py
+	$ cat women/views.py
+	from django.http import HttpResponse, HttpResponseNotFound, Http404
+	from django.shortcuts import render, redirect, get_object_or_404
+	from django.urls import reverse_lazy
+	from django.views.generic import ListView, DetailView, CreateView
+	from django.contrib.auth.mixins import LoginRequiredMixin
+	#from django.contrib.auth.decorators import login_required
+	from .forms import *
+	from .models import *
+	from .utils import *
+	...
+	#menu=[{'title':"О сайте", 'url_name':'about'}, 
+		#{'title':"Добавить статью", 'url_name':'add_page'},
+		#{'title':"Обратная связь", 'url_name':'contact'},
+		#{'title':"Войти", 'url_name':'login'}]
+	...
+	#class WomenHome(ListView):
+	class WomenHome(DataMixin, ListView):
+		model=Women
+		template_name='women/index.html'
+		context_object_name='posts'
+		#extra_context={'title':'Главная страница'}
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			#context['menu']=menu
+			#context['title']='Главная страница'
+			#context['cat_selected']=0
+			c_def = self.get_user_context(title="Главная страница")
+			return dict(list(context.items())+list(c_def.items()))
+		def get_queryset(self):
+			return Women.objects.filter(is_published=True)
+	...
+	#@login_required
+	def about(request):
+		return render(request, 'women/about.html', {'menu':menu, 'title':'О сайте'})
+	...
+	#class AddPage(CreateView):
+	class AddPage(LoginRequiredMixin, DataMixin, CreateView):
+		form_class=AddPostForm
+		template_name='women/addpage.html'
+		success_url=reverse_lazy('home')
+		login_url = reverse_lazy('home')
+		raise_exception = True
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			c_def = self.get_user_context(title="Добавление статьи")
+			return dict(list(context.items())+list(c_def.items()))
+	...
+	class ShowPost(DataMixin, DetailView):
+		model=Women
+		template_name='women/post.html'
+		slug_url_kwarg='post_slug'
+		context_object_name='post'
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			c_def = self.get_user_context(title=context['post'])
+			return dict(list(context.items())+list(c_def.items()))
+	...
+	class WomenCategory(DataMixin, ListView):
+		model=Women
+		template_name='women/index.html'
+		context_object_name='posts'
+		allow_empty=False
+		def get_queryset(self):
+			return Women.objects.filter(cat__slug=self.kwargs['cat_slug'], is_published=True)
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			c_def = self.get_user_context(title='Категория - ' + str(context['posts'][0].cat), cat_selected=context['posts'][0].cat_id)
+			return dict(list(context.items())+list(c_def.items()))
+	$ touch women/utils.py
+	$ vim women/utils.py
+	$ cat women/utils.py
+	from .models import *
+	from django.db.models import Count
+	menu=[{'title':"О сайте", 'url_name':'about'}, 
+		{'title':"Добавить статью", 'url_name':'add_page'},
+		{'title':"Обратная связь", 'url_name':'contact'},
+		{'title':"Войти", 'url_name':'login'}]
+	class DataMixin:
+		def get_user_context(self, **kwargs):
+			context = kwargs
+			#cats = Category.objects.all()
+			cats = Category.objects.annotate(Count('women'))
+			#context['menu']=menu
+			user_menu = menu.copy()
+			if not self.request.user.is_authenticated:
+				user_menu.pop(1)
+			context['menu']=user_menu
+			context['cats']=cats
+			if 'cat_selected' not in context:
+				context['cat_selected'] = 0
+			return context
+	$ vim women/templates/women/base.html
+	$ cat women/templates/women/base.html
+	...
+	{% if cat_selected == 0 %}
+				<li class="selected">Все категории</li>
+	{% else %}
+				<li><a href="{% url 'home' %}">Все категории</a></li>
+	{% endif %}
+	{% for c in cats %}
+		{% if c.pk == cat_selected %}
+				<li class="selected">{{c.name}}</li>
+		{% else %}
+				<li class=""><a href="{{ c.get_absolute_url }}">{{c.name}}</a></li>
+		{% endif %}
+	{% endfor %}
+				<li class="share"><p>Наш канал</p><a class="share-yt" href="https://www.youtube.com/channel/UClJzWfGWuGJL2t-3dYKcHTA/playlists" target="_blank" rel="nofollow"></a></li>
+	...
+	$ python manage.py runserver
 	$ deactivate
 	Source:
 	1. https://docs.python.org/3/tutorial/venv.html
