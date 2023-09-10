@@ -23,12 +23,24 @@ Mail for feedback: David138it@gmail.com
 	2. По той же причине бот (администратор приложения) может не запуститься, если база данных запускалась дольше 15 секунд. В таком случае вы можете перезагрузить сервис бота из папки приложения после загрузки базы данных командой:
 	docker-compose restart bot
 	Необходимо находиться в директории приложения, в одном месте с файлом docker-compose.yml
-
+	Проанализируйте защищенность механизмов аутентификации административной панели и проэксплуатируйте найденные уязвимости.
+	В качестве подтверждения успешной эксплуатации предоставьте флаг (секретную строку в формате 32 букв и цифр) из кода страницы панели администратора.
+    Вопрос для самопроверки на протяжении работы с данным лабораторным стендом:
+    Что опасного в этой информационной системе может сделать злоумышленник? Какие риски он мог бы реализовать?
 	Decision:
-	$ firefox
+	$ firefox https://disk.yandex.ru/d/bXfeC1DM4vrUsw
 	$ unzip Downloads/courses-shop.zip
 	$ cd courses-shop-prod
 	$ docker-compose up -d
+	$ firefox https://portswigger.net/burp/releases/professional-community-2023-9-4?requestededition=community&requestedplatform=
+	$ chmod ugo+x burpsuite_community_linux_v2023_9_4.sh
+	$ ./burpsuite_community_linux_v2023_9_4.sh
+	$ /home/tuser/BurpSuiteCommunity/BurpSuiteCommunity &
+	$ firefox https://github.com/empty-jack/YAWR/blob/master/brute/passwords/realyBest.txt 
+
+	Source:
+	- https://portswigger.net/burp/documentation/desktop/getting-started/download-and-install
+	- https://losst.pro/zapusk-skripta-sh-v-linux
 
 
 
