@@ -11082,205 +11082,6 @@ Mail for feedback: David138it@gmail.com
 	Source:
 	https://steptuser.org/course/63054/syllabus
 
-Установка веб-сервера Lamp (Linux)
-	Task:
-	Для создания тестовых баз в mysql нужно установить веб-сервер Lamp.
-	Decision:
-	$ sudo apt -y install apache2
-	$ sudo apt -y install default-mysql-server
-	$ sudo apt -y install php7.4 libapache2-mod-php7.4 php7.4-mysql php-curl php-json php-cgi php-gd php-zip php-mbstring php-xml php-xmlrpc
-	$ cat /mnt/c/Windows/system32/drivers/etc/hosts
-	...
-	#       127.0.0.1       localhost
-	...
-	$ cat /mnt/c/Windows/system32/drivers/etc/hosts
-	...
-	        127.0.0.1       localhost
-	..
-	$ sudo ufw allow in 80/tcp
-	Rules updated
-	Rules updated (v6)
-	$ sudo servi-ce apache2 restart
-	 * Restarting Apache httpd web server apache2                                              [ OK ]
-
-	Web - localhost
-
-	$ sudo vim /var/www/html/index.php
-	$ cat /var/www/html/index.php
-	<?php phpinfo(); ?>
-
-	web - http://localhost/index.php
-
-	$ sudo cp -r www/js /var/www/html/
-	$ sudo cp -r www/css /var/www/html/
-	$ sudo cp www/index.html /var/www/html/
-	$ sudo chown -R ${USER}:${USER} /var/www/html/index.html
-
-	web - http://localhost/index.html
-
-	$ sudo a2dismod mpm_event
-	Module mpm_event already disabled
-	$ sudo a2dismod mpm_worker
-	Module mpm_worker already disabled
-	$ sudo a2enmod mpm_prefork
-	Considering confli-ct mpm_event for mpm_prefork:
-	Considering confli-ct mpm_worker for mpm_prefork:
-	Module mpm_prefork already enabled
-	$ sudo a2enmod rewrite
-	Enabling module rewrite.
-	To activate the new configuration, you need to run:
-	  servi-ce apache2 restart
-	$ cat /etc/apache2/apache2.conf
-	...
-	<Directory /var/www/>
-	        Options Indexes FollowSymLinks
-	        AllowOverride None
-	        Require all granted
-	</Directory>
-	...
-	$ sudo vim /etc/apache2/apache2.conf
-	$ cat /etc/apache2/apache2.conf
-	...
-	<Directory /var/www/>
-	        Options Indexes FollowSymLinks
-	        #AllowOverride None
-	        AllowOverride All
-	        Require all granted
-	</Directory>
-	$ sudo servi-ce apache2 reload
-	 * Reloading Apache httpd web server apache2                                                                             *
-	$ cat /etc/php/7.4/apache2/php.ini
-	...
-	short_open_tag = Off
-	...
-	$ sudo vim /etc/php/7.4/apache2/php.ini
-	$ cat /etc/php/7.4/apache2/php.ini
-	...
-	;short_open_tag = Off
-	short_open_tag = On
-	...
-	;error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRi-cT
-	error_reporting = E_ALL
-	...
-	;display_errors = Off
-	dispaly_errors = On
-	$ sudo servi-ce apache2 reload
-	 * Reloading Apache httpd web server apache2                                                                             *
-	 ... Failed! Error: SET PASSWORD has no signifi-cance for user 'root'@'localhost' as the authenti-cation method used doesn't store authenti-cation data in the MySQL server. Please consider using ALTER USER instead if you want to change authenti-cation parameters.
-	$ sudo mysql
-	mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password by '1Y!';
-	mysql> exit
-	$ sudo mysql_secure_installation
-	Securing the MySQL server deployment.
-	Enter password for user root:
-	The 'validate_password' component is installed on the server.
-	The subsequent steps will run with the existing configuration
-	of the component.
-	Using existing password for root.
-	Estimated strength of the password: 100
-	Change the password for root ? ((Press y|Y for Yes, any other key for No) : No
-	Remove anonymous users? (Press y|Y for Yes, any other key for No) : Y
-	Success.
-	Disallow root login remotely? (Press y|Y for Yes, any other key for No) : Y
-	Success.
-	Remove test database and access to it? (Press y|Y for Yes, any other key for No) : Y
-	 - Dropping test database...
-	Success.
-	 - Removing privileges on test database...
-	Success.
-	Reload privilege tables now? (Press y|Y for Yes, any other key for No) : Y
-	Success.
-	$ sudo mysql -u root -p
-	mysql> SELECT user,authenti-cation_string,plugin,host FROM mysql.user;
-	+------------------+------------------------------------------------------------------------+-----------------------+-----------+
-	| user             | authenti-cation_string                                                  | plugin                | host      |
-	+------------------+------------------------------------------------------------------------+-----------------------+-----------+
-	| debian-sys-maint | $A$005$'O
-	<q=}+JN^%tT7/BijftjmMoABQBChCLhBezpjroZdhyWfAHEeajfP. | caching_sha2_password | localhost |
-	| mysql.infoschema | $A$005$THISISACOMBINATIONOFINVALIDSALTANDPASSWORDTHATMUSTNEVERBRBEUSED | caching_sha2_password | localhost |
-	| mysql.session    | $A$005$THISISACOMBINATIONOFINVALIDSALTANDPASSWORDTHATMUSTNEVERBRBEUSED | caching_sha2_password | localhost |
-	| mysql.sys        | $A$005$THISISACOMBINATIONOFINVALIDSALTANDPASSWORDTHATMUSTNEVERBRBEUSED | caching_sha2_password | localhost |
-	| root             | *4                                                                     | mysql_native_password | localhost |
-	+------------------+------------------------------------------------------------------------+-----------------------+-----------+
-	5 rows in set (0.01 sec)
-	mysql> SHOW VARIABLES LtuserE 'validate_password%';
-	+--------------------------------------+--------+
-	| Variable_name                        | Value  |
-	+--------------------------------------+--------+
-	| validate_password.check_user_name    | ON     |
-	| validate_password.di-ctionary_file    |        |
-	| validate_password.length             | 8      |
-	| validate_password.mixed_case_count   | 1      |
-	| validate_password.number_count       | 1      |
-	| validate_password.poli-cy             | MEDIUM |
-	| validate_password.special_char_count | 1      |
-	+--------------------------------------+--------+
-	7 rows in set (0.05 sec)
-	mysql> FLUSH PRIVILEGES;
-	Query OK, 0 rows affected (0.10 sec)
-	mysql> exitBye
-	$ sudo apt install -y gettext phpmyadmin php-mbstring
-
-	Apache2 - NO - web - http://localhost/phpmyadmin/ - login - password
-
-	$ cat /etc/apache2/conf-available/phpmyadmin.conf
-	...
-	<Directory /usr/share/phpmyadmin>
-	    Options SymLinksIfOwner-tatch
-	    DirectoryIndex index.php
-	...
-	$ sudo vim /etc/apache2/conf-available/phpmyadmin.conf
-	$ cat /etc/apache2/conf-available/phpmyadmin.conf
-	...
-	<Directory /usr/share/phpmyadmin>
-	    Options SymLinksIfOwner-tatch
-	    DirectoryIndex index.php
-	    AllowOverride All
-	...
-	$ sudo servi-ce apache2 restart
-	 * Restarting Apache httpd web server apache2                                                                    [ OK ]
-	$ sudo vim /usr/share/phpmyadmin/.htaccess
-	$ cat /usr/share/phpmyadmin/.htaccess
-	AuthType Basi-c
-	AuthName "Restri-cted Files"
-	AuthUserFile /etc/phpmyadmin/.htpasswd
-	Require valid-user
-	$ sudo htpasswd -c /etc/phpmyadmin/.htpasswd D
-	New password:
-	Re-type new password:
-	Adding password for user D
-	$ sudo htpasswd /etc/phpmyadmin/.htpasswd Da
-	New password:
-	Re-type new password:
-	Adding password for user Da
-	$ cat /etc/phpmyadmin/.htpasswd
-	D:$apr1$j
-	Da:$apr1$x
-
-	Web - http://localhost/phpmyadmin/index.php - login - passwd
-
-	$ vim Bash-StartingLamp.sh
-	$ cat Bash-StartingLamp.sh
-	#!/bin/bash
-	echo 1 | sudo -S sudo servi-ce apache2 start
-	echo 1 | sudo -S sudo servi-ce mysql start
-	exit 0
-	$ vim Bash-DisablingLamp.sh
-	$ cat Bash-DisablingLamp.sh
-	#!/bin/bash
-	echo 1 | sudo -S sudo servi-ce apache2 stop
-	echo 1 | sudo -S sudo servi-ce mysql stop
-	exit 0
-	$ bash Bash-DisablingLamp.sh
-	 * Stopping Apache httpd web server apache2                                                                              *
-	 * Stopping MySQL database server mysqld                                                                                    [ OK ]
-	$ bash Bash-StartingLamp.sh
-	 * Starting Apache httpd web server apache2                                                                              *
-	 * Starting MySQL database server mysqld                                                                                su: warning: cannot change directory to /nonexistent: No such file or directory                                                         [ OK ]
-	Source:
-	1. https://www.youtube.com/playlist?list=PLd6qmhV6C78amxTC3ZYdSvkjtxAZYs3_u
-	2. https://losst.ru/ustanovka-lamp-v-ubuntu-20-04?ysclid=l6dbr2v0qb90125531
-
 Разработка мини-программ на двух языках C++ и Python (C++, Python)
 	Task:
 	Мне нужно написать программу, которая считывает возраст человека. Программа сначала запрашивает год рождения.
@@ -13837,3 +13638,355 @@ Mail for feedback: David138it@gmail.com
     6. http://rrv.iszf.irk.ru/sites/default/files/conf2014/articles/tom2/17-20.pdf
     7. http://www.u-blox.com.
     8. Дэвис К. Радиоволны в ионосфере
+
+Разработка сайта
+	Task:
+	Для разработки своего сайта, куда публиковал все решенные мной интересные задачи, сверстал простой сайт, развернул в Qemu-kvm виртуальную машину с операционной системой Ubuntu, в котором установил и настроил веб-сервер Lamp с своей базой данных на Mysql, опубликовал сайт в сервис Timeweb и в нем зарегистрировал домен
+	Decision:
+	$ wget https://ubuntu.com/download/desktop/thank-you?version=22.04.3&architecture=amd64
+	$ sudo dnf install https://kojihub.stream.centos.org/kojifiles/packages/libvirt-python/8.5.0/2.el9/x86_64/
+	$ sudo dnf install libguestfs-tools
+	$ sudo dnf install libvirt-python
+	$ sudo systemctl enable libvirtd
+	$ sudo systemctl start libvirtd
+	$ systemctl status libvirtd
+	$ lsmod | grep kvm
+	$ sudo ls -l /var/lib/libvirt/images/
+	$ sudo ls -l /var/lib/libvirt/iso
+	$ rpm -qa | grep bridge-utils
+	$ sudo yum install bridge-utils
+	$ ip a
+	$ brctl show
+	$ systemctl enable --now libvirtd
+	$ nmcli connection add type bridge autoconnect yes con-name br0 ifname br0
+	$ sudo su
+	# nmcli connection modify br0 ipv4.addresses 10.0.0.30/24 ipv4.method manual
+	# nmcli connection modify br0 ipv4.gateway 10.0.0.1
+	# nmcli connection modify br0 ipv4.dns 10.0.0.10
+	# nmcli connection modify br0 ipv4.dns-search srv.world
+	# nmcli connection up enp0s21f0u1u4
+	# nmcli connection del enp0s21f0u1u4
+	# nmcli device
+	# nmcli connection add type bridge-slave autoconnect yes con-name enp0s21f0u1u4 ifname enp0s21f0u1u4 master br0
+	# nmcli device
+	# reboot
+	# ip addr
+	# virt-install \
+	--name ubuntu22.04 \
+	--ram 2048 \
+	--disk path=/var/lib/libvirt/images/ubuntu22.04.img,size=50 \
+	--vcpus 2 \
+	--os-variant Ubuntu \
+	--network bridge=br0 \
+	--graphics none \
+	--console pty,target_type=serial \
+	--location /var/lib/libvirt/iso/Ubuntu.iso \
+	--extra-args 'console=ttyS0,115200n8'
+	$ sudo virsh list --all
+	$ sudo virsh start ubuntu22.04
+	$ ssh -X tuser@IP
+	Decision:
+	$ sudo apt update
+	$ sudo apt install apache2
+	$ sudo ufw app list
+	Available applications:
+	  Apache
+	  Apache Full
+	  Apache Secure
+	  CUPS
+	  OpenSSH
+	$ sudo ufw enable
+	$ sudo ufw allow in "Apache"
+	$ sudo ufw allow in "OpenSSH"
+	$ sudo ufw status
+	Status: active
+	To                         Action      From
+	--                         ------      ----
+	Apache                     ALLOW       Anywhere                  
+	Apache Full                ALLOW       Anywhere                  
+	OpenSSH                    ALLOW       Anywhere                  
+	Apache (v6)                ALLOW       Anywhere (v6)             
+	Apache Full (v6)           ALLOW       Anywhere (v6)             
+	OpenSSH (v6)               ALLOW       Anywhere (v6)
+	$ firefox
+	update.go:85: cannot change mount namespace according to change mount (/var/lib/snapd/hostfs/usr/share/gimp/2.0/help /usr/share/gimp/2.0/help none bind,ro 0 0): cannot open directory "/var/lib": permission denied
+	update.go:85: cannot change mount namespace according to change mount (/var/lib/snapd/hostfs/usr/share/xubuntu-docs /usr/share/xubuntu-docs none bind,ro 0 0): cannot open directory "/var/lib": permission denied
+	X11 connection rejected because of wrong authentication.
+	X11 connection rejected because of wrong authentication.
+	X11 connection rejected because of wrong authentication.
+	X11 connection rejected because of wrong authentication.
+	X11 connection rejected because of wrong authentication.
+	X11 connection rejected because of wrong authentication.
+	Error: cannot open display: localhost:10.0
+	Decision:
+	$ wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+	$ sudo dpkg -i --force-depends google-chrome-stable_current_amd64.deb
+	$ google-chrome http://127.0.0.1
+	Decision:
+	$ sudo apt install mysql-server
+	$ sudo mysql
+	mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'tpassword';
+	mysql> exit
+	$ sudo mysql_secure_installation
+	$ sudo mysql
+	ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+	$ sudo mysql -u root -p
+	mysql> exit
+	Decision:
+	$ sudo apt install php libapache2-mod-php php-mysql
+	$ php -v
+	$ cat /etc/php/8.1/apache2/php.ini | grep upload_max_filesize
+	upload_max_filesize = 2M
+	$ cat /etc/php/8.1/apache2/php.ini | grep post_max_size
+	post_max_size = 8M
+	$ cat /etc/php/8.1/apache2/php.ini | grep memory_limit
+	memory_limit = 128M
+	$ cat /etc/php/8.1/apache2/php.ini | grep max_execution_time
+	max_execution_time = 30
+	$ cat /etc/php/8.1/apache2/php.ini | grep max_input_vars
+	;max_input_vars = 1000
+	$ cat /etc/php/8.1/apache2/php.ini | grep max_input_time
+	; max_input_time
+	max_input_time = 60
+	$ sudo vim /etc/php/8.1/apache2/php.ini
+	$ cat /etc/php/8.1/apache2/php.ini | grep upload_max_filesize
+	upload_max_filesize = 32M
+	$ cat /etc/php/8.1/apache2/php.ini | grep post_max_size
+	post_max_size = 48M
+	$ cat /etc/php/8.1/apache2/php.ini | grep memory_limit
+	memory_limit = 256M
+	$ cat /etc/php/8.1/apache2/php.ini | grep max_execution_time
+	max_execution_time = 600
+	$ cat /etc/php/8.1/apache2/php.ini | grep max_input_vars
+	max_input_vars = 3000
+	$ cat /etc/php/8.1/apache2/php.ini | grep max_input_time
+	; max_input_time
+	max_input_time = 1000
+	$ sudo service apache2 restart
+	Decision:
+	$ sudo mkdir /var/www/tdomain
+	$ sudo chown -R $USER:$USER /var/www/tdomain
+	$ sudo vim /etc/apache2/sites-available/tdomain.conf
+	$ cat /etc/apache2/sites-available/tdomain.conf
+	<VirtualHost *:80>
+	    ServerName tdomain
+	    ServerAlias www.tdomain
+	    ServerAdmin webmaster@localhost
+	    DocumentRoot /var/www/tdomain
+	    ErrorLog ${APACHE_LOG_DIR}/error.log
+	    CustomLog ${APACHE_LOG_DIR}/access.log combined
+	</VirtualHost>
+	$ sudo a2ensite tdomain
+	$ sudo a2dissite 000-default
+	$ sudo apache2ctl configtest
+	$ sudo systemctl reload apache2
+	$ vim /var/www/tdomain/index.html
+	$ cat /var/www/tdomain/index.html
+	<html>
+	  <head>
+	    <title>tdomain website</title>
+	  </head>
+	  <body>
+	    <h1>Hello World!</h1>
+	    <p>This is the landing page of <strong>tdomain</strong>.</p>
+	  </body>
+	</html>
+	$ google-chrome http://127.0.0.1
+	Decision:
+	$ cat /etc/apache2/mods-enabled/dir.conf
+	<IfModule mod_dir.c>
+	    DirectoryIndex index.html index.cgi index.pl index.php index.xhtml index.htm
+	</IfModule>
+	# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+	$ sudo vim /etc/apache2/mods-enabled/dir.conf
+	$ cat /etc/apache2/mods-enabled/dir.conf
+	<IfModule mod_dir.c>
+	    DirectoryIndex index.php index.html index.cgi index.pl index.php index.xhtml index.htm
+	</IfModule>
+	# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+	$ sudo systemctl reload apache2
+	$ vim /var/www/tdomain/info.php
+	$ cat /var/www/tdomain/info.php
+	<?php
+	phpinfo();
+	$ google-chrome http://127.0.0.1/info.php
+	$ sudo rm /var/www/tdomain/info.php
+	$ sudo mysql -u root -p
+	mysql> create database tbase;
+	mysql> CREATE USER 'tuser'@'%' IDENTIFIED BY 'tpassword';
+	mysql> GRANT ALL ON tbase.* TO 'tuser'@'%';
+	mysql> exit
+	$ mysql -u tuser -p
+	mysql> show databases;
+	+--------------------+
+	| Database           |
+	+--------------------+
+	| information_schema |
+	| performance_schema |
+	| tbase              |
+	+--------------------+
+	3 rows in set (0.07 sec)
+	mysql> create table tbase.ttable1
+	    (ttable1_id INT PRIMARY KEY AUTO_INCREMENT,
+	    content VARCHAR(255));
+	CREATE TABLE tbase.ttable1
+	    (ttable1_id INT PRIMARY KEY AUTO_INCREMENT,
+	    column1 VARCHAR(255),
+	    column2 VARCHAR(255),
+	    column3 VARCHAR(255),
+	    column4 VARCHAR(255),
+	    column5 Date,
+	    column6 Date);
+	mysql> INSERT INTO tbase.ttable1
+	    (column1, column2)
+	VALUES
+	    ("text1","text2"),
+	    ("text3","text4"),
+	    ("text5","text6"),
+	    ("text7","text8");
+	mysql> select * from tbase.ttable1;
+	+------------+---------+---------+---------+---------+---------+---------+
+	| ttable1_id | column1 | column2 | column3 | column4 | column5 | column6 |
+	+------------+---------+---------+---------+---------+---------+---------+
+	|          1 | text1   | text2   | NULL    | NULL    | NULL    | NULL    |
+	|          2 | text3   | text4   | NULL    | NULL    | NULL    | NULL    |
+	|          3 | text5   | text6   | NULL    | NULL    | NULL    | NULL    |
+	|          4 | text7   | text8   | NULL    | NULL    | NULL    | NULL    |
+	+------------+---------+---------+---------+---------+---------+---------+
+	4 rows in set (0.00 sec)
+	mysql> CREATE TABLE tbase.ttable2
+	    (ttable2_id INT PRIMARY KEY AUTO_INCREMENT,
+	    columnId INT,
+	    column1 VARCHAR(500),
+	    FOREIGN KEY (columnId) REFERENCES tbase.ttable1 (ttable1_id));
+	mysql> INSERT INTO tbase.ttable2
+	    (columnId, column1)
+	VALUES
+	    (1, "text9"),
+	    (1, "text10"),
+	    (2, "text11"),
+	    (3, "text12"),
+	    (4, "text13");
+	mysql> select * from tbase.ttable2;
+	+------------+----------+---------+
+	| ttable2_id | columnId | column1 |
+	+------------+----------+---------+
+	|          1 |        1 | text9   |
+	|          2 |        1 | text10  |
+	|          3 |        2 | text11  |
+	|          4 |        3 | text12  |
+	|          5 |        4 | text13  |
+	+------------+----------+---------+
+	5 rows in set (0.00 sec)
+	mysql> select * from tbase.ttable2
+	    inner join tbase.ttable1
+	    on ttable1.ttable1_id = ttable2.columnId;
+	+------------+----------+---------+------------+---------+---------+---------+---------+---------+---------+
+	| ttable2_id | columnId | column1 | ttable1_id | column1 | column2 | column3 | column4 | column5 | column6 |
+	+------------+----------+---------+------------+---------+---------+---------+---------+---------+---------+
+	|          1 |        1 | text9   |          1 | text1   | text2   | NULL    | NULL    | NULL    | NULL    |
+	|          2 |        1 | text10  |          1 | text1   | text2   | NULL    | NULL    | NULL    | NULL    |
+	|          3 |        2 | text11  |          2 | text3   | text4   | NULL    | NULL    | NULL    | NULL    |
+	|          4 |        3 | text12  |          3 | text5   | text6   | NULL    | NULL    | NULL    | NULL    |
+	|          5 |        4 | text13  |          4 | text7   | text8   | NULL    | NULL    | NULL    | NULL    |
+	+------------+----------+---------+------------+---------+---------+---------+---------+---------+---------+
+	5 rows in set (0.00 sec)
+	mysql> exit
+	$ vim /var/www/tdomain/index.php
+	$ cat /var/www/tdomain/index.php
+	<?php
+	$user = "tuser";
+	$password = "tpassword";
+	$database = "tbase";
+	$table1 = "ttable1";
+	$table2 = "ttable2";
+	try {
+	    $db = new PDO("mysql:host=localhost;dbname=$database", $user, $password);
+	    $query = $db->query("
+	        select * from $database.$table2
+	        inner join $database.$table1
+	        on $table1.experience_id=$table2.experienceId;
+	    ");
+	    foreach($query as $row) {
+	        echo '
+	        <li><strong>
+	        ' . $row['column1'] . '
+	        -
+	        ' . $row['column2'] . '
+	        :</strong>
+	        ' . $row['column3'] . '
+	        ;
+	        ' . $row['column4'] . '
+	        ;
+	        ' . $row['column5'] . '
+	        ;
+	        ' . $row['column6'] . '
+	        </li>
+	        ';
+	    }
+	} catch (PDOException $e) {
+	    print "Error!: " . $e->getMessage() . "<br/>";
+	    die();
+	}
+	$ google-chrome http://127.0.0.1/index.php
+	Decision:
+	$ sudo apt update
+	$ sudo apt install phpmyadmin php-mbstring php-zip php-gd php-json php-curl
+	$ sudo apt install php8.1-fpm php8.1 libapache2-mod-php8.1 php8.1-common php8.1-mysql php8.1-xml php8.1-xmlrpc php8.1-imagick php8.1-cli php8.1-imap php8.1-opcache php8.1-soap php8.1-intl php8.1-bcmath unzip
+	...
+	granting access to database phpmyadmin for phpmyadmin@localhost: failed.
+	error encountered creating user:
+	mysql said: ERROR 1819 (HY000) at line 1: Your password does not satisfy the cur
+	rent policy requirements
+	dbconfig-common: phpmyadmin configure: aborted.
+	dbconfig-common: flushing administrative password
+	dpkg: error processing package phpmyadmin (--configure):
+	 installed phpmyadmin package post-installation script subprocess returned error
+	 exit status 1
+	Processing triggers for libapache2-mod-php8.1 (8.1.2-1ubuntu2.14) ...
+	...
+	Errors were encountered while processing:
+	 phpmyadmin
+	E: Sub-process /usr/bin/dpkg returned an error code (1)
+	$ mysql -u root -p
+	mysql> UNINSTALL COMPONENT "file://component_validate_password";
+	mysql> exit
+	$ sudo apt install phpmyadmin
+	...
+	granting access to database phpmyadmin for phpmyadmin@localhost: success.
+	verifying access for phpmyadmin@localhost: success.
+	creating database phpmyadmin: success.
+	verifying database phpmyadmin exists: success.
+	populating database via sql...  done.
+	dbconfig-common: flushing administrative password
+	$ mysql -u root -p
+	mysql> INSTALL COMPONENT "file://component_validate_password";
+	mysql> exit
+	$ sudo phpenmod mbstring
+	$ sudo systemctl restart apache2
+	$ mysql -u root -p
+	mysql> SELECT user,authentication_string,plugin,host FROM mysql.user;
+	mysql> exit
+	$ sudo cp /etc/phpmyadmin/apache.conf /etc/apache2/conf-available/phpmyadmin.conf
+	$ sudo a2enconf phpmyadmin.conf
+	$ systemctl reload apache2
+	$ google-chrome http://127.0.0.1/phpmyadmin
+	Decision:
+	$ exit
+	# virsh shutdown ubuntu22.04
+	Source:
+	https://winitpro.ru/index.php/2020/02/10/virsh-upravlenie-virtualnymi-mashinami-kvm/
+	https://winitpro.ru/index.php/2020/02/04/ustanovka-zapusk-kvm-v-linux-centos/
+	https://www.server-world.info/en/note?os=CentOS_Stream_9&p=kvm&f=1
+	https://www.server-world.info/en/note?os=CentOS_Stream_9&p=initial_conf&f=3
+	https://www.server-world.info/en/note?os=CentOS_Stream_9&p=kvm&f=2
+	https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-on-ubuntu-22-04
+	https://losst.pro/ustanovka-chrome-v-ubuntu-18-04?ysclid=lmdflkvc3v463974954
+	https://qna.habr.com/q/439469?ysclid=lmdgkb49q827401606
+	https://metanit.com/sql/mysql/2.5.php
+	https://metanit.com/sql/mysql/5.2.php
+	https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-phpmyadmin-on-ubuntu-20-04
+	https://serverspace.ru/support/help/osnovnye-komandy-ufw/
+	https://www.tutsmake.com/how-to-install-lamp-apache-mysql-php-in-ubuntu-22-04/
+	https://www.php.net/manual/ru/faq.html.php
+	https://www.8host.com/blog/kak-rabotayut-stroki-v-php/

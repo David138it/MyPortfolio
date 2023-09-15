@@ -2,11 +2,11 @@ body{
 	margin: 0;
 	font-size: 20px;
 }
-p,a{
+p{
 	color: black;
 }
-a:hover{
-	color: grey;
+a{
+    color: grey;
 }
 h1{
 	text-align: center;
