@@ -3967,7 +3967,7 @@ Data Conversion
 
 Разработка сайта
 	Task:
-	Django
+	Для улучшения своего сайта, в котором публиковал все решенные мной интересные задачи, разработал еще один проект с разработкой сайта, в котором применялись следующие инструменты и библиотеки: python, django, pillow, html, css, sqlite3. Также поменял домен в timeweb.
 	Decision:
 	$ mkdir djsite
 	$ cd djsite/
@@ -5396,6 +5396,7 @@ Data Conversion
 	$ python manage.py migrate
 	$ python manage.py createsuperuser
 	$ python manage.py runserver
+	Decision:
 	$ vim women/views.py
 	$ cat women/views.py
 	from django.http import HttpResponse, HttpResponseNotFound, Http404
@@ -5450,6 +5451,7 @@ Data Conversion
 	    is_published=forms.BooleanField(label="Публикация", required=False, initial=True)
 	    cat=forms.ModelChoiceField(queryset=Category.objects.all(), label="Категория", empty_label="Категория не выбрана")
 	$ python manage.py runserver
+	Decision:
 	$ vim women/forms.py
 	$ cat women/forms.py
 	from django import forms
@@ -5508,6 +5510,7 @@ Data Conversion
 		{% csrf_token %}
 		...
 	$ python manage.py runserver
+	Decision:
 	$ vim women/views.py
 	$ cat women/views.py
 	from django.http import HttpResponse, HttpResponseNotFound, Http404
@@ -5644,6 +5647,7 @@ Data Conversion
 			return reverse('category', kwargs={'cat_slug':self.slug})
 	...
 	$ python manage.py runserver
+	Decision:
 	$ vim women/views.py
 	$ cat women/views.py
 	from django.http import HttpResponse, HttpResponseNotFound, Http404
@@ -5710,7 +5714,7 @@ Data Conversion
 		allow_empty=False
 		def get_queryset(self):
 			return Women.objects.filter(cat__slug=self.kwargs['cat_slug'], is_published=True)
-		def get_context_data(self, *, object_list=None, **kwargs):
+		def get_context_data(self, *, objecft_list=None, **kwargs):
 			context=super().get_context_data(**kwargs)
 			c_def = self.get_user_context(title='Категория - ' + str(context['posts'][0].cat), cat_selected=context['posts'][0].cat_id)
 			return dict(list(context.items())+list(c_def.items()))
@@ -5756,6 +5760,247 @@ Data Conversion
 	{% endfor %}
 				<li class="share"><p>Наш канал</p><a class="share-yt" href="https://www.youtube.com/channel/UClJzWfGWuGJL2t-3dYKcHTA/playlists" target="_blank" rel="nofollow"></a></li>
 	...
+	$ python manage.py runserver
+	Decision:
+	$ python manage.py shell
+	>>> from django.core.paginator import Paginator
+	>>> women=['Nicol Kidman', 'Марго Робби', '']
+	>>> women=['Nicol Kidman', 'Марго Робби', 'Анжелика Джоли']
+	>>> p= Paginator(women, 3)
+	>>> p.count
+	3
+	>>> p.num.pages
+	>>> p.num_pages
+	1
+	>>> p.page_range
+	range(1, 2)
+	>>> p1=p.page(1)
+	>>> p1.object_list
+	['Nicol Kidman', 'Марго Робби', 'Анжелика Джоли']
+	>>> p1.has_next()
+	>>> p1.has_previous()
+	>>> p1.has_other_pages()
+	>>> p1.next_page_number()
+	>>> p1.previous_page_number()
+	>>> quit()
+	$ vim women/views.py
+	$ cat women/views.py
+	from django.http import HttpResponse, HttpResponseNotFound, Http404
+	from django.shortcuts import render, redirect, get_object_or_404
+	from django.urls import reverse_lazy
+	from django.views.generic import ListView, DetailView, CreateView
+	from django.contrib.auth.mixins import LoginRequiredMixin
+	#from django.contrib.auth.decorators import login_required
+	from django.core.paginator import Paginator
+	from .forms import *
+	from .models import *
+	from .utils import *
+	...
+	class WomenHome(DataMixin, ListView):
+		#paginate_by = 2
+		model=Women
+		template_name='women/index.html'
+		context_object_name='posts'
+		#extra_context={'title':'Главная страница'}
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			#context['menu']=menu
+			#context['title']='Главная страница'
+			#context['cat_selected']=0
+			c_def = self.get_user_context(title="Главная страница")
+			return dict(list(context.items())+list(c_def.items()))
+		def get_queryset(self):
+			return Women.objects.filter(is_published=True)
+	#@login_required
+	def about(request):
+		#return render(request, 'women/about.html', {'menu':menu, 'title':'О сайте'})
+		contact_list=Women.objects.all()
+		paginator=Paginator(contact_list,2)
+		page_number=request.GET.get('page')
+		page_obj=paginator.get_page(page_number)
+		return render(request, 'women/about.html', {'page_obj':page_obj, 'menu':menu, 'title':'О сайте'})
+	...
+	class WomenCategory(DataMixin, ListView):
+		#paginate_by=2
+		model=Women
+	...
+	$ vim women/templates/women/about.html
+	$ cat women/templates/women/about.html
+	{% extends 'women/base.html' %}
+	{% block content %}
+	<h1>{{title}}</h1>
+	{% endblock %}
+	$ vim women/static/women/css/style.css
+	$ cat women/static/women/css/style.css
+	...
+	.form-button {
+		min-width: 200px;
+		font-size: 16px;
+	}
+	.list-pages {
+		text-align: center;
+		margin: 0 0 20px 0;
+	}
+	.list-pages ul {
+		margin: 20px 0 0 0;
+		padding: 0;
+		list-style: none;
+	}
+	.list-pages ul li {
+		display: inline-block;
+		margin: 0 20px 0 0;
+	}
+	.list-pages a {
+		color: #000;
+		font-size: 24px;
+		text-decoration: none;
+	}
+	.list-pages .page-num, .page-num-selected {
+		display: inline-block;
+		width: 60px;
+		height: 44px;
+		padding: 16px 0 0 0;
+		border: 1px solid #d0d0d0;
+		border-radius: 30px;
+	}
+	.list-pages .page-num:hover {
+		box-shadow: 3px 3px 1px #d0d0d0; 
+	}
+	.list-pages .page-num-selected {
+		border: none;
+		color: #000;
+		font-size: 20px;
+	}
+	.list-pages .page-num-selected:hover {
+		box-shadow: none; 
+	}
+	$ vim women/templates/women/base.html
+	$ cat women/templates/women/base.html
+	...
+	{% endblock %}
+			{% if page_obj.has_other_pages %}
+			<nav class="list-pages">
+				<ul>
+					{% if page_obj.has_previous %}
+					<li class="page-num"><a href="?page={{ page_obj.previous_page_number }}">&lt;</a></li>
+					{% endif %}
+					{% for p in paginator.page_range %}
+					{% if page_obj.number == p %}
+					<li class="page-num page-num-selected">{{ p }}</li>
+					{% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+					<li class="page-num"><a href="?page={{ p }}">{{ p }}</a></li>
+					{% endif %}
+					{% endfor %}
+					{% if page_obj.has_next %}
+					<li class="page-num"><a href="?page={{ page_obj.next_page_number }}">&gt;</a></li>
+					{% endif %}
+				</ul>
+			</nav>
+			{% endif %}
+		</div>
+	...
+	$ vim women/utils.py
+	$ cat women/utils.py
+	...
+	class DataMixin:
+		#paginate_by=30
+		paginate_by=2
+		def get_user_context(self, **kwargs):
+	...
+	$ vim women/models.py
+	$ cat women/models.py
+	...
+		class Meta:
+			verbose_name='Известные женщины'
+			verbose_name_plural='Известные женщины'
+			#ordering=['time_create','title']
+			#ordering=['-time_create','title']
+			ordering=['id']
+	class Category(models.Model):
+	...
+	$ python manage.py runserver
+	Decision:
+	$ vim women/templates/women/base.html
+	$ cat women/templates/women/base.html
+	...
+	{% block mainmenu %}
+			<div class="header">
+				<ul id="mainmenu" class="mainmenu">
+					<li class="logo"><a href="{% url 'home' %}"><div class="logo"></div></a></li>
+					{% for m in menu %}
+					<li><a href="{% url m.url_name %}">{{m.title}}</a></li>
+					{% endfor %}
+					<li class="last"><a href="{% url 'register' %}">Регистрация</a>|<a href="{% url 'login' %}">Войти</a></li>
+				</ul>
+				<div class="clear"></div>
+			</div>
+	{% endblock mainmenu %}
+	...
+	$ vim women/utils.py
+	$ cat women/utils.py
+	...
+	menu=[{'title':"О сайте", 'url_name':'about'}, 
+		{'title':"Добавить статью", 'url_name':'add_page'},
+		{'title':"Обратная связь", 'url_name':'contact'}
+		#{'title':"Войти", 'url_name':'login'}
+		]
+	...
+	$ vim women/urls.py
+	$ cat women/urls.py
+	...
+		path('category/<slug:cat_slug>/', WomenCategory.as_view(), name='category'),
+		#path('register/', login, name='register'),
+		path('register/', RegisterUser.as_view(), name='register'),
+	]
+	$ vim women/views.py
+	$ cat women/views.py
+	...
+	class RegisterUser(DataMixin, CreateView):
+		form_class=UserCreationForm
+		template_name='women/register.html'
+		success_url=reverse_lazy('login')
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			c_def=self.get_user_context(title="Регистрация")
+			return dict(list(context.items())+list(c_def.items()))
+	$ touch women/templates/women/register.html
+	$ vim women/templates/women/register.html
+	$ cat women/templates/women/register.html
+	{% extends 'women/base.html' %}
+	{% block content %}
+	<h1>{{title}}</h1>
+	<form method="post">
+		{% csrf_token %}
+		{% for f in form %}
+		<p><label class="form-label" for="{{ f.id_for_label }}">{{f.label}}:</label>{{ f }}</p>
+		<div class="form-error">{{ f.errors }}</div>
+		{% endfor %}
+		<button type="submit">Регистрация</button>
+	</form>
+	{% endblock %}
+	$ vim women/forms.py
+	$ cat women/forms.py
+	from django import forms
+	from django.core.exceptions import ValidationError
+	from django.contrib.auth.forms import UserCreationForm
+	from django.contrib.auth.models import User
+	from .models import *
+	...
+	class RegisterUserForm(UserCreationForm):
+		username=forms.CharField(label='Логин', widget=forms.TextInput(attrs={'class':'form-input'}))
+		email=forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class':'form-input'}))
+		password1=forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class':'form-input'}))
+		password2=forms.CharField(label='Повтор пароля', widget=forms.PasswordInput(attrs={'class':'form-input'}))
+		class Meta:
+			model=User
+			fields=('username','email','password1','password2')
+			#widgets={
+			#    'username':forms.TextInput(attrs={'class':'form-input'}),
+			#    'password1':forms.PasswordInput(attrs={'class':'form-input'}),
+			#    'password2':forms.PasswordInput(attrs={'class':'form-input'}),
+			#}
+	$ python manage.py runserver
+	Decision:
 	$ python manage.py runserver
 	$ deactivate
 	Source:

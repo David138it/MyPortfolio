@@ -1,9 +1,12 @@
+from typing import Any
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 #from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+#from django.contrib.auth.forms import UserCreationForm
 from .forms import *
 from .models import *
 from .utils import *
@@ -27,6 +30,7 @@ from .utils import *
 	#return render(request, 'women/index.html', context=context)
 #class WomenHome(ListView):
 class WomenHome(DataMixin, ListView):
+	#paginate_by = 2
 	model=Women
 	template_name='women/index.html'
 	context_object_name='posts'
@@ -42,7 +46,12 @@ class WomenHome(DataMixin, ListView):
 		return Women.objects.filter(is_published=True)
 #@login_required
 def about(request):
-	return render(request, 'women/about.html', {'menu':menu, 'title':'О сайте'})
+	#return render(request, 'women/about.html', {'menu':menu, 'title':'О сайте'})
+	contact_list=Women.objects.all()
+	paginator=Paginator(contact_list,2)
+	page_number=request.GET.get('page')
+	page_obj=paginator.get_page(page_number)
+	return render(request, 'women/about.html', {'page_obj':page_obj, 'menu':menu, 'title':'О сайте'})
 #def categories(request):
 	#return HttpResponse("<h1>Статьи по категориям</h1>")
 #def categories(request, catid):
@@ -126,6 +135,7 @@ class ShowPost(DataMixin, DetailView):
 		#'cat_selected':cat_id,}
 	#return render(request, 'women/index.html', context=context)
 class WomenCategory(DataMixin, ListView):
+	#paginate_by=2
 	model=Women
 	template_name='women/index.html'
 	context_object_name='posts'
@@ -135,4 +145,12 @@ class WomenCategory(DataMixin, ListView):
 	def get_context_data(self, *, object_list=None, **kwargs):
 		context=super().get_context_data(**kwargs)
 		c_def = self.get_user_context(title='Категория - ' + str(context['posts'][0].cat), cat_selected=context['posts'][0].cat_id)
+		return dict(list(context.items())+list(c_def.items()))
+class RegisterUser(DataMixin, CreateView):
+	form_class=UserCreationForm
+	template_name='women/register.html'
+	success_url=reverse_lazy('login')
+	def get_context_data(self, *, object_list=None, **kwargs):
+		context=super().get_context_data(**kwargs)
+		c_def=self.get_user_context(title="Регистрация")
 		return dict(list(context.items())+list(c_def.items()))

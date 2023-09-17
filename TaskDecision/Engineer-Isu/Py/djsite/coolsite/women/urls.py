@@ -19,4 +19,6 @@ urlpatterns = [
 	path('post/<slug:post_slug>/', ShowPost.as_view(), name='post'),
 	#path('category/<int:cat_id>/', show_category, name='category'),
 	path('category/<slug:cat_slug>/', WomenCategory.as_view(), name='category'),
+	#path('register/', login, name='register'),
+	path('register/', RegisterUser.as_view(), name='register'),
 ]
