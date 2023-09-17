@@ -6001,6 +6001,116 @@ Data Conversion
 			#}
 	$ python manage.py runserver
 	Decision:
+$ vim women/views.py
+$ cat women/views.py
+from typing import Any
+from django.forms.models import BaseModelForm
+from django.http import HttpResponse, HttpResponseNotFound, Http404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+#from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+#from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.views import LoginView
+#from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import logout, login
+...
+#def login(request):
+#	return HttpResponse("Авторизация")
+...
+		return dict(list(context.items())+list(c_def.items()))
+	def form_valid(self, form):
+		user=form.save()
+		login(self.request, user)
+		return redirect('home')
+class LoginUser(DataMixin, LoginView):
+	form_class=AuthenticationForm
+	template_name='women/login.html'
+	def get_context_data(self, *, object_list=None, **kwargs):
+		context=super().get_context_data(**kwargs)
+		c_def=self.get_user_context(title="Авторизация")
+		return dict(list(context.items())+list(c_def.items()))
+	def get_success_url(self):
+		return reverse_lazy('home')	
+def logout_user(request):
+	logout(request)
+	return redirect('login')
+$ vim women/forms.py
+$ cat women/forms.py
+from django import forms
+from django.core.exceptions import ValidationError
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
+...
+class LoginUserForm(AuthenticationForm):
+    username=forms.CharField(label='Логин', widget=forms.TextInput(attrs={'class':'form-input'}))
+    password=forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class':'form-input'}))
+$ touch women/templates/women/login.html
+$ vim women/templates/women/login.html
+$ cat women/templates/women/login.html
+{% extends 'women/base.html' %}
+{% block content %}
+<h1>{{title}}</h1>
+<form method="post">
+    {% csrf_token %}
+    <div class="form-error">{{ form.non_field_errors }}</div>
+    {% for f in form %}
+    <p><label class="form-label" for="{{ f.id_for_label }}">{{f.label}}:</label>{{ f }}</p>
+    <div class="form-error">{{ f.errors }}</div>
+    {% endfor %}
+    <button type="submit">Войти</button>
+</form>
+{% endblock %}
+$ vim women/urls.py
+$ cat women/urls.py
+...
+urlpatterns = [
+	#path('', index), #http://127.0.0.1:8000/women/
+	#path('home/', index, name='home'), #http://127.0.0.1:8000/
+	#path('', index, name='home'), #http://127.0.0.1:8000/
+	path('', WomenHome.as_view(), name='home'), #http://127.0.0.1:8000/
+	#path('cats/', categories), #http://127.0.0.1:8000/women/cats/
+	#path('cats/', categories), #http://127.0.0.1:8000/cats/
+	#path('cats/<int:catid>/', categories), #http://127.0.0.1:8000/cats/1/
+	#re_path(r'^archive/(?P<year>[0-9]{4})/', archive), #http://127.0.0.1:8000/archive/2020/
+	path('about/', about, name='about'), #http://127.0.0.1:8000/
+	#path('addpage/', addpage, name='add_page'),
+	path('addpage/', AddPage.as_view(), name='add_page'),
+	path('contact/', contact, name='contact'),
+	#path('login/', login, name='login'),
+	#path('post/<int:post_id>/', show_post, name='post'),
+	#path('post/<slug:post_slug>/', show_post, name='post'),
+	path('post/<slug:post_slug>/', ShowPost.as_view(), name='post'),
+	#path('category/<int:cat_id>/', show_category, name='category'),
+	path('category/<slug:cat_slug>/', WomenCategory.as_view(), name='category'),
+	#path('register/', login, name='register'),
+	path('register/', RegisterUser.as_view(), name='register'),
+	path('login/', LoginUser.as_view(), name='login'),
+	path('logout/', logout_user, name='logout'),
+]
+$ vim coolsite/settings.py
+$ cat coolsite/settings.py
+...
+MEDIA_URL = '/media/'
+#LOGIN_REDIRECT_URL = '/'
+$ vim women/templates/women/base.html
+$ cat women/templates/women/base.html
+...
+			<ul id="mainmenu" class="mainmenu">
+				<li class="logo"><a href="{% url 'home' %}"><div class="logo"></div></a></li>
+				{% for m in menu %}
+				<li><a href="{% url m.url_name %}">{{m.title}}</a></li>
+				{% endfor %}
+				{% if request.user.is_authenticated %}
+				<li class="last">{{user.username}} | <a href="{% url 'logout' %}">Выйти</a></li>
+				{% else %}
+				<li class="last"><a href="{% url 'register' %}">Регистрация</a>|<a href="{% url 'login' %}">Войти</a></li>
+				{% endif %}
+			</ul>
+...
 	$ python manage.py runserver
 	$ deactivate
 	Source:

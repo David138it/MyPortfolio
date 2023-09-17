@@ -13,7 +13,7 @@ urlpatterns = [
 	#path('addpage/', addpage, name='add_page'),
 	path('addpage/', AddPage.as_view(), name='add_page'),
 	path('contact/', contact, name='contact'),
-	path('login/', login, name='login'),
+	#path('login/', login, name='login'),
 	#path('post/<int:post_id>/', show_post, name='post'),
 	#path('post/<slug:post_slug>/', show_post, name='post'),
 	path('post/<slug:post_slug>/', ShowPost.as_view(), name='post'),
@@ -21,4 +21,6 @@ urlpatterns = [
 	path('category/<slug:cat_slug>/', WomenCategory.as_view(), name='category'),
 	#path('register/', login, name='register'),
 	path('register/', RegisterUser.as_view(), name='register'),
+	path('login/', LoginUser.as_view(), name='login'),
+	path('logout/', logout_user, name='logout'),
 ]

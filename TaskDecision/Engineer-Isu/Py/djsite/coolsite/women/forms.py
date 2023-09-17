@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
 from .models import *
 #class AddPostForm(forms.Form):
     #title=forms.CharField(max_length=255, label="Заголовок", widget=forms.TextInput(attrs={'class':'form-input'}))
@@ -39,3 +40,6 @@ class RegisterUserForm(UserCreationForm):
         #    'password1':forms.PasswordInput(attrs={'class':'form-input'}),
         #    'password2':forms.PasswordInput(attrs={'class':'form-input'}),
         #}
+class LoginUserForm(AuthenticationForm):
+    username=forms.CharField(label='Логин', widget=forms.TextInput(attrs={'class':'form-input'}))
+    password=forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class':'form-input'}))
