@@ -11,6 +11,7 @@ from django.contrib.auth import logout, login
 from .forms import *
 from .models import *
 from .utils import *
+from django.views.generic import ListView, DetailView, CreateView, FormView
 class ProgressHome(DataMixin, ListView):
 	model=Progress
 	template_name='progress/index.html'
@@ -20,7 +21,7 @@ class ProgressHome(DataMixin, ListView):
 		c_def = self.get_user_context(title="Главная страница")
 		return dict(list(context.items())+list(c_def.items()))
 	def get_queryset(self):
-		return Progress.objects.filter(is_published=True)
+		return Progress.objects.filter(is_published=True).select_related('cat')
 def about(request):
 	contact_list=Progress.objects.all()
 	paginator=Paginator(contact_list,2)
@@ -56,10 +57,12 @@ class ProgressCategory(DataMixin, ListView):
 	context_object_name='posts'
 	allow_empty=False
 	def get_queryset(self):
-		return Progress.objects.filter(cat__slug=self.kwargs['cat_slug'], is_published=True)
+		return Progress.objects.filter(cat__slug=self.kwargs['cat_slug'], is_published=True).select_related('cat')
 	def get_context_data(self, *, object_list=None, **kwargs):
 		context=super().get_context_data(**kwargs)
-		c_def = self.get_user_context(title='Категория - ' + str(context['posts'][0].cat), cat_selected=context['posts'][0].cat_id)
+		c = Category.objects.get(slug=self.kwargs['cat_slug'])
+		#c_def = self.get_user_context(title='Категория - ' + str(context['posts'][0].cat), cat_selected=context['posts'][0].cat_id)
+		c_def = self.get_user_context(title='Категория - ' + str(c.name), cat_selected=c.pk)
 		return dict(list(context.items())+list(c_def.items()))
 class RegisterUser(DataMixin, CreateView):
 	form_class=UserCreationForm
@@ -85,3 +88,14 @@ class LoginUser(DataMixin, LoginView):
 def logout_user(request):
 	logout(request)
 	return redirect('login')
+class ContactFormView(DataMixin, FormView):
+    form_class = ContactForm
+    template_name = 'progress/contact.html'
+    success_url = reverse_lazy('home')
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title="Обратная связь")
+        return dict(list(context.items()) + list(c_def.items()))
+    def form_valid(self, form):
+        print(form.cleaned_data)
+        return redirect('home')

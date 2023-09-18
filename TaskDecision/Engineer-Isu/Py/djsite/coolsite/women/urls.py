@@ -1,10 +1,12 @@
 from django.urls import path, re_path
 from .views import *
+from django.views.decorators.cache import cache_page
 urlpatterns = [
 	#path('', index), #http://127.0.0.1:8000/women/
 	#path('home/', index, name='home'), #http://127.0.0.1:8000/
 	#path('', index, name='home'), #http://127.0.0.1:8000/
 	path('', WomenHome.as_view(), name='home'), #http://127.0.0.1:8000/
+	#path('', cache_page(60)(WomenHome.as_view()), name='home'),
 	#path('cats/', categories), #http://127.0.0.1:8000/women/cats/
 	#path('cats/', categories), #http://127.0.0.1:8000/cats/
 	#path('cats/<int:catid>/', categories), #http://127.0.0.1:8000/cats/1/
@@ -12,7 +14,8 @@ urlpatterns = [
 	path('about/', about, name='about'), #http://127.0.0.1:8000/
 	#path('addpage/', addpage, name='add_page'),
 	path('addpage/', AddPage.as_view(), name='add_page'),
-	path('contact/', contact, name='contact'),
+	#path('contact/', contact, name='contact'),
+	path('contact/', ContactFormView.as_view(), name='contact'),
 	#path('login/', login, name='login'),
 	#path('post/<int:post_id>/', show_post, name='post'),
 	#path('post/<slug:post_slug>/', show_post, name='post'),
