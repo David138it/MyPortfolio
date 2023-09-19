@@ -1,7 +1,9 @@
-{% for c in cats %}
-	{% if c.pk == cat_selected %}
-		<li class="selected">{{c.name}}</li>
+{% for i in cats %}
+{% if i.progress__count > 0 %}
+	{% if i.pk == cat_selected %}
+{{i.name}}
 	{% else %}
-		<li><a href="{{ c.get_absolute_url }}">{{c.name}}</a></li>
+<a href="{{ i.get_absolute_url }}">{{i.name}}</a>
 	{% endif %}
+{% endif %}
 {% endfor %}

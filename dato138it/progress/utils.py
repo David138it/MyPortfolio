@@ -1,10 +1,11 @@
 from .models import *
 from django.db.models import Count
 from django.core.cache import cache
-menu=[{'title':"О сайте", 'url_name':'about'}, 
-		{'title':"Добавить статью", 'url_name':'add_page'},
-		{'title':"Обратная связь", 'url_name':'contact'},
-	]
+menu=[
+	{'title':"Обо мне", 'url_name':'about'}, 
+	{'title':"Добавить статью", 'url_name':'add_page'},
+	{'title':"Обратная связь", 'url_name':'contact'},
+]
 class DataMixin:
 	paginate_by=2
 	def get_user_context(self, **kwargs):

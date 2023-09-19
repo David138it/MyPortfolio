@@ -1,22 +1,28 @@
 {% extends 'progress/base.html' %}
 {% block progr %}
-<ul class="list-articles">
-	{% for p in posts %}
-			<li>
-				<div class="article_panel">
-					<p class="first">Категория: {{p.cat}}</p>
-					<p class="last">Дата: {{p.time_update|date:"d-m-Y H:i:s"}}</p>
-				</div>
-{% if p.photo %}
-				<p><img class="img-article-left thumb" src="{{p.photo.url}}"></p>
-{% endif %}
-				<h2>{{p.title}}</h2>
-	{% autoescape on %}
-	{{p.progr|linebreaks|truncatewords:50}}
-	{% endautoescape %}
-			<div class="clear"></div>
-			<p class="link-read-post"><a href="{{ p.get_absolute_url }}">Читать пост</a></p>
-			</li>
+<ul>
+	{% for i in posts %}
+	<li>
+		<strong>{{i.time_create|date:"d-m-Y H:i:s"}} - {{i.time_update|date:"d-m-Y H:i:s"}}:</strong> {{i.place}}; {{i.title}};
+	</li>
+	<li>
+		<strong>Достижения:</strong> 
+		{% autoescape on %}
+		{{i.progr|linebreaks|truncatewords:50}}
+		{% endautoescape %};
+	</li>
+	<li>
+		<strong>Дополнительная информация:</strong> 
+		Категория:
+		{{i.cat}};
+		{% autoescape on %}
+		{{i.responsibilities|linebreaks|truncatewords:50}}
+		{% endautoescape %};
+		{% if i.photo %}
+		<p><img class="" src="{{i.photo.url}}"></p>
+		{% endif %}
+		<p><a href="{{ i.get_absolute_url }}">Читать пост</a></p>
+	</li>
 	{% endfor %}
 </ul>
 {% endblock %}

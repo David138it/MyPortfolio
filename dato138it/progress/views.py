@@ -27,7 +27,7 @@ def about(request):
 	paginator=Paginator(contact_list,2)
 	page_number=request.GET.get('page')
 	page_obj=paginator.get_page(page_number)
-	return render(request, 'progress/about.html', {'page_obj':page_obj, 'menu':menu, 'title':'О сайте'})
+	return render(request, 'progress/about.html', {'page_obj':page_obj, 'menu':menu, 'title':'Обо мне'})
 def pageNotFound(request, exception):
 	return HttpResponseNotFound("<h1>Страница не найдена</h1>")	
 class AddPage(LoginRequiredMixin, DataMixin, CreateView):
@@ -40,8 +40,8 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
 		context=super().get_context_data(**kwargs)
 		c_def = self.get_user_context(title="Добавление статьи")
 		return dict(list(context.items())+list(c_def.items()))
-def contact(request):
-	return HttpResponse("Обратная связь")
+#def contact(request):
+#	return HttpResponse("Обратная связь")
 class ShowPost(DataMixin, DetailView):
 	model=Progress
 	template_name='progress/post.html'
@@ -61,7 +61,6 @@ class ProgressCategory(DataMixin, ListView):
 	def get_context_data(self, *, object_list=None, **kwargs):
 		context=super().get_context_data(**kwargs)
 		c = Category.objects.get(slug=self.kwargs['cat_slug'])
-		#c_def = self.get_user_context(title='Категория - ' + str(context['posts'][0].cat), cat_selected=context['posts'][0].cat_id)
 		c_def = self.get_user_context(title='Категория - ' + str(c.name), cat_selected=c.pk)
 		return dict(list(context.items())+list(c_def.items()))
 class RegisterUser(DataMixin, CreateView):
