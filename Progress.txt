@@ -13350,9 +13350,9 @@ Mail for feedback: David138it@gmail.com
 	Py-ExeFiles
 	$ deactivate
 
-Обработка и сортировка данных одночастотных приёмников спутниковых радионавигационных систем (Cpp)
+Использование данных с одночастотных приемников спутниковых радионавигационных систем для коррекции модели ионосферы
 	Task:
-	Разработать программу, которая позволяет данным, полученным от приемника из файлов RINEX в текстовом формате, получать разность псевдодальностей (это расстояние между спутником и приемником, полученное путем умножения значения скорости света на временную задержку распространения сигнала, измеренную часами спутника и приемника) спутника и сортирует псевдодальности для каждой навигации по спутнику, чтобы упростить дальнейшую обработку. 
+	Для защиты диссертации по теме "Использование данных с одночастотных приемников спутниковых радионавигационных систем для коррекции модели ионосферы" освоил технологию приёма получения данных с одночастотных приемников спутниковых радионавигационных систем, получил данные, разработал программу на C++, которая обрабатывает и сортирует данные двух координат из файла по столбцам, рисует график, чтобы увидеть желаемый результат в точности определения координат спутников, рассмотрел способы уменьшения ошибок измерения псевдодальности и показал, что из-за нестабильности аппаратуры потребителя информация о состоянии ионосферы может быть получена в каждый момент времени по разностям ПД двух навигационных спутников 
 	Task:
 	Попробуем в файле irkj1380.txt вывести всю информацию до END OF HEADER в out.txt.
 	Decision:
@@ -13641,7 +13641,7 @@ Mail for feedback: David138it@gmail.com
 
 Разработка сайта
 	Task:
-	Для разработки своего сайта, куда публиковал все решенные мной интересные задачи, сверстал простой сайт, развернул в Qemu-kvm виртуальную машину с операционной системой Ubuntu, в котором установил и настроил веб-сервер Lamp с своей базой данных на Mysql, опубликовал сайт в сервис Timeweb и в нем зарегистрировал домен
+	Для разработки своего сайта, куда публиковал все решенные мной интересные задачи, отчеты лабораторных работ и презентации, сверстал простой сайт, установил в Qemu-kvm виртуальную машину с операционной системой Ubuntu, в котором развернул тестовый веб-сервер Lamp с своей базой данных на Mysql, после развернул LAMP в сервисе Timeweb.clouds, в данный сервис перенес данные веб-сервера (база и структура сайта) с виртуальной машины и зарегистрировал домен
 	Decision:
 	$ wget https://ubuntu.com/download/desktop/thank-you?version=22.04.3&architecture=amd64
 	$ sudo dnf install https://kojihub.stream.centos.org/kojifiles/packages/libvirt-python/8.5.0/2.el9/x86_64/
@@ -13972,6 +13972,103 @@ Mail for feedback: David138it@gmail.com
 	$ systemctl reload apache2
 	$ google-chrome http://127.0.0.1/phpmyadmin
 	Decision:
+	$ google-chrome https://hosting.timeweb.ru/
+	$ ssh -X root@IP
+	# sudo passwd root
+	# sudo apt update
+	# sudo apt upgrade
+	# adduser tuser
+	# usermod -aG sudo tuser
+	# ufw app list
+	Available applications:
+	  OpenSSH
+	# ufw allow OpenSSH
+	# ufw enable
+	# ufw status
+	Status: active
+	To                         Action      From
+	--                         ------      ----
+	OpenSSH                    ALLOW       Anywhere                  
+	OpenSSH (v6)               ALLOW       Anywhere (v6)   
+	# exit
+	$ ssh -X tuser@IP
+	$ sudo apt install apache2
+	$ sudo ufw app list
+	Available applications:
+	  Apache
+	  Apache Full
+	  Apache Secure
+	  OpenSSH
+	$ sudo ufw allow in "Apache Full"
+	Rule added
+	Rule added (v6)
+	$ google-chrome http://IP
+	$ sudo apt install mysql-server
+	$ sudo mysql_secure_installation
+	$ sudo mysql
+	mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'tP@ssw0rd';
+	mysql> CREATE USER 'tuser'@'%' IDENTIFIED BY 'tP@ssw0rd';
+	mysql> CREATE DATABASE tdomain;
+	mysql> GRANT ALL ON tdomain.* TO 'tuser'@'%'
+	mysql> exit
+	$ sudo apt install php libapache2-mod-php php-mysql
+	$ sudo mkdir /var/www/tdomain
+	$ sudo chown -R $USER:$USER /var/www/tdomain
+	$ sudo vim /etc/apache2/sites-available/tdomain.conf
+	$ cat /etc/apache2/sites-available/tdomain.conf
+	<VirtualHost *:80>
+	    ServerName tdomain
+	    ServerAlias www.tdomain
+	    ServerAdmin webmaster@localhost
+	    DocumentRoot /var/www/tdomain
+	    ErrorLog ${APACHE_LOG_DIR}/error.log
+	    CustomLog ${APACHE_LOG_DIR}/access.log combined
+	</VirtualHost>
+	$ sudo vim /etc/apache2/sites-available/tdomain.conf
+	$ sudo a2ensite tdomain
+	$ sudo a2dissite 000-default
+	$ sudo systemctl reload apache2
+	$ vim /var/www/tdomain/index.php
+	$ google-chrome http://IP
+	Decision:
+	$ mysql -V
+	mysql  Ver 8.0.34-0ubuntu0.22.04.1 for Linux on x86_64 ((Ubuntu))
+	$ exit
+	$ mysql -V
+	mysql  Ver 8.0.34-0ubuntu0.22.04.1 for Linux on x86_64 ((Ubuntu))
+	$ mysqldump -u root -p --opt tdomain > tdomain.sql
+	$ ls tdomain.sql
+	tdomain.sql
+	$ scp tdomain.sql tuser@IP:/home/tuser
+	$ scp -r /var/www/tdomain/* tuser@IP:/var/www/tdomain/
+	$ ssh -X tuser@IP
+	$ mysql -u root -p tdomain < tdomain.sql
+	$ mysql -u tuser -p
+	mysql> show databases;
+	+--------------------+
+	| Database           |
+	+--------------------+
+	| tdomain            |
+	| information_schema |
+	| performance_schema |
+	+--------------------+
+	$ sudo apt install phpmyadmin php-mbstring php-zip php-gd php-json php-curl
+	$ mysql -u root -p
+	mysql> UNINSTALL COMPONENT "file://component_validate_password";
+	mysql> exit
+	$ sudo apt install phpmyadmin
+	$ sudo apt install php8.1-fpm php8.1 libapache2-mod-php8.1 php8.1-common php8.1-mysql php8.1-xml php8.1-xmlrpc php8.1-imagick php8.1-cli php8.1-imap php8.1-opcache php8.1-soap php8.1-intl php8.1-bcmath unzip
+	$ mysql -u root -p
+	mysql> INSTALL COMPONENT "file://component_validate_password";
+	mysql> exit
+	$ sudo phpenmod mbstring
+	$ sudo systemctl restart apache2
+	$ sudo cp /etc/phpmyadmin/apache.conf /etc/apache2/conf-available/phpmyadmin.conf
+	$ sudo a2enconf phpmyadmin.conf
+	$ exit
+	$ google-chrome http://IP/ &
+	$ google-chrome http://IP/phpmyadmin & 
+	Decision:
 	$ exit
 	# virsh shutdown ubuntu22.04
 	Source:
@@ -13990,3 +14087,6 @@ Mail for feedback: David138it@gmail.com
 	https://www.tutsmake.com/how-to-install-lamp-apache-mysql-php-in-ubuntu-22-04/
 	https://www.php.net/manual/ru/faq.html.php
 	https://www.8host.com/blog/kak-rabotayut-stroki-v-php/
+	https://www.youtube.com/watch?v=FxwPQkP3OGY&t=611s
+	https://timeweb.com/ru/community/articles/kak-ustanovit-stek-lamp-na-ubuntu-20-04
+	https://wiki.merionet.ru/articles/perenos-bazy-dannyx-mysql-so-starogo-na-novyj-server
