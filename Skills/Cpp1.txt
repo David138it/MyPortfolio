@@ -1888,37 +1888,6 @@ Time
     Source:
     1. Командная строка Linux
     Task:
-    Установка Bornald Builder под Windows
-    Decision:
-    Для установки нам понадобятся https://cloud.mail.ru/public/JsGY/EmxDxzitp/ - устанавливаем UltraISO - тихая установка - запустим ее на рабочем столе - примонтируем первый диск с Borland Builder 6
-    заходим в смонтированный нами только что диск - запустим от администратора installer - выбираем С++ Builder 6 - нужно ввести сгенерированный ключ программы, зайдя в папку Borland - запустить генератор ключей Borland KeyGen - копируем - вставляем серийный номер - ключ программы в установщик.
-    Когда попросит второй диск, возращаемся в программу UltraISO - размонтируем первый диск - монтируем второй диск - ок - finish - NO
-    C/Programms file (x86)/Bornald/Builder/Bin - bcb.exe - свойства совместимости bcb.exe - +всегда выполнять от администратора это программу - Запускаем bcb.exe - +регистрируем ее с помощью генератора ключей Borland KeyGe - копировать - вставить
-    Task:
-    Мы хотим чтобы наша программа с графическим интерфейсом с нами поздоровалась в Bornald Builder
-    Decision:
-    //---------------------------------------------------------------------------
-    #include <vcl.h>
-    #pragma hdrstop
-    #include "Unit1.h"
-    //---------------------------------------------------------------------------
-    #pragma package(smart_init)
-    #pragma resource "*.dfm"
-    TForm1 *Form1;
-    //---------------------------------------------------------------------------
-    __fastcall TForm1::TForm1(TComponent* Owner)
-            : TForm(Owner)
-    {
-    }
-    //---------------------------------------------------------------------------
-    void __fastcall TForm1::Button1Click(TObject *Sender)
-    {
-            ShowMessage("Hello world!");
-    }
-    //---------------------------------------------------------------------------
-    Source:
-    1. https://www.youtube.com/watch?v=bDvVosvyVp0&list=LL&index=315
-    Task:
     Установка g++
     Decision:
     $ sudo apt install build-essential

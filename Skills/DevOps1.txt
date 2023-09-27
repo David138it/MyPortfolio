@@ -7791,21 +7791,7 @@ Docker
 	Decision:
 	VirtualBox -> дополнительно проброс портов -> + -> Если я подkлючaюсь на свою машину на любой адрес (если несколько адресов на моей машине), то допустим на порт хоста 2222 (надо чтобы этот порт был открыт физически на вашей реальной машине), назовем его ssh to ubuntu (имя), и я хочу пробрасывать это на любой адрес моей машины с убунту на порт гостя 22 (ssh слушает порт 22).
 	запускаем putty -> я могу подключиться на адрес 127.0.0.1 в host name на порт 2222 -> подлючаемся
-
 	ifconfig
-	Task:
-	установка VirtualBox в Ubuntu 18.04
-	Decision:
-	$ sudo apt install gcc make linux-headers-$(uname -r) dkms
-	$ wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
-	$ wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add —
-	$ sudo sh -c ‘echo «deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -sc) contrib» >> /etc/apt/sources.list.d/virtualbox.list’
-	$ sudo apt update
-	$ sudo apt purge virtualbox*
-	$ sudo apt install virtualbox-6.0
-	Task:
-	Добавить плагин Extension pack
-	https://www.virtualbox.org/wiki/Downloads - VirtualBox 6.1.32 Oracle VM VirtualBox Extension Pack - https://download.virtualbox.org/virtualbox/6.1.32/Oracle_VM_VirtualBox_Extension_Pack-6.1.32.vbox-extpack - Virtualbox -    Настройки - Плагины - Добавить новый плагин
 	Task:
 	Настройка гостевых дополнений Centos 8
 	Decision:
@@ -7876,54 +7862,6 @@ Docker
 	    ValueError: File context for /opt/VBoxGuestAdditions-6.1.29/other/mount.vboxsf already defined
 	# reboot
 	Task:
-	Настройка гостевых дополнений Ubuntu 20.04
-	Decision:
-	$ sudo apt-get update
-	$ sudo apt install openssh-server
-	$ systemctl ststus sshd
-	$ ifconfig
-	C:\Users\...>ssh ubuntu@2.8.0.6
-	$ sudo apt-get update
-	$ sudo apt-get install -y build-essential gcc make perl dkms
-	$ sudo poweroff
-	    https://www.virtualbox.org/wiki/Testbuilds -> https://www.virtualbox.org/download/testcase/VBoxGuestAdditions_6.1.29-148369.iso-> Virtualbox -> Ubuntu 20.04 -> Настройки -> Носители -> Атрибуты -> Выбрать файл диска... -> VBoxGuestAdditions_6.1.29-148369.iso -> ok -> Запустить
-	C:\Users\...>ssh ubuntu@2.8.0.6
-	$ cd /media
-	$ mkdir cdrom
-	$ sudo su
-	# mount /dev/cdrom /media/cdrom
-	    mount: /media/cdrom: ВНИМАНИЕ: устройство защищено от записи, смонтировано только для чтения.
-	# cd cdrom/
-	# ls
-	    AUTORUN.INF  OS2                      VBoxDarwinAdditionsUninstall.tool  VBoxWindowsAdditions.exe
-	    autorun.sh   runasroot.sh             VBoxLinuxAdditions.run             VBoxWindowsAdditions-x86.exe
-	    cert         TRANS.TBL                VBoxSolarisAdditions.pkg           windows11-bypass.reg
-	    NT3x         VBoxDarwinAdditions.pkg  VBoxWindowsAdditions-amd64.exe
-	# sh VBoxLinuxAdditions.run
-	    Verifying archive integrity... All good.
-	    Uncompressing VirtualBox 6.1.29 Guest Additions for Linux........
-	    VirtualBox Guest Additions installer
-	    Copying additional installer modules ...
-	    Installing additional modules ...
-	    VirtualBox Guest Additions: Starting.
-	    VirtualBox Guest Additions: Building the VirtualBox Guest Additions kernel
-	    modules.  This may take a while.
-	    VirtualBox Guest Additions: To build modules for other installed kernels, run
-	    VirtualBox Guest Additions:   /sbin/rcvboxadd quicksetup <version>
-	    VirtualBox Guest Additions: or
-	    VirtualBox Guest Additions:   /sbin/rcvboxadd quicksetup all
-	    VirtualBox Guest Additions: Building the modules for kernel 5.11.0-40-generic.
-	    update-initramfs: Generating /boot/initrd.img-5.11.0-40-generic
-	    VirtualBox Guest Additions: Running kernel modules will not be replaced until
-	    the system is restarted
-	# reboot
-	$ sudo usermod -aG vboxsf ubuntu
-	$ sudo reboot
-	$ cd /media/sf_Downloads/
-	$ vim filetest.txt
-	$ ls filetest.txt
-	    filetest.txt
-	Task:
 	Настройка гостевых дополнений Kali linux
 	Decision:
 	    https://www.virtualbox.org/wiki/Testbuilds -> https://www.virtualbox.org/download/testcase/VBoxGuestAdditions_6.1.29-148369.iso-> Virtualbox -> Kali Linux -> Настройки -> Носители -> Атрибуты -> Выбрать файл диска... -> VBoxGuestAdditions_6.1.29-148369.iso -> ok -> Запустить
@@ -7959,14 +7897,6 @@ Docker
 	Decision:
 	    Virtualbox -> Создать -> Centos Server -> 2048Mb -> 50Gb -> Настройки ->
 	    -> Процессор 2ЦП -> выключить PEA/NX -> Видеопамять: 128Mb -> Граф контроллер: VMSVGA -> Носители: Centos8.iso -> Сеть: Сетевой мост -> Общая папка -> Запустить
-	Task:
-	установка Ubuntu 20.04
-	Decision:
-	СОЗДАТЬ -> В открывшемся окне введите имя будущей машины -> выберите объем ОЗУ - 3 Гб -> поставьте переключатель в положение "Создавать новый виртуальный диск". -> Тип файла указываем VDI и формат хранения - динамический виртуальный жесткий диск -> Размер файла я лично указываю 30 Гб для Убунту, мне этого хватит -> Дальше откройте для нее контекстное меню -> выберите НАСТРОИТЬ -> СИСТЕМА -> В порядке загрузки убираем галочку на ГИБКИЙ ДИСК опускаем его вниз стрелочками -> Во вкладке процессора 2 ЦП поставлю -> ДИСПЛЕЙ -> объем видеопамяти равным 128 -> НОСИТЕЛИ  -> выбираем пустой диск  -> ставим образ операционной системы Убунту в оптический привод, который мыскачали в официальном сайте -> ОБЩАЯ ПАПКА  -> добавляем новую общую папку  -> указываем путь к папке (выбираем свой)  -> жмем галочку на ПОДКЛЮЧАТЬСЯ АВТОМАТИЧЕСКИ -> СЕТЬ  -> тип подключения  -> сетевой мост, и имя к нему -> Запускаем -> выбираем загрузочный диск -> дальше идет обычная установка Centos 8 
-	Task:
-	установка Windows 10
-	Decision:
-	СОЗДАТЬ -> В открывшемся окне введите имя будущей машины -> Выберите объем ОЗУ - 3 Гб -> поставьте переключатель в положение "Создавать новый виртуальный диск" -> Параметры диска можно оставить по умолчанию -> объем - 32 гигабайта (я оставил 100гб) -> Настроить -> Дисплей -> Cделайте объем видеопамяти равным 128 -> СИСТЕМА -> В порядке загрузки убираем галочку на ГИБКИЙ ДИСК -> опускаем его вниз стрелочками -> Вы также можете корректировать основную память (я поставил 2048мб) и процессор (2цп) -> НОСИТЕЛИ -> выбираем пустой диск -> ставим образ операционной системы Виндоус в оптический привод, который мы скачали в официальном сайте -> СЕТЬ -> тип подключения -> сетевой мост, и имя к нему -> ОБЩАЯ ПАПКА -> настраиваем путь к папке (выбираем свой) -> ставим галочку подключаться автоматически -> Запуск -> дальше идет обычная установка Виндоус.
 	Source:
 	1. https://www.youtube.com/user/itsemaev
 
