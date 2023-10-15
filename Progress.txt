@@ -11588,37 +11588,11 @@ Mail for feedback: David138it@gmail.com
 	Source:
 	1.https://www.youtube.com/playlist?list=PLmxB7JSpraieH3aScuPs7h77cSEQvPi2A
 
-Настройка локальной DNS-сети (Windows)
-	Task:
-	Установить DHCP и DNS сервера, добавить в домен клиентского компьютера, и проверить их работоспособность. Делать это все мы будем в виртуальной машине KVM с установленными операционными системами Windows Server 2019 и Windows 10. В KVM когда настраиваем сеть операционных систем, нужно подключить внутреннюю сеть и в неразборчивом режиме разрешить все. После чего для настройки сервера запускаем Windows Server 2019
-	Decision:
-	1. Диспетчер серверов - Локальная сеть - ipv4 - уберем галочку ipv6 - нажмем на ipv4 - настроить - прописать адреса: 
-	ip-адрес 192.168.0.1
-	маска подсети 255.255.255.0
-	Основной шлюз 192.168.0.1
-	Предпочитаемый Днс-сервер 8.8.8.8
-	диспетчер серверов - Локальная сеть - имя компьютера - изменить (например, Server) - перезагрузиться
-	2. Диспетчер серверов - Локальная сеть - управление - добавить роли и компоненты - тип установки - установка ролей и компонентов - выбор сервера - видим наш сервер (Server) и выбираем его - роли сервера ставим флажок на DNS-сервер и доменные службы Activity Directory - компоненты - Windows Powershell - подтверждаем - ставим галочку на автоматический перезапуск - устанавливаем - Диспетчер серверов - Локальная сеть - видим восклицательный знак - Выбираем повысить роли и компоненты -  в конфигурации развертывания - добавить новый лес - даем имя корневого раздела (на моем примере - server.local) - придумываем пароль, имя домена - устанавливаем
-	3. Диспетчер серверов - Локальная сеть - Средства - DNS - в зоне обратного просмотра правой кнопкой мыши создаем новую зону -  добавляем идентификатор сети. 
-	4. Сеть и интернет - центр управления сетями - дополнительные параметры - оставляем флажки на "включить сетевые обнаружения" и "включить общий доступ к файлам и принтерам" - После сохранения, вернемся обратно и снова зайдем в дополнительные парметры - увидиим что сохранения не изменинились. Для этого нужно зайти в диспетчер задач - службы - находим Публикация ресурсов обнаружения функции, Обнаружение SSDP - тип запуска у всех Автоматически - запускаем - Сеть и интернет - центр управления сетями - дополнительные параметры - оставляем флажки на "включить сетевые обнаружения" и "включить общий доступ к файлам и принтерам"
-	5. Диспетчер серверов - Локальная сеть - Управление - добавить роли и компоненты - тип установки - установка ролей и компонентов - роли сервера - добавим флажок на DHCP-сервер - подтверждаем - ставим галочку на автоматический перезапуск - устанавливаем - Также по восклицательному знаку в разделе Локальная сеть - настраиваем DHCP - имя пользователя - добавляем то самое имя учетной записи, с которой мы все это настраиваем (в моем случае - Администратор) - фиксируем - Диспетчер серверов - Локальная сеть - средства - DHCP - IPv4 правой кнопкой мыши создаем область - пишем имя области (в моем случае - Server) - добавляем диапозон айпи адресов и маску:
-	Начальный IP адрес 192.168.0.10
-	Конечный IP адрес 192.168.0.20
-	Длина 24
-	маска подсети 255.255.255.0
-	срок действия аренды я выбрал 1 день - добавляем айпи адрес маршрутизатора 192.168.0.1.
-	В DHCP - IPv4 - область 192.168.0.0 - пул ардесов - должна появиться инфа по DHCP
-	6. панельуправлени - система безопасности - брандмауер - включение и отключение брандмауера
-	7. У клиента Windows 10 свойства компьютера - изменить настройки,изменить - ставим флажок на добавление домена - вводим в домен (в моем случае это server.local) - вводим данные сервера (имя и пароль учетки сервера) - После перезагрузки можем спокойно работать в домене.
-	8. Вернемся к серверу - меню пуск - администрирование - DHCP-сервер - IPv4 - область - арендованные адреса видим наш клиентский компьютер
-	Source:
-	1. https://www.youtube.com/playlist?list=PL90TRL5CLgV68UQJZIWU_aoQhQGSXZJiS
-
 Установка и настройка дистрибутива Linux на второй диск рядом с Windows и программы qemu-kvm, в которой подключил дополнительные системы Windows 10, Server 2012 r2, Ubuntu, Centos, Kali, Alt (Linux, Windows, Devops)
 	Task:
 	Установить Centos рядом с Windows
 	Decision:
-	1. Скачиваем iso-файл с официального сайта Centos - Запускаем Rufus - Выбираем скаченный ISO файл дистрибутива и схему раздела (Если на старые компьютеры, то нужно выбрать MBR и целевую систему Bios, Файловую систему — Fat32, а размер кластера — 4068 байт, а если же компьютеры по новее и поддерживают Uefi, тогда выбираем в схеме раздела GPT и целевую систему Uefi)
+	Скачиваем iso-файл с официального сайта Centos - Запускаем Rufus - Выбираем скаченный ISO файл дистрибутива и схему раздела (Если на старые компьютеры, то нужно выбрать MBR и целевую систему Bios, Файловую систему — Fat32, а размер кластера — 4068 байт, а если же компьютеры по новее и поддерживают Uefi, тогда выбираем в схеме раздела GPT и целевую систему Uefi)
 	2. После успешной установки, загрузимся с флешки - в биосе настроиваем приоритет загрузчика, чтоб первая запускалась загрузочная флешка 
 	3. Перейдём к установке операционной системы - выбираем Install - выбрать размер разделов - поменяем систему разметки LVM на Standart Portition - нажимаем на click here to create them autmaticaly - установщик автоматически разделит диск - уменьшить размер корневого раздела / и раздел /home - Меняю у них размеры - Done - интернет настроить в Network & Host Name - Ethernet переключаем тумблер - Done - software Slection - minmal install- Done - запуск
 	Task:
@@ -13350,6 +13324,901 @@ Mail for feedback: David138it@gmail.com
 	Py-ExeFiles
 	$ deactivate
 
+Утилита для сканирования безопасности сети Nmap 
+Task:
+У руководителя уже установлена тестовая система Centos в машине Qemu-Kvm. Наша первая задача скоипровать у него систему 
+Decision:
+$ sudo virsh list --all
+ ID   Имя           Состояние
+-------------------------------
+ 2    Centos9       работает
+ -    Alt           выключен
+ -    Centos        выключен
+ -    Kali          выключен
+ -    ubuntu22.04   выключен
+ -    Windows       выключен
+$ sudo virsh shutdown Centos9
+$ sudo virsh domblklist Centos9
+ Назначение   Источник
+---------------------------------------------------
+ vda          /var/lib/libvirt/images/Centos9.img
+ sda          -
+$ rsync -avzP tuser@192.168.122.153:/var/lib/libvirt/images/Centos9.img Centos/.
+$ sudo virsh dumpxml Centos9 > Centos9.xml
+$ head Centos9.xml
+<domain type='kvm'>
+  <name>Centos9</name>
+  <uuid>8cdbcba9-a955-4ca1-b75e-ab3145255c8d</uuid>
+  <metadata>
+    <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
+      <libosinfo:os id="http://centos.org/centos-stream/9"/>
+    </libosinfo:libosinfo>
+  </metadata>
+  <memory unit='KiB'>2097152</memory>
+  <currentMemory unit='KiB'>2097152</currentMemory>
+$ sudo head /etc/libvirt/qemu/Centos9.xml
+<!--
+WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT ARE LIKELY TO BE
+OVERWRITTEN AND LOST. Changes to this xml configuration should be made using:
+  virsh edit Centos9
+or other application using the libvirt API.
+-->
+<domain type='kvm'>
+  <name>Centos9</name>
+  <uuid>8cdbcba9-a955-4ca1-b75e-ab3145255c8d</uuid>
+$ sudo qemu-img info Centos9.img
+image: Centos9.img
+file format: qcow2
+virtual size: 50 GiB (53687091200 bytes)
+disk size: 50 GiB
+cluster_size: 65536
+Snapshot list:
+ID        TAG               VM SIZE                DATE     VM CLOCK     ICOUNT
+1         snapshot1             0 B 2023-09-28 13:18:14 00:00:00.000          0
+Format specific information:
+    compat: 1.1
+    compression type: zlib
+    lazy refcounts: true
+    refcount bits: 16
+    corrupt: false
+    extended l2: false
+Child node '/file':
+    filename: Centos9.img
+    protocol type: file
+    file length: 50 GiB (53695545344 bytes)
+    disk size: 50 GiB
+$ sudo qemu-img convert Centos9.img tmp.bin -p
+$ VBoxManage convertdd tmp.bin virtualbox.vdi
+$ VBoxManage modifyvdi virtualbox.vdi compact
+
+Task:
+Работа с iptables
+Decision:
+$ virsh start Centos9
+$ virsh start ubuntu22.04
+$ ssh -X tuser@192.168.122.153
+$ sudo su
+# yum install iptables-services
+# iptables --version
+iptables v1.8.8 (nf_tables)
+# service iptables start
+Redirecting to /bin/systemctl start iptables.service
+# iptables -L -v
+Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+   54  3808 ACCEPT     all  --  any    any     anywhere             anywhere             state RELATED,ESTABLISHED
+    0     0 ACCEPT     icmp --  any    any     anywhere             anywhere            
+    0     0 ACCEPT     all  --  lo     any     anywhere             anywhere            
+    0     0 ACCEPT     tcp  --  any    any     anywhere             anywhere             state NEW tcp dpt:ssh
+    0     0 REJECT     all  --  any    any     anywhere             anywhere             reject-with icmp-host-prohibited
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+    0     0 REJECT     all  --  any    any     anywhere             anywhere             reject-with icmp-host-prohibited
+Chain OUTPUT (policy ACCEPT 32 packets, 3708 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+# vim firewall.sh
+# cat firewall.sh
+#!/bin/bash
+IPT="/sbin/iptables"
+# Очищаем правила и удаляем цепочки.
+$IPT -F
+$IPT -X
+# По умолчанию доступ запрещен.
+$IPT -P INPUT DROP
+$IPT -P FORWARD DROP
+$IPT -P OUTPUT DROP
+# Список разрешенных TCP и UDP портов.
+TCP_PORTS="21,22,25,53,80,143,443"
+UDP_PORTS="53,21,20"
+# Разрешаем пакеты для интерфейса обратной петли.
+$IPT -A INPUT -i lo -j ACCEPT
+$IPT -A OUTPUT -o lo -j ACCEPT
+# Разрешаем пакеты для установленных соединений.
+$IPT -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+# Разрешаем исходящие соединения.
+$IPT -A OUTPUT -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+# Разрешаем доступ к портам, описанным в переменных TCP_PORTS и UDP_PORTS.
+$IPT -A INPUT -p tcp -m multiport --dport $TCP_PORTS -j ACCEPT
+$IPT -A INPUT -p udp -m multiport --dport $UDP_PORTS -j ACCEPT
+# Разрешаем исходящий ping.
+$IPT -A INPUT -p icmp -m icmp --icmp-type echo-reply -j ACCEPT
+# chmod +x firewall.sh
+# ./firewall.sh
+$ ssh -X tuser@192.168.122.184
+$ sudo apt install nmap
+$ nmap 192.168.122.153
+Starting Nmap 7.80 ( https://nmap.org ) at 2023-09-28 20:48 CDT
+Nmap scan report for kvm-tcentos (192.168.122.153)
+Host is up (0.00094s latency).
+Not shown: 993 filtered ports
+PORT    STATE  SERVICE
+21/tcp  closed ftp
+22/tcp  open   ssh
+25/tcp  closed smtp
+53/tcp  closed domain
+80/tcp  closed http
+143/tcp closed imap
+443/tcp closed https
+Nmap done: 1 IP address (1 host up) scanned in 4.52 seconds
+# service iptables save
+iptables: Saving firewall rules to /etc/sysconfig/iptables: [  OK  ]
+Task:
+Просканируем удаленный хост.
+Decision:
+# dnf install nmap
+# nmap -A -T4 192.168.122.184
+Starting Nmap 7.92 ( https://nmap.org ) at 2023-09-29 11:07 +08
+Nmap scan report for kvm-ubuntu (192.168.122.184)
+Host is up (0.00084s latency).
+Not shown: 998 filtered tcp ports (no-response)
+PORT    STATE  SERVICE VERSION
+22/tcp  open   ssh     OpenSSH 8.9p1 Ubuntu 3ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   256 87:e5:ac:5b:03:13:bc:7c:98:7f:71:74:b7:ba:18:66 (ECDSA)
+|_  256 ab:67:ef:9c:a4:0b:9c:34:a4:d9:7c:88:29:9f:dd:a1 (ED25519)
+443/tcp closed https
+MAC Address: 52:54:00:90:60:D2 (QEMU virtual NIC)
+Device type: general purpose
+Running: Linux 5.X
+OS CPE: cpe:/o:linux:linux_kernel:5
+OS details: Linux 5.0 - 5.4
+Network Distance: 1 hop
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+TRACEROUTE
+HOP RTT     ADDRESS
+1   0.84 ms kvm-ubuntu (192.168.122.184)
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 8.51 seconds
+Task:
+Сканируем диапазон портов
+Decision:
+# nmap -sT -p 21-80 192.168.122.184
+Starting Nmap 7.92 ( https://nmap.org ) at 2023-09-29 11:14 +08
+Nmap scan report for kvm-ubuntu (192.168.122.184)
+Host is up (0.00072s latency).
+Not shown: 59 filtered tcp ports (no-response)
+PORT   STATE SERVICE
+22/tcp open  ssh
+MAC Address: 52:54:00:90:60:D2 (QEMU virtual NIC)
+Nmap done: 1 IP address (1 host up) scanned in 1.67 seconds
+Task:
+Перехватываем весь трафик для MAC-адреса 52:54:00:90:60:d2 на сетевом интерфейсе enp1s0.
+Decision:
+$ ping 192.168.122.153
+# tcpdump -n -i enp1s0 "ether host 52:54:00:90:60:d2"
+dropped privs to tcpdump
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on enp1s0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+11:23:29.841820 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 1, seq 1, length 64
+11:23:30.852588 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 1, seq 2, length 64
+11:23:31.876447 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 1, seq 3, length 64
+11:23:32.900487 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 1, seq 4, length 64
+11:23:33.924327 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 1, seq 5, length 64
+11:23:34.948423 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 1, seq 6, length 64
+11:23:35.076227 ARP, Request who-has 192.168.122.153 tell 192.168.122.184, length 28
+11:23:35.076254 ARP, Reply 192.168.122.153 is-at 52:54:00:fe:3c:41, length 28
+11:23:35.972252 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 1, seq 7, length 64
+...
+Task:
+Перехватываем только ICMP-пакеты
+Decision:
+# tcpdump -i enp1s0 -n -nn -ttt 'ip proto \icmp'
+dropped privs to tcpdump
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on enp1s0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+ 00:00:00.000000 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 6, seq 1, length 64
+ 00:00:01.001585 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 6, seq 2, length 64
+ 00:00:01.024016 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 6, seq 3, length 64
+
+
+
+Source:
+https://serverspace.ru/support/help/utilita-rsync-dlya-sinkhronizatsii-fajlov/
+https://elatov.github.io/2013/06/migrate-from-libvirt-kvm-to-virtualbox/
+https://www.opennet.ru/tips/1870_qemu_virtualbox_disk.shtml
+
+https://blog.sedicomm.com/2016/12/16/iptables-ustanovka-i-nastrojka/?ysclid=ln3wplng53988958006#1
+
+Организация локальной сети
+    Task:
+	Для защиты лабораторных работ по дисциплине Локально-вычислительные сети в виртуальной машине Ubuntu настроил программу для проектирования сетей Packet Tracer, спроектрировал лабораторные работы по темам "Использование DHCP-протокола через маршрутизатор и через сервер", "Wi-Fi - беспроводная передача данных", а также по теме "Локальная сеть" развернул виртуальные машины в Virtualbox две операционные системы Windows 10 и Windows Server 2012 для настройки локальной сети. В Windows Server установил DHCP и DNS сервера и добавил в домен клиентского компьютера Windows 10.
+    Task:
+    Packet Tracer Install Ubuntu 20.04
+    Decision:
+    $ sudo virsh start ubuntu22.04
+    $ ssh -X tuser@192.168.122.184
+    $ google-chrome https://www.google.ru/search?q=cisco+account+create&newwindow=1&source=hp&ei=Z8eqYdOSEcTIrgSIwIeQDQ&iflsig=ALs-wAMAAAAAYarVd9Qob1A5NSTfBETDiQsuP3G5I7gv&ved=0ahUKEwiT4p6Jgsn0AhVEpIsKHQjgAdIQ4dUDCAY&uact=5&oq=cisco+account+create&gs_lcp=Cgdnd3Mtd2l6EAMyBQgAEIAEMgUIABCABDIGCAAQFhAeMgYIABAWEB4yBggAEBYQHjIGCAAQFhAeMgYIABAWEB4yBggAEBYQHjIGCAAQFhAeMgYIABAWEB5QAFgAYPgEaABwAHgAgAGBAYgBgQGSAQMwLjGYAQCgAQKgAQE&sclient=gws-wiz &
+    $ google-chrome https://id.cisco.com/signin/register &
+    $ google-chrome https://temp-mail.org/ &
+    xanaveb196@simdpi.com - https://id.cisco.com/signin/register - mail: xanaveb196@simdpi.com - https://temp-mail.org/ - 
+    Активировать Аккаунт - https://id.cisco.com/signin/register - xanaveb196@simdpi.com
+    $ google-chrome https://www.google.ru/search?q=netacad+introduction+to+packet+tracer&newwindow=1&ei=Ks-qYZugA5a_rgTF_beoDw&oq=netacad+into+to+pa&gs_lcp=Cgdnd3Mtd2l6EAMYAjIGCAAQFhAeMgYIABAWEB4yBggAEBYQHjoHCAAQRxCwAzoNCC4QxwEQ0QMQsAMQQzoHCAAQsAMQQzoFCAAQgAQ6BQghEKABOgUIABDNAkoFCDwSATJKBAhBGABKBAhGGABQ96cZWMXDGWC44RloAnACeACAAZwBiAHGCpIBBDAuMTCYAQCgAQHIAQrAAQE&sclient=gws-wiz &
+    $ google-chrome https://www.netacad.com/portal/resources/packet-tracer &
+    $ wget https://www.netacad.com/portal/resources/file/71b29477-0abb-4a52-97eb-cc23d5771574
+    $ ls
+    CiscoPacketTracer_821_Ubuntu_64bit.deb
+    $ sudo dpkg -i CiscoPacketTracer_821_Ubuntu_64bit.deb
+    ...
+    dpkg: error processing package packettracer (--install):
+     dependency problems - leaving unconfigured
+    ...
+    Errors were encountered while processing:
+     packettracer
+    $ sudo apt install -f
+    $ sudo dpkg -i CiscoPacketTracer_821_Ubuntu_64bit.deb
+    $ packettracer &
+    Task:
+    The simplest network
+    Для организации простейшей сети потребуется Два компьютера и Патч-корд. В случае отсутствия патч-корда
+    необходимы: Кусок витой пары, Два коннектора RJ45.
+    Decision:
+    end devices - PC0 - PC1 - connections - copper cross-cover - PC0 - Desktop - ip configuration - ipv4 - 192.168.1.1 - subnet mask - 255.255.255.0 - PC1 - Desktop - ip configuration - ipv4 - 192.168.1.2 - subnet mask - 255.255.255.0 - PC0 - Desktop - Command Prompt
+    C:\>ping 192.168.1.2
+        Pinging 192.168.1.2 with 32 bytes of data:
+        Reply from 192.168.1.2: bytes=32 time<1ms TTL=128
+        Reply from 192.168.1.2: bytes=32 time<1ms TTL=128
+        Reply from 192.168.1.2: bytes=32 time<1ms TTL=128
+        Reply from 192.168.1.2: bytes=32 time<1ms TTL=128
+        Ping statistics for 192.168.1.2:
+            Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+        Approximate round trip times in milli-seconds:
+            Minimum = 0ms, Maximum = 0ms, Average = 0ms
+    Task:
+    Используем DHCP-протокол через маршрутизатор: We have one switch and router and several computers, Create a DHCP pool (some kind of ip address space), Exclude certain ip addresses, Настроить компьютеры (Убедимся, что ip адреса автоматически добавляются), Проверить связь, See which computers and which ip addresses were issued, Настроим порты, задать VLAN 2,3 на порты fa0/1,2,3,4, The vlan needs to be pushed to the router, Configure the router's sub-interface for 2,3,4 vlans, Configure the DHCP Server. The Dhcp server is located in a separate segment and a broadcast request from computers 3,4,5,6 in the search for a Dhcp server, the router will not pass. Since the computers are in different segments. It is necessary to forward computer requests to the Dhcp server
+    Decision:
+    Switch -2960 - PC0 - PC1 - PC2 - Router0 - 1841 - Copper Straight-Through - Router0 - CLI
+    Router>en
+    Router#conf t
+        Enter configuration commands, one per line.  End with CNTL/Z.
+    Router(config)#int fa0/0
+    Router(config-if)#no sh
+    Router(config-if)#no shutdown
+    Router(config-if)#
+        %LINK-5-CHANGED: Interface FastEthernet0/0, changed state to up
+        %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/0, changed state to up
+    Router(config-if)#ip add
+    Router(config-if)#ip address 192.168.1.1 255.255.255.0
+    Router(config-if)#exit
+    Router(config)#ip dhcp pool DHCP
+    Router(dhcp-config)#network 192.168.1.0 255.255.255.0
+    Router(dhcp-config)#defa
+    Router(dhcp-config)#default-router 192.168.1.1
+    Router(dhcp-config)#dns-server 8.8.8.8
+    Router(dhcp-config)#exit
+    Router(config)#ip dhcp  excluded-address 192.168.1.100
+    Router(config)#ip dhcp  excluded-address 192.168.1.1
+    Router(config)#exit
+    Router#wr mem
+    PC0,1,2 - Desktop - ip configuration - +DHCP - PC0 - Desktop - command prompt
+    C:\>ping 192.168.1.1
+    ...
+    Ping statistics for 192.168.1.1:
+    	Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+    Approximate round trip times in milli-seconds:
+    	Minimum = 0ms, Maximum = 11ms, Average = 2ms
+    C:\>ping 192.168.1.3
+    ...
+    Ping statistics for 192.168.1.3:
+    	Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+    Approximate round trip times in milli-seconds:
+    	Minimum = 0ms, Maximum = 1ms, Average = 0ms
+    C:\>ping 192.168.1.4
+    ...
+    Ping statistics for 192.168.1.4:
+    	Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+    Approximate round trip times in milli-seconds:
+    	Minimum = 0ms, Maximum = 0ms, Average = 0ms
+    Router0 - CLI
+    Router#show ip dhcp binding
+    IP address       Client-ID/              Lease expiration        Type
+                    Hardware address
+    192.168.1.2      0090.21EC.999A           --                     Automatic
+    192.168.1.3      0060.3E23.49DD           --                     Automatic
+    192.168.1.4      0010.1109.2ACD           --                     Automatic
+    Task:
+    Используем DHCP-протокол через сервер: We have 3 different network segments (Vlan2,3,4) and a dedicated dhcp server, Segmenting our network, Create a VLAN, 
+    Decision:
+    Switch - 2960 - PC3,4,5 - Router1 - 1841 - Sever0 - Copper Straight-Through - switch1 - cli
+    Switch>en
+    Switch#conf t
+    Switch(config)#vlan 2
+    Switch(config-vlan)#name VLAN2
+    Switch(config-vlan)#exit
+    Switch(config)#vlan 3
+    Switch(config-vlan)#name VLAN3
+    Switch(config-vlan)#exit
+    Switch(config)#vlan 4
+    Switch(config-vlan)#name DHCP
+    Switch(config-vlan)#exit
+    Switch(config)#int range fa
+    Switch(config)#int range fastEthernet 0/1-2
+    Switch(config-if-range)#swi
+    Switch(config-if-range)#switchport mode
+    Switch(config-if-range)#switchport mode acc
+    Switch(config-if-range)#switchport mode access
+    Switch(config-if-range)#swi
+    Switch(config-if-range)#switchport acc
+    Switch(config-if-range)#switchport access vla
+    Switch(config-if-range)#switchport access vlan 2
+    Switch(config-if-range)#exit
+    Switch(config)#int range fastEthernet 0/3-4
+    Switch(config-if-range)#switchport mode access
+    Switch(config-if-range)#switchport access vlan 3
+    Switch(config-if-range)#exit
+    Switch(config)#int range fastEthernet 0/5
+    Switch(config-if-range)#switchport mode access
+    Switch(config-if-range)#switchport access vlan 4
+    Switch(config-if-range)#exit
+    Switch(config)#int fa
+    Switch(config)#int fastEthernet 0/6
+    Switch(config-if)#switchport mode trunk
+    Switch(config-if)#swi
+    Switch(config-if)#switchport tr
+    Switch(config-if)#switchport trunk all
+    Switch(config-if)#switchport trunk allowed vla
+    Switch(config-if)#switchport trunk allowed vlan 2,3,4
+    Switch(config-if)#exit
+    Switch(config)#end
+    Switch#wr mem
+    Switch#show run
+        Building configuration...
+        Current configuration : 1388 bytes
+        !
+        version 15.0
+        no service timestamps log datetime msec
+        no service timestamps debug datetime msec
+        no service password-encryption
+        !
+        hostname Switch
+        !
+        !
+        !
+        !
+        !
+        !
+        spanning-tree mode pvst
+        spanning-tree extend system-id
+        !
+        interface FastEthernet0/1
+         switchport access vlan 2
+         switchport mode access
+        !
+        interface FastEthernet0/2
+         switchport access vlan 2
+         switchport mode access
+        !
+        interface FastEthernet0/3
+         switchport access vlan 3
+         switchport mode access
+        !
+        interface FastEthernet0/4
+         switchport access vlan 3
+         switchport mode access
+        !
+        interface FastEthernet0/5
+         switchport access vlan 4
+         switchport mode access
+        !
+        interface FastEthernet0/6
+         switchport trunk allowed vlan 2-4
+         switchport mode trunk
+    router1 - cli
+    Router>en
+    Router#conf t
+    Router(config)#int g
+    Router(config)#int gigabitEthernet 0/0.2
+    Router(config-subif)#enc
+    Router(config-subif)#encapsulation do
+    Router(config-subif)#encapsulation dot1Q 2
+    Router(config-subif)#ip
+    Router(config-subif)#ip add
+    Router(config-subif)#ip address 192.168.2.1 255.255.255.0
+    Router(config-subif)#no sh
+    Router(config-subif)#no shutdown
+    Router(config-subif)#exit
+    Router(config)#int gigabitEthernet 0/0
+    Router(config-if)#no shutdown
+    Router(config-if)#
+        %LINK-5-CHANGED: Interface GigabitEthernet0/0, changed state to up
+        %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/0, changed state to up
+        %LINK-5-CHANGED: Interface GigabitEthernet0/0.2, changed state to up
+        %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/0.2, changed state to up
+    Router(config-if)#exit
+    Router(config)#int gigabitEthernet 0/0.3
+    Router(config-subif)#
+        %LINK-5-CHANGED: Interface GigabitEthernet0/0.3, changed state to up
+        %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/0.3, changed state to up
+    Router(config-subif)#encapsulation dot1Q 3
+    Router(config-subif)#ip address 192.168.3.1 255.255.255.0
+    Router(config-subif)#no shutdown
+    Router(config-subif)#exit
+    Router(config)#int gigabitEthernet 0/0.4
+    Router(config-subif)#
+        %LINK-5-CHANGED: Interface GigabitEthernet0/0.4, changed state to up
+        %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/0.4, changed state to up
+    Router(config-subif)#encapsulation dot1Q 4
+    Router(config-subif)#ip address 192.168.4.1 255.255.255.0
+    Router(config-subif)#no shutdown
+    Router(config-subif)#end
+    Router#
+    Router#wr mem
+    Router#show run
+        Building configuration...
+        Current configuration : 882 bytes
+        !
+        version 15.1
+        no service timestamps log datetime msec
+        no service timestamps debug datetime msec
+        no service password-encryption
+        !
+        hostname Router
+        !
+        !
+        !
+        !
+        !
+        !
+        !
+        !
+        ip cef
+        no ipv6 cef
+        !
+        !
+        !
+        !
+        license udi pid CISCO2901/K9 sn FTX1524I7AI-
+        !
+        !
+        !
+        !
+        !
+        !
+        !
+        !
+        !
+        !
+        !
+        spanning-tree mode pvst
+        !
+        !
+        !
+        !
+        !
+        !
+        interface GigabitEthernet0/0
+         no ip address
+         duplex auto
+         speed auto
+        !
+        interface GigabitEthernet0/0.2
+         encapsulation dot1Q 2
+         ip address 192.168.2.1 255.255.255.0
+        !
+        interface GigabitEthernet0/0.3
+         encapsulation dot1Q 3
+         ip address 192.168.3.1 255.255.255.0
+        !
+        interface GigabitEthernet0/0.4
+         encapsulation dot1Q 4
+         ip address 192.168.4.1 255.255.255.0
+        !
+        interface GigabitEthernet0/1
+         no ip address
+         duplex auto
+         speed auto
+         shutdown
+        !
+    server0 - dekstop - ip configuration - ip address 192.168.4.2 - subnet mask 255.255.255.0 - default gateway 192.168.4.1 - command prompt
+    C:\>ping 192.168.4.1
+        ...
+        Ping statistics for 192.168.4.1:
+            Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+        Approximate round trip times in milli-seconds:
+            Minimum = 0ms, Maximum = 6ms, Average = 1ms
+        services - dhcp - убеждаемся, что видим один дефолтный server pool - pool name DCHP-VLAN2 - start ip address 192.168.2.0 - default gateway 192.168.2.1 - dns server - 8.8.8.8 - service +On - Add - тоже самое для 3тьего vlan
+    Router1 - ClI
+    Router>en
+    Router#conf t
+    Router(config)#int g
+    Router(config)#int gigabitEthernet 0/0.2
+    Router(config-subif)#ip hel
+    Router(config-subif)#ip help
+    Router(config-subif)#ip helper-address 192.168.4.2
+    Router(config-subif)#exit
+    Router(config)#int gigabitEthernet 0/0.3
+    Router(config-subif)#ip helper-address 192.168.4.2
+    Router(config-subif)#end
+    Router#wr mem
+    PC3,4,5,6 - desktop - ip configuration - +dhcp - Убеждаемтся в том, что dhcp автоматически раздал адреса - PC6 - command prompt
+    C:\>ping 192.168.3.1
+        ...
+        Ping statistics for 192.168.3.1:
+            Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+        Approximate round trip times in milli-seconds:
+            Minimum = 0ms, Maximum = 2ms, Average = 1ms
+    C:\>ping 192.168.2.2
+        ...
+        Ping statistics for 192.168.2.2:
+            Packets: Sent = 4, Received = 3, Lost = 1 (25% loss),
+        Approximate round trip times in milli-seconds:
+            Minimum = 0ms, Maximum = 1ms, Average = 0ms
+    Task:
+    Wifi: setting up a Wi fi router, Add a custom device laptop, add another stationary computer. assume that the organization already has some kind of network. we need to deploy wi-fi to our organization. we have a guest room of the organization. make sure that the wi-fi network is in a separate segment. On the port that connects to our router1 router, you need to add this vlan4 to trunkport. We need to create a sub interface on our router. Set the possibility to distribute addresses. Add some kind of wireless device, that is, let's assume that a client of the organization came to us and he has a laptop that wants to connect to wifi. Что получить ноутбуку ip адрес wifi нужно определить точку доступа к vlan.
+    Необходимо донастроить nat.    
+    Decision:
+    Router0-CLI
+    Router>en
+    Router#conf t
+    Router(config)#int fa
+    Router(config)#int fastEthernet 0/0
+    Router(config-if)#ip add
+    Router(config-if)#ip address 210.210.0.1 255.255.255.252
+    Router(config-if)#no sh
+    Router(config-if)#no shutdown
+    Router(config-if)#
+        %LINK-5-CHANGED: Interface FastEthernet0/0, changed state to up
+        %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/0, changed state to up
+    Router(config-if)#end
+    Router#wr mem
+    Wireless router 0 - gui - static ip - ip address: 210.210.0.2 - subnet mask: 255.255.255.252 - gateway: 210.210.0.1 - save setting - wireless - network name ssid: netskills-home - save setting - wireless security - wpa2 personal - passphase: ciscocisco - save setting
+    lalptop0 - выключаем - убираем (перетаскиваем) подключенный сетевой модуль - заместо него wrc300n - включаем ноутбук - desktop - pc wireless - connect - refresh - netskills-home - connect - pre-shared key - ciscocisco - command promprt
+    C:\>ipconfig
+        Bluetooth Connection:(default port)
+           Connection-specific DNS Suffix..:
+           Link-local IPv6 Address.........: ::
+           IPv6 Address....................: ::
+           IPv4 Address....................: 0.0.0.0
+           Subnet Mask.....................: 0.0.0.0
+           Default Gateway.................: ::
+                                             0.0.0.0
+        Wireless0 Connection:
+           Connection-specific DNS Suffix..:
+           Link-local IPv6 Address.........: FE80::202:4AFF:FE66:D186
+           IPv6 Address....................: ::
+           IPv4 Address....................: 192.168.0.100
+           Subnet Mask.....................: 255.255.255.0
+           Default Gateway.................: ::
+                                             192.168.0.1
+    C:\>ping 192.168.0.1
+        ...
+        Ping statistics for 192.168.0.1:
+            Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+        Approximate round trip times in milli-seconds:
+            Minimum = 23ms, Maximum = 122ms, Average = 56ms
+    C:\>ping 210.210.0.1
+        ...
+        Ping statistics for 210.210.0.1:
+            Packets: Sent = 4, Received = 3, Lost = 1 (25% loss),
+        Approximate round trip times in milli-seconds:
+            Minimum = 17ms, Maximum = 32ms, Average = 26ms
+    pc0 - ip conf - dbhcp - command prompt
+    C:\>ping 192.168.0.1
+        ...
+        Ping statistics for 192.168.0.1:
+            Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+        Approximate round trip times in milli-seconds:
+            Minimum = 0ms, Maximum = 1ms, Average = 0ms
+    C:\>ping 210.210.0.1
+        ...
+        Ping statistics for 210.210.0.1:
+            Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+        Approximate round trip times in milli-seconds:
+            Minimum = 0ms, Maximum = 1ms, Average = 0ms
+    C:\>ping 192.168.0.100
+        ...
+        Ping statistics for 192.168.0.100:
+            Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+        Approximate round trip times in milli-seconds:
+            Minimum = 11ms, Maximum = 158ms, Average = 62ms
+    Switch0 - CLI
+    Switch>en
+    Switch#show run
+        Building configuration...
+        Current configuration : 1436 bytes
+        !
+        version 12.2
+        no service timestamps log datetime msec
+        no service timestamps debug datetime msec
+        no service password-encryption
+        !
+        hostname Switch
+        !
+        !
+        !
+        !
+        !
+        !
+        spanning-tree mode pvst
+        spanning-tree extend system-id
+        !
+        interface FastEthernet0/1
+         description ToRouter
+         switchport trunk allowed vlan 2-4
+         switchport mode trunk
+        !
+        interface FastEthernet0/2
+         description Users
+         switchport access vlan 2
+         switchport mode access
+        !
+        interface FastEthernet0/3
+         description Users
+         switchport access vlan 2
+         switchport mode access
+        !
+        interface FastEthernet0/4
+         description srv
+         switchport access vlan 3
+         switchport mode access
+        !
+        interface FastEthernet0/5
+         description WiFi-AP
+         switchport access vlan 4
+         switchport mode access
+        !
+        interface FastEthernet0/6
+        !
+
+        router1-cli
+    Switch>en
+    Switch#show run
+        Building configuration...
+        Current configuration : 1436 bytes
+        !
+        version 12.2
+        no service timestamps log datetime msec
+        no service timestamps debug datetime msec
+        no service password-encryption
+        !
+        hostname Switch
+        !
+        !
+        !
+        !
+        !
+        !
+        spanning-tree mode pvst
+        spanning-tree extend system-id
+        !
+        interface FastEthernet0/1
+         description ToRouter
+         switchport trunk allowed vlan 2-4
+         switchport mode trunk
+        !
+        interface FastEthernet0/2
+         description Users
+         switchport access vlan 2
+         switchport mode access
+        !
+        interface FastEthernet0/3
+         description Users
+         switchport access vlan 2
+         switchport mode access
+        !
+        interface FastEthernet0/4
+         description srv
+         switchport access vlan 3
+         switchport mode access
+        !
+        interface FastEthernet0/5
+         description WiFi-AP
+         switchport access vlan 4
+         switchport mode access
+        !
+        interface FastEthernet0/6
+        !
+    access point0 - config - port1 - ssid: netskill - wpa2-psk - pass phrase: ciscocisco
+    switch-cli
+    #en
+    # conf t
+    # vlan 4
+    # name wifi
+    # end
+    #show run
+        ...
+        switchport trunk allowed vlan 2-4
+    router1 - cli
+    #en
+    # conf t
+    # int fa0/1.4
+    # encapsulation dot1Q 4
+    # ip address 192.168.4.1 255.255.255.0
+    # no shutdown
+    # end
+    # conf t
+    # ip dhcp pool Wifi-pool
+    # network 192.168.4.0 255.255.255.0
+    # default-router 192.168.4.1
+    # exit
+    # ip dhcp excluded-address 192.168.4.1
+    # end
+    # wr mem
+    Laptop1 - выключаем - убираем (перетаскиваем) подключенный сетевой модуль - заместо него wrc300n - включаем ноутбук - desktop - pc wireless - connect - refresh - netskills - save setting - wireless security - wpa2 personal - passphase: ciscocisco - save setting - command prompt
+    switch0-cli
+    #en
+    # conf t
+    # switchport mode access
+    # switchport access vlan 4
+    # description WiFi-AP
+    # end
+    # wr mem
+    Router1-cli
+    # en
+    # conf t
+    # ip access-list standart FOR-NAT
+    # permit 192.168.4.0  0.0.0.255
+    # exit
+    # int fa0/1.4
+    # ip nat inside
+    # end
+    # wr mem
+    lalptop1 - ip configuration - dhcp - ok - command prompt
+    C:\>ipconfig
+        Bluetooth Connection:(default port)
+           Connection-specific DNS Suffix..:
+           Link-local IPv6 Address.........: ::
+           IPv6 Address....................: ::
+           IPv4 Address....................: 0.0.0.0
+           Subnet Mask.....................: 0.0.0.0
+           Default Gateway.................: ::
+                                             0.0.0.0
+        Wireless0 Connection:
+           Connection-specific DNS Suffix..:
+           Link-local IPv6 Address.........: FE80::203:E4FF:FE34:D1E7
+           IPv6 Address....................: ::
+           IPv4 Address....................: 192.168.4.2
+           Subnet Mask.....................: 255.255.255.0
+           Default Gateway.................: ::
+                                             192.168.4.1
+    C:\>ping 192.168.4.1
+        ...
+        Ping statistics for 192.168.4.1:
+            Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+        Approximate round trip times in milli-seconds:
+            Minimum = 48ms, Maximum = 171ms, Average = 96ms
+    C:\>ping 192.168.2.3
+        ...
+        Ping statistics for 192.168.2.3:
+            Packets: Sent = 4, Received = 3, Lost = 1 (25% loss),
+        Approximate round trip times in milli-seconds:
+            Minimum = 27ms, Maximum = 60ms, Average = 39ms
+    C:\>ping 210.210.0.1
+        ...
+        Ping statistics for 210.210.0.1:
+            Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+        Approximate round trip times in milli-seconds:
+            Minimum = 38ms, Maximum = 69ms, Average = 52ms
+    Task:
+    Install VirtualBox
+    Decision:
+    $ sudo dnf config-manager --add-repo=https://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo
+    $ sudo rpm --import https://www.virtualbox.org/download/oracle_vbox.asc
+    $ sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+    $ sudo dnf install binutils kernel-devel kernel-headers libgomp make patch gcc glibc-headers glibc-devel dkm
+    $ sudo dnf search virtualbox
+    $ sudo dnf install VirtualBox-7.0
+    $ sudo usermod -aG vboxusers $USER
+    $ newgrp vboxusers
+    $ wget https://download.virtualbox.org/virtualbox/7.0.10/Oracle_VM_VirtualBox_Extension_Pack-7.0.10-158379.vbox-extpack
+    $ sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-7.0.10-158379.vbox-extpack
+    Task:
+    Использовать Virtualbox
+    Decision:
+    $ VBoxManage list ostypes
+    ...
+    ID:          Windows2012_64
+    Description: Windows 2012 (64-bit)
+    Family ID:   Windows
+    Family Desc: Microsoft Windows
+    64 bit:      true
+    ...
+    $ VBoxManage createvm --name "Windows2012" --ostype "Windows2012_64" --register --basefolder /var/lib/libvirt/vboximages/
+    $ vboxmanage modifyvm Windows2012 --memory 2048 --vram 128
+    $ vboxmanage modifyvm Windows2012 --nic1 bridged
+    $ vboxmanage createhd --filename /var/lib/libvirt/vboximages/Windows2012/Windows2012_DISK.vdi --size 75000 --format VDI 
+    $ vboxmanage storagectl Windows2012 --name "SATA Controller" --add sata --controller IntelAhci
+    $ vboxmanage storageattach Windows2012 --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium /var/lib/libvirt/vboximages/Windows2012/Windows2012_DISK.vdi
+    $ vboxmanage storagectl Windows2012 --name "IDE Controller" --add ide --controller PIIX4
+    $ vboxmanage storageattach Windows2012 --storagectl "IDE Controller" --port 1 --device 0 --type dvddrive --medium /var/lib/libvirt/iso/Server2012.iso
+    $ vboxmanage modifyvm Windows2012 --boot1 dvd --boot2 disk --boot3 none --boot4 none
+    $ vboxmanage modifyvm Windows2012 --vrde on
+    $ vboxmanage modifyvm Windows2012 --vrdemulticon on --vrdeport 10001
+    $ vboxmanage modifyvm Windows2012 --graphicscontroller vboxsvga
+    $ vboxmanage sharedfolder add Windows2012 --name "Загрузки" --hostpath /home/david/Загрузки/ --automount
+    $ vboxmanage startvm --type gui Windows2012 &
+    Task:
+    Установить DHCP и DNS сервера, добавить в домен клиентского компьютера, и проверить их работоспособность. Делать это все мы будем в виртуальной машине KVM с установленными операционными системами Windows Server 2019 и Windows 10. В KVM когда настраиваем сеть операционных систем, нужно подключить внутреннюю сеть и в неразборчивом режиме разрешить все. После чего для настройки сервера запускаем Windows Server 2019
+    Decision:
+    Диспетчер серверов - Локальная сеть - ipv4 - уберем галочку ipv6 - нажмем на ipv4 - настроить - прописать адреса: 
+    ip-адрес 192.168.0.1
+    маска подсети 255.255.255.0
+    Основной шлюз 192.168.0.1
+    Предпочитаемый Днс-сервер 8.8.8.8
+    Диспетчер серверов - Локальная сеть - имя компьютера - изменить (например, Server) - перезагрузиться
+    Диспетчер серверов - Локальная сеть - управление - добавить роли и компоненты - тип установки - установка ролей и компонентов - выбор сервера - видим наш сервер (Server) и выбираем его - роли сервера ставим флажок на DNS-сервер и доменные службы Active Directory - компоненты - Windows Powershell -	подтверждаем - ставим галочку на автоматический перезапуск - устанавливаем
+	Диспетчер серверов - Локальная сеть - видим восклицательный знак -	повысить роли и компоненты - в конфигурации развертывания добавить новый лес - даем имя корневого раздела (на моем примере - server.local) - придумываем пароль, имя домена - устанавливаем
+	Диспетчер серверов - Локальная сеть - Средства - DNS - в зоне обратного просмотра правой кнопкой мыши создаем новую зону - добавляем идентификатор сети 192.168.0. 
+    Сеть и интернет - центр управления сетями - дополнительные параметры - +включить сетевые обнаружения - +включить общий доступ к файлам и принтерам - вернемся обратно и снова зайдем в дополнительные парметры, увидиим что сохранения не изменинились. Для этого нужно зайти в диспетчер задач - службы - находим Публикация ресурсов обнаружения функции, Обнаружение SSDP - тип запуска у всех Автоматически - запускаем - Сеть и интернет - центр управления сетями - дополнительные параметры - оставляем флажки на "включить сетевые обнаружения" и "включить общий доступ к файлам и принтерам"
+    Диспетчер серверов - Локальная сеть - Управление - добавить роли и компоненты - тип установки - установка ролей и компонентов - роли сервера - добавим флажок на DHCP-сервер - подтверждаем - ставим галочку на автоматический перезапуск - устанавливаем - по восклицательному знаку в разделе Локальная сеть - настраиваем DHCP - имя пользователя - добавляем то самое имя учетной записи, с которой мы все это настраиваем (в моем случае - Администратор) - фиксируем 
+    Диспетчер серверов - Локальная сеть - средства - DHCP - IPv4 правой кнопкой мыши создаем область - пишем имя области (в моем случае - Server) - добавляем диапозон айпи адресов и маску:
+    Начальный IP адрес 192.168.0.10
+    Конечный IP адрес 192.168.0.20
+    Длина 24
+    маска подсети 255.255.255.0
+    срок действия аренды я выбрал 7 дней - добавляем айпи адрес маршрутизатора 192.168.0.1. В DHCP - IPv4 - область 192.168.0.0 - пул ардесов - должна появиться инфа по DHCP
+    панельуправлени - система безопасности - брандмауер - включение и отключение брандмауера
+    $ sudo virsh start Windows
+    $ virt-viewer --connect qemu:///system --wait Windows
+    свойства компьютера - изменить настройки,изменить - ставим флажок на добавление домена - вводим в домен (в моем случае это server.local) - вводим данные сервера (имя и пароль учетки сервера) - После перезагрузки можем спокойно работать в домене.
+    Task:
+    Перенос виртуальной машины VirtualBox в KVM
+    Decision:
+    $ vboxmanage list hdds
+    UUID:           90d93e42-c567-4ff4-8ab8-5a21971604dc
+    Parent UUID:    base
+    State:          created
+    Type:           normal (base)
+    Location:       /var/lib/libvirt/vboximages/Windows2012/Windows2012_DISK.vdi
+    Storage format: VDI
+    Capacity:       75000 MBytes
+    Encryption:     disabled
+    $ VBoxManage clonehd /var/lib/libvirt/vboximages/Windows2012/Snapshots/\{41cf81da-b2f5-4dfe-9afb-e5c0d5f0d301\}.vdi /var/lib/libvirt/vboximages/Windows2012/Windows12static.vdi --format VDI --variant Fixed
+    $ sudo qemu-img convert -f vdi /var/lib/libvirt/vboximages/Windows2012/Windows12static.vdi -O qcow2 /var/lib/libvirt/images/Windows12.qcow2
+    $ sudo virt-install --osinfo list
+    ...
+    win2k12r2
+    ...
+    $ sudo virt-install \
+    --name Windows12 \
+    --ram 2048 \
+    --vcpus=2 \
+    --import \
+    --disk path=/var/lib/libvirt/images/Windows12.qcow2,format=qcow2 \
+    --vnc \
+    --noautoconsole \
+    --os-variant win2k12r2 \
+    --accelerate \
+    --network bridge=br0
+    $ virt-viewer --connect qemu:///system --wait Windows12
+    Decision:
+    Вернемся к серверу - меню пуск - администрирование - DHCP-сервер - IPv4 - область - арендованные адреса видим наш клиентский компьютер
+    $ sudo virsh shutdown Windows
+    $ vboxmanage controlvm Windows12 poweroff soft
+    Source:
+    https://www.youtube.com/watch?v=04VpVYO7F78
+    https://www.youtube.com/watch?v=kg5CalaPOLA
+    https://www.youtube.com/playlist?list=PLcDkQ2Au8aVNYsqGsxRQxYyQijILa94T9
+    https://www.linuxhowto.net/how-to-install-virtualbox-on-rhel-9-step-by-step/?ysclid=ln2gkjl488389400056
+    https://www.dmosk.ru/miniinstruktions.php?mini=virtualbox-install
+    https://devminz.github.io/posts/devops/virtualbox-cli-vm-bridged-networking/
+    https://urn.su/dvps/virtualbox/vboxmanage/?ysclid=ln6wyljfpr336059458
+    https://urn.su/dvps/virtualbox/vboxmanage/man/?ysclid=ln6xc4orjl822339529
+    https://askubuntu.com/questions/161759/how-to-access-a-shared-folder-in-virtualbox
+    https://superuser.com/questions/116946/how-do-i-press-ctrlaltdelete-in-virtualbox
+    https://www.youtube.com/playlist?list=PL90TRL5CLgV68UQJZIWU_aoQhQGSXZJiS
+    https://obu4alka.ru/perenos-virtualnoj-mashiny-virtualbox-v-kvm.html
+    https://doc.s-terra.ru/rh_output/4.2/Virt_gate/output/mergedProjects/KVM/%D0%98%D0%BC%D0%BF%D0%BE%D1%80%D1%82_%D0%B2_KVM.htm
+
 Использование данных с одночастотных приемников спутниковых радионавигационных систем для коррекции модели ионосферы
     Task:
     Для защиты диссертации по теме "Использование данных с одночастотных приемников спутниковых радионавигационных систем для коррекции модели ионосферы" освоил технологию приёма получения данных с одночастотных приемников спутниковых радионавигационных систем, получил данные, разработал программу на C++, которая обрабатывает и сортирует данные двух координат из файла по столбцам, рисует график, чтобы увидеть желаемый результат в точности определения координат спутников, рассмотрел способы уменьшения ошибок измерения псевдодальности и показал, что из-за нестабильности аппаратуры потребителя информация о состоянии ионосферы может быть получена в каждый момент времени по разностям ПД двух навигационных спутников
@@ -13944,6 +14813,8 @@ Mail for feedback: David138it@gmail.com
 	phpinfo();
 	$ google-chrome http://127.0.0.1/info.php
 	$ sudo rm /var/www/tdomain/info.php
+	Decision:
+	https://dbdesigner.page.link/K8tSW7SdzLgPHV2S9
 	$ sudo mysql -u root -p
 	mysql> create database tbase;
 	mysql> CREATE USER 'tuser'@'%' IDENTIFIED BY 'tpassword';

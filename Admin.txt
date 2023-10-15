@@ -1,0 +1,90 @@
+Mail for feedback: David138it@gmail.com
+
+Администрирование виртуальных машин
+Task:
+Настройка Qemu-Kvm
+Decision:
+$ ip addr
+...
+5: virbr0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default qlen 1000
+    link/ether 52:54:00:b7:00:3c brd ff:ff:ff:ff:ff:ff
+    inet 192.168.122.1/24 brd 192.168.122.255 scope global virbr0
+       valid_lft forever preferred_lft forever
+$ sudo virsh net-list
+ Имя       Состояние   Автозапуск   Постоянный
+------------------------------------------------
+ default   активен     yes          yes
+$ sudo virsh net-edit default
+<network>
+  <name>default</name>
+  <uuid>745f121b-3c89-1281-a19a-aa62808c4241</uuid>
+  <forward mode="nat">
+  <bridge delay="0" name="virbr0" stp="on">
+  <mac address="16:18:00:21:8c:15">
+  <ip address="192.168.122.1" netmask="255.255.255.0">
+    <dhcp>
+      <range end="192.168.122.254" start="192.168.122.2">
+    </range></dhcp>
+  </ip>
+</mac></bridge></forward></network>
+$ sudo virt-install \
+--network network=default \
+--name Centos9 \
+--ram 2048 \
+--vcpus 2 \
+--disk path=/var/lib/libvirt/images/Centos9.img,size=75,format=qcow2 \
+--graphics vnc,password=tpassword \
+--location /var/lib/libvirt/iso/CentOS-Stream-9-latest-x86_64-dvd1.iso \
+--boot cdrom,hd,menu=on 
+WARNING  Не удалось подключиться к графической консоли. Для этого необходимо установить virt-viewer.
+...
+$ sudo dnf install virt-viewer
+$ sudo virt-install \
+--network network=default \
+--name Centos9 \
+--ram 2048 \
+--vcpus 2 \
+--disk path=/var/lib/libvirt/images/Centos9.img,size=50,format=qcow2 \
+--graphics vnc,password=tpassword \
+--location /var/lib/libvirt/iso/CentOS-Stream-9-latest-x86_64-dvd1.iso \
+--boot cdrom,hd,menu=on 
+Запуск установки...
+Получение «vmlinuz»                                        |  11 MB  00:00     
+Получение «initrd.img»                                     |  79 MB  00:00     
+Выделение «Centos9.img»                                    |  50 GB  00:20     
+WARNING  Переопределение объёма памяти на 3072 МиБ, необходимых для установки centos-stream9 с помощью сети.
+Удаление диска «Centos9.img»                               |         00:00     
+ERROR    конфигурация не поддерживается: VNC password is 9 characters long, only 8 permitted
+Возможно, установка домена завершилась неудачей. 
+Если вы уверены, что установка прошла нормально, перезапустите домен:
+ virsh --connect qemu:///system start Centos9
+В противном случае начните процесс установки заново.
+$ sudo virt-install \
+--network network=default \
+--name Centos9 \
+--ram 2048 \
+--vcpus 2 \
+--disk path=/var/lib/libvirt/images/Centos9.img,size=50,format=qcow2 \
+--graphics vnc \
+--location /var/lib/libvirt/iso/CentOS-Stream-9-latest-x86_64-dvd1.iso \
+--boot cdrom,hd,menu=on 
+$ sudo virsh list --all
+ ID   Имя           Состояние
+-------------------------------
+ 2    Centos9       работает
+ -    Alt           выключен
+ -    Centos        выключен
+ -    Kali          выключен
+ -    ubuntu22.04   выключен
+ -    Windows       выключен
+$ virt-viewer --connect qemu:///system --wait Centos9
+$ sudo virsh vncdisplay Centos9
+127.0.0.1:0
+$ sudo virsh domblklist Centos9
+ Назначение   Источник
+---------------------------------------------------
+ vda          /var/lib/libvirt/images/Centos9.img
+ sda          -
+
+Source:
+https://bozza.ru/art-260.html
