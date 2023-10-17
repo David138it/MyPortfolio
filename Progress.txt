@@ -13392,32 +13392,46 @@ $ VBoxManage convertdd tmp.bin virtualbox.vdi
 $ VBoxManage modifyvdi virtualbox.vdi compact
 
 Task:
-Работа с iptables
+Работа с iptables. 
+Проверяем наличие пакета iptables. 
+Убедимся, что iptables запускается при старте системы. 
+Выводим список текущих правил iptables.
+проанализируем какие порты открыты в сервере Centos. 
+Для этого нужно подключиться с сервера ubuntu.
 Decision:
 $ virsh start Centos9
 $ virsh start ubuntu22.04
 $ ssh -X tuser@192.168.122.153
 $ sudo su
-# yum install iptables-services
-# iptables --version
-iptables v1.8.8 (nf_tables)
-# service iptables start
-Redirecting to /bin/systemctl start iptables.service
-# iptables -L -v
+[root@kvm-tcentos tuser]# yum install iptables-services
+[root@kvm-tcentos tuser]# iptables --version
+[root@kvm-tcentos tuser]# iptables -L -v
 Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
  pkts bytes target     prot opt in     out     source               destination         
-   54  3808 ACCEPT     all  --  any    any     anywhere             anywhere             state RELATED,ESTABLISHED
-    0     0 ACCEPT     icmp --  any    any     anywhere             anywhere            
-    0     0 ACCEPT     all  --  lo     any     anywhere             anywhere            
-    0     0 ACCEPT     tcp  --  any    any     anywhere             anywhere             state NEW tcp dpt:ssh
-    0     0 REJECT     all  --  any    any     anywhere             anywhere             reject-with icmp-host-prohibited
 Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
  pkts bytes target     prot opt in     out     source               destination         
-    0     0 REJECT     all  --  any    any     anywhere             anywhere             reject-with icmp-host-prohibited
-Chain OUTPUT (policy ACCEPT 32 packets, 3708 bytes)
- pkts bytes target     prot opt in     out     source               destination
-# vim firewall.sh
-# cat firewall.sh
+Chain OUTPUT (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination 
+[root@kvm-tcentos tuser]# service iptables start
+[root@kvm-tcentos tuser]# service iptables status
+$ ssh -X tuser@192.168.122.184
+$ sudo su
+root@kvm-ubuntu:/home/tuser# nmap 192.168.122.153
+Starting Nmap 7.80 ( https://nmap.org ) at 2023-10-17 08:33 CDT
+Nmap scan report for kvm-tcentos (192.168.122.153)
+Host is up (0.00089s latency).
+Not shown: 999 filtered ports
+PORT   STATE SERVICE
+22/tcp open  ssh
+MAC Address: 52:54:00:FE:3C:41 (QEMU virtual NIC)
+Nmap done: 1 IP address (1 host up) scanned in 5.30 seconds
+Task:
+В сервере Centos Напишем набор правил iptables, в котором мы разрешаем все исходящие соединения и строго ограничиваем входящие. 
+Доступ будет возможен по портам TCP: 21, 22, 25, 53, 80, 143, 443, по портам UDP: 20, 21, 53, также мы пропускаем пакеты для уже установленных соединений.
+С удаленной машины просканируем порты на нашем сервере.
+Decision:
+[root@kvm-tcentos tuser]# vim firewall.sh
+[root@kvm-tcentos tuser]# cat firewall.sh
 #!/bin/bash
 IPT="/sbin/iptables"
 # Очищаем правила и удаляем цепочки.
@@ -13442,14 +13456,27 @@ $IPT -A INPUT -p tcp -m multiport --dport $TCP_PORTS -j ACCEPT
 $IPT -A INPUT -p udp -m multiport --dport $UDP_PORTS -j ACCEPT
 # Разрешаем исходящий ping.
 $IPT -A INPUT -p icmp -m icmp --icmp-type echo-reply -j ACCEPT
-# chmod +x firewall.sh
-# ./firewall.sh
-$ ssh -X tuser@192.168.122.184
-$ sudo apt install nmap
-$ nmap 192.168.122.153
-Starting Nmap 7.80 ( https://nmap.org ) at 2023-09-28 20:48 CDT
+[root@kvm-tcentos tuser]# chmod +x firewall.sh
+[root@kvm-tcentos tuser]# ./firewall.sh
+[root@kvm-tcentos tuser]# iptables -L -v
+Chain INPUT (policy DROP 1986 packets, 87384 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+    0     0 ACCEPT     all  --  lo     any     anywhere             anywhere            
+   79  5604 ACCEPT     all  --  any    any     anywhere             anywhere             state RELATED,ESTABLISHED
+    9   396 ACCEPT     tcp  --  any    any     anywhere             anywhere             multiport dports ftp,ssh,smtp,domain,http,imap,https
+    0     0 ACCEPT     udp  --  any    any     anywhere             anywhere             multiport dports domain,ftp,ftp-data
+    0     0 ACCEPT     icmp --  any    any     anywhere             anywhere             icmp echo-reply
+Chain FORWARD (policy DROP 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+Chain OUTPUT (policy DROP 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+    0     0 ACCEPT     all  --  any    lo      anywhere             anywhere            
+   60  7920 ACCEPT     all  --  any    any     anywhere             anywhere             state NEW,RELATED,ESTABLISHED
+[root@kvm-tcentos tuser]# service iptables save
+root@kvm-ubuntu:# nmap 192.168.122.153
+Starting Nmap 7.80 ( https://nmap.org ) at 2023-10-17 08:37 CDT
 Nmap scan report for kvm-tcentos (192.168.122.153)
-Host is up (0.00094s latency).
+Host is up (0.00095s latency).
 Not shown: 993 filtered ports
 PORT    STATE  SERVICE
 21/tcp  closed ftp
@@ -13459,9 +13486,32 @@ PORT    STATE  SERVICE
 80/tcp  closed http
 143/tcp closed imap
 443/tcp closed https
-Nmap done: 1 IP address (1 host up) scanned in 4.52 seconds
-# service iptables save
-iptables: Saving firewall rules to /etc/sysconfig/iptables: [  OK  ]
+MAC Address: 52:54:00:FE:3C:41 (QEMU virtual NIC)
+Nmap done: 1 IP address (1 host up) scanned in 5.20 seconds
+Task:
+	Если сетевых интерфейсов два или более, то необходимо включить
+	перенаправление трафика. Для этого в файле /etc/sysctl.conf
+	строку
+	net.ipv4.ip_forward = 0
+	меняем на
+	net.ipv4.ip_forward = 1
+	и перечитываем конфигурационный файл
+	[root@linuxbox ~]# sysctl -p /etc/sysctl.conf
+	Запрещаем доступ к фтп всем пользователям, кроме пользователя с MAC-
+	адресом e6:e6:f0:41:89:85.
+	iptables -A INPUT -p tcp --dport 21 -m mac --mac-source ! e6:e6:f0:41:89:85 -j DROP
+	Перенаправление пакетов, идущих на 80-й порт, на стандартный порт
+	прокси-сервера.
+	iptables -t nat -A PREROUTING -s 192.168.79.0/24 -p tcp --dport 80 -j
+	REDIRECT --to-port 3128
+	Предоставляем доступ из Интернет к веб-серверу, который расположен
+	в локальной сети (проброс порта). Вместо 192.168.79.2 укажите IP-адрес
+	вашего веб-сервера.
+	iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination
+	192.168.79.2:80
+	Включаем маскарадинг для доступа в Интернет пользователей локальной
+	сети.
+	iptables -t nat -A POSTROUTING -o eth0 -s 192.168.0.0/24 -j MASQUERADE
 Task:
 Просканируем удаленный хост.
 Decision:
