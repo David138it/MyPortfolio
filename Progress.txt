@@ -11652,1644 +11652,6 @@ Mail for feedback: David138it@gmail.com
 	5. Для Ubuntu выбрать способ, которым будет выполнена разметка жёсткого диска - выполним разметку диска для Ubuntu вручную "Свой вариант"- У меня установлена ОС - для создания раздела выберите пункт свободное пространство - нажмите кнопку со знаком плюс - выбрать размер раздела не менее 300 мегабайт - качестве файловой системы берём самую простую поддерживаемую ext2 - B корневом разделе сделать больше — 20-30 Гб, чтобы вам было достаточно для установки программ - Файловая система может быть zfs, btrfs, ext4 или reiserfs - Точка монтирования / - Для создании домашнего раздела выберите всё оставшееся свободное пространство - файловые системы желательно взять ext4 -Точка монтирования /home
 	6. Для Centos и Redos та же самая процедура, что мы делали выше
 
-Утилита сетевого сканирования Nmap и настройка правил iptables и утилиты антируткит (Linux)
-	Decision:
-	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu
-	Task:
-	разрешить ip 10.0.0.1 доступ к любым портам сервера. в iptables на INPUT все запрещено.
-	Decision:
-	# iptables -I INPUT -s 10.0.0.1 -j ACCEPT
-	Task:
-	Разрешаем пакеты на 80‐й порт.
-	Decision:
-	# iptables -A INPUT -p tcp --dport 80 -j ACCEPT
-	Task:
-	Напишем скрипт, где разрешим доступ к нашим службам, все остальное запретим. В наборе правил iptables мы разрешим все исходящие соединения и строго ограничиваем входящие. Доступ будет возможен по портам TCP: 21, 22, 25, 53, 80, 143, 443, по портам UDP: 20, 21, 53, также мы пропускаем пакеты для уже установленных соединений. Но сначала отключим firewalld
-	Decision:
-	# ifconfig
-	    enp0s3: flags=4163<UP,BROADCAST,RUNNING,MULTICAST> mtu 1500
-	    inet 192.168.0.104 netmask 255.255.255.0 broadcast 192.168.0.255
-	    inet6 fe80::8d4f:7215:fad0:e632 prefixlen 64 scopeid 0x20<link>
-	    ether 08:00:27:77:a2:2c txqueuelen 1000 (Ethernet)
-	    RX packets 26123 bytes 34182876 (32.5 MiB)
-	    RX errors 0 dropped 0 overruns 0 frame 0
-	    TX packets 8486 bytes 1077840 (1.0 MiB)
-	    TX errors 0 dropped 0 overruns 0 carrier 0 collisions 0
-	    # systemctl status firewalld
-	    ● firewalld.service - firewalld - dynamic firewall daemon
-	    Loaded: loaded (/usr/lib/systemd/system/firewalld.service; enabled; vendor p>
-	    Active: active (running) since Sun 2020-04-12 00:33:34 EDT; 5min ago
-	    Docs: man:firewalld(1)
-	    Main PID: 1063 (firewalld)
-	    Tasks: 2 (limit: 23980)
-	    Memory: 31.1M
-	    CGroup: /system.slice/firewalld.service
-	    └─1063 /usr/libexec/platform-python -s /usr/sbin/firewalld --nofork >
-	    апр 12 00:33:27 linux.centos systemd[1]: Starting firewalld - dynamic firewall >
-	    апр 12 00:33:34 linux.centos systemd[1]: Started firewalld - dynamic firewall d>
-	# systemctl stop firewalld
-	# systemctl disable firewalld
-	    Removed /etc/systemd/system/multi-user.target.wants/firewalld.service.
-	    Removed /etc/systemd/system/dbus-org.fedoraproject.FirewallD1.service.
-	    # systemctl status firewalld
-	    ● firewalld.service - firewalld - dynamic firewall daemon
-	    Loaded: loaded (/usr/lib/systemd/system/firewalld.service; disabled; vendor >
-	    Active: inactive (dead)
-	    Docs: man:firewalld(1)
-	    апр 12 00:33:27 linux.centos systemd[1]: Starting firewalld - dynamic firewall >
-	    апр 12 00:33:34 linux.centos systemd[1]: Started firewalld - dynamic firewall d>
-	    апр 12 00:38:47 linux.centos systemd[1]: Stopping firewalld - dynamic firewall >
-	    апр 12 00:38:48 linux.centos systemd[1]: Stopped firewalld - dynamic firewall d>
-	Task:
-	Проверяем наличие пакета iptables и Выводим список текущих правил iptables
-	Decision:
-	# rpm -q iptables
-	    iptables-1.8.2-16.el8.x86_64
-	# systemctl status iptables.service
-	    Unit iptables.service could not be found.
-	# systemctl status iptables.service
-	# yum -y install iptables-services
-	# systemctl status iptables.service
-	    ● iptables.service - IPv4 firewall with iptables
-	    Loaded: loaded (/usr/lib/systemd/system/iptables.service; disabled; vendor p>
-	    Active: inactive (dead)
-	# systemctl enable iptables.service
-	    Created symlink /etc/systemd/system/basic.target.wants/iptables.service → /usr/lib/systemd/system/iptables.service.
-	# systemctl start iptables.service
-	# systemctl status iptables.service
-	    ● iptables.service - IPv4 firewall with iptables
-	    Loaded: loaded (/usr/lib/systemd/system/iptables.service; enabled; vendor pr>
-	    Active: active (exited) since Sun 2020-04-12 00:41:29 EDT; 2s ago
-	    Process: 5513 ExecStart=/usr/libexec/iptables/iptables.init start (code=exite>
-	    Main PID: 5513 (code=exited, status=0/SUCCESS)
-	    апр 12 00:41:29 linux.centos systemd[1]: Starting IPv4 firewall with iptables...
-	    апр 12 00:41:29 linux.centos iptables.init[5513]: iptables: Applying firewall r>
-	    апр 12 00:41:29 linux.centos systemd[1]: Started IPv4 firewall with iptables.
-	# iptables -L
-	    Chain INPUT (policy ACCEPT)
-	    target prot opt source destination
-	    Chain FORWARD (policy ACCEPT)
-	    target prot opt source destination
-	    Chain OUTPUT (policy ACCEPT)
-	    target prot opt source destination
-	Task:
-	Политика по умолчанию сейчас Accept. Сейчас принимаются все пакеты и никакой фильтрации не происходит, значит система полностью открыта для вторжения. С удаленной машины просканируем порты на нашем сервере, какие открыты. И напишем простой скрипт для iptables.
-	Decision:
-	# nmap 192.168.0.104
-	    Starting Nmap 7.60 ( https://nmap.org ) at 2020-04-12 05:17 MSK
-	    Nmap scan report for 192.168.0.104
-	    Host is up (0.0011s latency).
-	    Not shown: 999 filtered ports
-	    PORT STATE SERVICE
-	    22/tcp open ssh
-	    MAC Address: 08:00:27:77:A2:2C (Oracle VirtualBox virtual NIC)
-	    Nmap done: 1 IP address (1 host up) scanned in 5.97 seconds
-	# vim /etc/iptables.sh
-	# cat /etc/iptables.sh
-	    #!/bin/bash
-	    #переназначить переменные
-	    export IPT="iptables"
-	    #Перед применением новых правил, очищаем все цепочки:
-	    $IPT -F
-	    $IPT -X
-	    #Блокируем весь трафик, который не соответствует ни одному из правил
-	    $IPT -P INPUT DROP
-	    $IPT -P FORWARD DROP
-	    $IPT -P OUTPUT DROP
-	    # Разрешаем пакеты для интерфейса обратной петли. Это нужно для нормальной работы в операционной системе
-	    $IPT -A INPUT -i lo -j ACCEPT
-	    $IPT -A OUTPUT -o lo -j ACCEPT
-	    # Дальше разрешаем пакеты для установленных соединений.
-	    $IPT -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-	    # Разрешаем исходящие соединения.
-	    $IPT -A OUTPUT -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-	    # Разрешаем доступ к портам TCP и UDP.
-	    $IPT -A INPUT -p tcp -m multiport --dport 21 -j ACCEPT
-	    $IPT -A INPUT -p tcp -m multiport --dport 22 -j ACCEPT
-	    $IPT -A INPUT -p tcp -m multiport --dport 25 -j ACCEPT
-	    $IPT -A INPUT -p tcp -m multiport --dport 53 -j ACCEPT
-	    $IPT -A INPUT -p tcp -m multiport --dport 80 -j ACCEPT
-	    $IPT -A INPUT -p tcp -m multiport --dport 143 -j ACCEPT
-	    $IPT -A INPUT -p tcp -m multiport --dport 443 -j ACCEPT
-	    $IPT -A INPUT -p udp -m multiport --dport 53 -j ACCEPT
-	    $IPT -A INPUT -p udp -m multiport --dport 21 -j ACCEPT
-	    $IPT -A INPUT -p udp -m multiport --dport 20 -j ACCEPT
-	    # Разрешаем исходящий ping.
-	    $IPT -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT
-	# ls -l /etc/iptables.sh
-	    -rw-r--r--. 1 root root 1334 апр 11 21:17 iptables.sh
-	# chmod +x /etc/iptables.sh
-	# ls -l /etc/iptables.sh
-	    -rwxr-xr-x. 1 root root 1898 апр 12 01:10 /etc/iptables.sh
-	# cd /etc/
-	# ./iptables.sh
-	# iptables -L
-	    Chain INPUT (policy DROP)
-	    target prot opt source destination
-	    ACCEPT all -- anywhere anywhere
-	    ACCEPT all -- anywhere anywhere state RELATED,ESTABLISHED
-	    ACCEPT tcp -- anywhere anywhere multiport dports ftp
-	    ACCEPT tcp -- anywhere anywhere multiport dports ssh
-	    ACCEPT tcp -- anywhere anywhere multiport dports smtp
-	    ACCEPT tcp -- anywhere anywhere multiport dports domain
-	    ACCEPT tcp -- anywhere anywhere multiport dports http
-	    ACCEPT tcp -- anywhere anywhere multiport dports imap
-	    ACCEPT tcp -- anywhere anywhere multiport dports https
-	    ACCEPT udp -- anywhere anywhere multiport dports domain
-	    ACCEPT udp -- anywhere anywhere multiport dports ftp
-	    ACCEPT udp -- anywhere anywhere multiport dports ftp-data
-	    ACCEPT icmp -- anywhere anywhere icmp echo-reply
-	    Chain FORWARD (policy DROP)
-	    target prot opt source destination
-	    Chain OUTPUT (policy DROP)
-	    target prot opt source destination
-	    ACCEPT all -- anywhere anywhere
-	    ACCEPT all -- anywhere anywhere state NEW,RELATED,ESTABLISHED
-	Task:
-	С удаленной машины просканируем порты на нашем сервере, какие открыты увидим
-	Decision:
-	# nmap 192.168.0.104
-	    Starting Nmap 7.60 ( https://nmap.org ) at 2020-04-12 08:31 MSK
-	    Nmap scan report for 192.168.0.104
-	    Host is up (0.0010s latency).
-	    Not shown: 993 filtered ports
-	    PORT STATE SERVICE
-	    21/tcp closed ftp
-	    22/tcp open ssh
-	    25/tcp closed smtp
-	    53/tcp closed domain
-	    80/tcp closed http
-	    143/tcp closed imap
-	    443/tcp closed https
-	    MAC Address: 08:00:27:77:A2:2C (Oracle VirtualBox virtual NIC)
-	    Nmap done: 1 IP address (1 host up) scanned in 21.15 seconds
-	# service iptables save
-	    iptables: Saving firewall rules to /etc/sysconfig/iptables:[ OK ]
-	Task:
-	Чтобы сбросить правила
-	Decision:
-	# rm -f /etc/sysconfig/iptables
-	Task:
-	Если сетевых интерфейсов два или более, то необходимо включить перенаправление трафика. Для этого в файле /etc/sysctl.conf строку net.ipv4.ip_forward = 0 меняем на net.ipv4.ip_forward = 1.тут мы включаем ip-forward.
-	Decision:
-	# ifconfig
-	    enp0s3:...
-	    enp0s8:...
-	    lo: ...
-	# vim /etc/sysctl.conf
-	# cat /etc/sysctl.conf
-	    ...
-	    # Uncomment the next line to enable packet forwarding for IPv4
-	    net.ipv4.ip_forward=1
-	    ...
-	# sysctl -p /etc/sysctl.conf
-	    net.ipv4.ip_forward = 1
-	Настройка firewall (ufw)
-	Task:
-	Посмотрим наcтройку файрвола в убунту. Разрешаем подключения на 22 порт(ssh) и 443 порт(https). Разрешаем подключения на 80 порт(http) с сети 192.168.0.99 на любой any адрес сервера, from-отккуда приходит пакет, to - куда.
-	Decision:
-	# sudo ufw allow 22
-	    Правила обновлены
-	    Правила обновлены (v6)
-	# sudo ufw allow 443
-	    Правила обновлены
-	    Правила обновлены (v6)
-	# sudo ufw allow from 192.168.0.99 to any port 80
-	    Правила обновлены
-	# sudo ufw allow from 192.168.0.99 to any port 80 proto tcp
-	    Правила обновлены
-	# sudo ufw allow from 192.168.0.99/24 to any port 80 proto tcp
-	    WARN: Правило изменено после нормализации
-	    Правила обновлены
-	# sudo ufw status verbose
-	    Состояние: неактивен
-	# sudo ufw enable
-	    Межсетевой экран включён и будет запускаться при запуске системы
-	# sudo ufw status verbose
-	    Состояние: активен
-	    Журналирование: on (low)
-	    По умолчанию: deny (входящие), allow (исходящие), disabled (маршрутизированные)
-	    Новые профили: skip
-	    В Действие Из
-	    - -------- --
-	    22 ALLOW IN Anywhere
-	    443 ALLOW IN Anywhere
-	    80 ALLOW IN 192.168.0.99
-	    80/tcp ALLOW IN 192.168.0.99
-	    80/tcp ALLOW IN 192.168.0.0/24
-	    22 (v6) ALLOW IN Anywhere (v6)
-	    443 (v6) ALLOW IN Anywhere (v6)
-	Task:
-	Видим что логирование у нас включено, по умолчанию low. деволтные поведения входящие трафик запрещают deny, исходящий - разрешают allow и отключены. видим наши правила.
-	Нумерованный список правил
-	Decision:
-	# sudo ufw status numbered
-	    Состояние: активен
-	    В Действие Из
-	    - -------- --
-	    [ 1] 22 ALLOW IN Anywhere
-	    [ 2] 443 ALLOW IN Anywhere
-	    [ 3] 80 ALLOW IN 192.168.0.99
-	    [ 4] 80/tcp ALLOW IN 192.168.0.99
-	    [ 5] 80/tcp ALLOW IN 192.168.0.0/24
-	    [ 6] 22 (v6) ALLOW IN Anywhere (v6)
-	    [ 7] 443 (v6) ALLOW IN Anywhere (v6)
-	# sudo ufw allow 443/tcp
-	    Правило добавлено
-	    Правило добавлено (v6)
-	# sudo ufw status numbered
-	    Состояние: активен
-	    В Действие Из
-	    - -------- --
-	    [ 1] 22 ALLOW IN Anywhere
-	    [ 2] 443 ALLOW IN Anywhere
-	    [ 3] 80 ALLOW IN 192.168.0.99
-	    [ 4] 80/tcp ALLOW IN 192.168.0.99
-	    [ 5] 80/tcp ALLOW IN 192.168.0.0/24
-	    [ 6] 443/tcp ALLOW IN Anywhere
-	    [ 7] 22 (v6) ALLOW IN Anywhere (v6)
-	    [ 8] 443 (v6) ALLOW IN Anywhere (v6)
-	    [ 9] 443/tcp (v6) ALLOW IN Anywhere (v6)
-	Task:
-	Удаляем правило allow 443
-	Decision:
-	# sudo ufw delete allow 443
-	    Правило удалено
-	    Правило удалено (v6)
-	# sudo ufw status numbered
-	    Состояние: активен
-	    В Действие Из
-	    - -------- --
-	    [ 1] 22 ALLOW IN Anywhere
-	    [ 2] 80 ALLOW IN 192.168.0.99
-	    [ 3] 80/tcp ALLOW IN 192.168.0.99
-	    [ 4] 80/tcp ALLOW IN 192.168.0.0/24
-	    [ 5] 443/tcp ALLOW IN Anywhere
-	    [ 6] 22 (v6) ALLOW IN Anywhere (v6)
-	    [ 7] 443/tcp (v6) ALLOW IN Anywhere (v6)
-	Task:
-	Добавляем правило на разрешение для сервиса ssh
-	Decision:
-	# sudo ufw allow ssh
-	    Правило добавлено
-	    Правило добавлено (v6)
-	# sudo ufw status numbered
-	    Состояние: активен
-	    В Действие Из
-	    - -------- --
-	    [ 1] 22 ALLOW IN Anywhere
-	    [ 2] 80 ALLOW IN 192.168.0.99
-	    [ 3] 80/tcp ALLOW IN 192.168.0.99
-	    [ 4] 80/tcp ALLOW IN 192.168.0.0/24
-	    [ 5] 443/tcp ALLOW IN Anywhere
-	    [ 6] 22/tcp ALLOW IN Anywhere
-	    [ 7] 22 (v6) ALLOW IN Anywhere (v6)
-	    [ 8] 443/tcp (v6) ALLOW IN Anywhere (v6)
-	    [ 9] 22/tcp (v6) ALLOW IN Anywhere (v6)
-	# sudo ufw allow mysql
-	    Правило добавлено
-	    Правило добавлено (v6)
-	# sudo ufw status numbered
-	    Состояние: активен
-	    В Действие Из
-	    - -------- --
-	    [ 1] 22 ALLOW IN Anywhere
-	    [ 2] 80 ALLOW IN 192.168.0.99
-	    [ 3] 80/tcp ALLOW IN 192.168.0.99
-	    [ 4] 80/tcp ALLOW IN 192.168.0.0/24
-	    [ 5] 443/tcp ALLOW IN Anywhere
-	    [ 6] 22/tcp ALLOW IN Anywhere
-	    [ 7] 3306 ALLOW IN Anywhere
-	    [ 8] 22 (v6) ALLOW IN Anywhere (v6)
-	    [ 9] 443/tcp (v6) ALLOW IN Anywhere (v6)
-	    [10] 22/tcp (v6) ALLOW IN Anywhere (v6)
-	    [11] 3306 (v6) ALLOW IN Anywhere (v6)
-	Task:
-	Удалить запись №7
-	Decision:
-	# sudo ufw delete 7
-	    Удаление:
-	    allow 3306
-	    Продолжить операцию (y|n)? y
-	    Правило удалено
-	# sudo ufw delete 10
-	    Удаление:
-	    allow 3306
-	    Продолжить операцию (y|n)? y
-	    Правило удалено (v6)
-	# sudo ufw status numbered
-	    Состояние: активен
-	    В Действие Из
-	    - -------- --
-	    [ 1] 22 ALLOW IN Anywhere
-	    [ 2] 80 ALLOW IN 192.168.0.99
-	    [ 3] 80/tcp ALLOW IN 192.168.0.99
-	    [ 4] 80/tcp ALLOW IN 192.168.0.0/24
-	    [ 5] 443/tcp ALLOW IN Anywhere
-	    [ 6] 22/tcp ALLOW IN Anywhere
-	    [ 7] 22 (v6) ALLOW IN Anywhere (v6)
-	    [ 8] 443/tcp (v6) ALLOW IN Anywhere (v6)
-	    [ 9] 22/tcp (v6) ALLOW IN Anywhere (v6)
-	# sudo ufw delete 2
-	    Удаление:
-	    allow from 192.168.0.99 to any port 80
-	    Продолжить операцию (y|n)? y
-	    Правило удалено
-	Task:
-	Вставить в запись №2 - Разрешаем подключения на 80 порт(http) с подсети 192.168.0.99 на любой адрес сервера
-	Decision:
-	# sudo ufw insert 2 allow from 192.168.0.99/24 to any port 80
-	    WARN: Правило изменено после нормализации
-	    Правило вставлено
-	# sudo ufw status numbered
-	    Состояние: активен
-	    В Действие Из
-	    - -------- --
-	    [ 1] 22 ALLOW IN Anywhere
-	    [ 2] 80 ALLOW IN 192.168.0.0/24
-	    [ 3] 80/tcp ALLOW IN 192.168.0.99
-	    [ 4] 80/tcp ALLOW IN 192.168.0.0/24
-	    [ 5] 443/tcp ALLOW IN Anywhere
-	    [ 6] 22/tcp ALLOW IN Anywhere
-	    [ 7] 22 (v6) ALLOW IN Anywhere (v6)
-	    [ 8] 443/tcp (v6) ALLOW IN Anywhere (v6)
-	    [ 9] 22/tcp (v6) ALLOW IN Anywhere (v6)
-	Task:
-	Выключить и включить лог (записывается в /var/log/ufw.log). Устанавливаем подробность лога в medium. Пробуем к нему подключиться черезз putty другом компе портом 21. и нас не пустят.
-	Decision:
-	# sudo ufw logging off
-	    Журналирование отключено
-	# sudo ufw logging on
-	    Журналирование включено
-	# sudo ufw logging medium
-	    Журналирование включено
-	Task:
-	Поиск и вывод логов UFW в syslog.
-	    Где SRC - ip нашей машины;
-	    DST - ip сервера;
-	    IN - на какой интерфейс пришел;
-	    UFW - дейтвия,
-	    BLOCK - блокирование;
-	    PROTO - протокол;
-	    SPT - исходящий порт;
-	    DPT - входящий порт.
-	Decision:
-	# grep UFW /var/log/syslog
-	    Mar 3 09:20:34 VirtualBox kernel: [ 2823.975294] [UFW BLOCK] IN=enp0s3 OUT= MAC=01:00:5e:00:00:01:1c:7e:e5:dc:92:1a:08:00 SRC=192.168.0.1 DST=224.0.0.1 LEN=28 TOS=0x00 PREC=0xC0 TTL=1 ID=28822 PROTO=2
-	    ...
-	    Mar 3 09:53:10 VirtualBox kernel: [ 4780.241816] [UFW AUDIT] IN=enp0s3 OUT= MAC=33:33:00:00:00:fb:f4:31:c3:4f:d1:78:86:dd SRC=fe80:0000:0000:0000:04e0:141f:6053:8700 DST=ff02:0000:0000:0000:0000:0000:0000:00fb LEN=121 TC=0 HOPLIMIT=255 FLOWLBL=671786 PROTO=UDP SPT=5353 DPT=5353 LEN=81
-	Task:
-	Просканируем удаленный хост Ubuntu VirtualBox. Ho cначала узнаем его адрес
-	Decision:
-	# yum -y install nmap
-	# ifconfig
-	    enp0s3: flags=4163<UP,BROADCAST,RUNNING,MULTICAST> mtu 1500
-	    inet 10.0.2.15 netmask 255.255.255.0 broadcast 10.0.2.255
-	    inet6 fe80::3f30:7b04:904b:eb02 prefixlen 64 scopeid 0x20<link>
-	    ether 08:00:27:49:c9:e9 txqueuelen 1000 (Ethernet)
-	    RX packets 124 bytes 8440 (8.4 KB)
-	    RX errors 0 dropped 0 overruns 0 frame 0
-	    TX packets 552 bytes 48413 (48.4 KB)
-	    TX errors 0 dropped 0 overruns 0 carrier 0 collisions 0
-	    enp0s8: flags=4163<UP,BROADCAST,RUNNING,MULTICAST> mtu 1500
-	    inet 12.18.0.104 netmask 255.255.255.0 broadcast 12.18.0.255
-	    inet6 fe80::25f1:ad4f:8afc:2f43 prefixlen 64 scopeid 0x20<link>
-	    ether 08:00:27:b3:5f:f4 txqueuelen 1000 (Ethernet)
-	    RX packets 37769 bytes 53691740 (53.6 MB)
-	    RX errors 0 dropped 0 overruns 0 frame 0
-	    TX packets 4774 bytes 449196 (449.1 KB)
-	    TX errors 0 dropped 0 overruns 0 carrier 0 collisions 0
-	    lo: flags=73<UP,LOOPBACK,RUNNING> mtu 65536
-	    inet 127.0.0.1 netmask 255.0.0.0
-	    inet6 ::1 prefixlen 128 scopeid 0x10<host>
-	    loop txqueuelen 1000 (Локальная петля (Loopback))
-	    RX packets 445 bytes 47613 (47.6 KB)
-	    RX errors 0 dropped 0 overruns 0 frame 0
-	    TX packets 445 bytes 47613 (47.6 KB)
-	    TX errors 0 dropped 0 overruns 0 carrier 0 collisions 0
-	# nmap -A -T5 12.18.0.104
-	    Starting Nmap 7.70 ( https://nmap.org ) at 2020-04-01 01:48 EDT
-	    Warning: 12.18.0.104 giving up on port because retransmission cap hit (2).
-	    Nmap scan report for 12.18.0.104
-	    Host is up (0.0027s latency).
-	    Not shown: 998 closed ports
-	    PORT STATE SERVICE VERSION
-	    22/tcp open ssh OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
-	    | ssh-hostkey:
-	    | 2048 d3:52:85:87:ac:9f:40:70:5f:4c:bd:b1:35:c3:2e:56 (RSA)
-	    | 256 3b:01:52:02:de:ca:73:f3:07:98:10:31:81:7f:20:3d (ECDSA)
-	    |_ 256 c9:b7:c2:c1:59:f9:64:5d:4a:4a:dd:6f:22:5c:52:b2 (ED25519)
-	    80/tcp open http nginx 1.14.0 (Ubuntu)
-	    |_http-s-header: nginx/1.14.0 (Ubuntu)
-	    |_http-title: phpinfo()
-	    MAC Address: 08:00:27:B3:5F:F4 (Oracle VirtualBox virtual NIC)
-	    Aggressive OS guesses: Linux 2.6.32 (96%), Linux 3.2 - 4.9 (96%), Linux 2.6.32 - 3.10 (96%), Linux 3.4 - 3.10
-	    (95%), Linux 3.1 (94%), Linux 3.2 (94%), AXIS 210A or 211 Network Camera (Linux 2.6.17) (94%), Synology DiskStation
-	    Manager 5.2-5644 (94%), Netgear RAIDiator 4.2.28 (94%), Linux 2.6.32 - 2.6.35 (94%)
-	    No exact OS matches for host (test conditions non-ideal).
-	    Network Distance: 1 hop
-	    Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
-	    TRACEROUTE
-	    HOP RTT ADDRESS
-	    1 2.68 ms 12.18.0.104
-	    OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-	    Nmap done: 1 IP address (1 host up) scanned in 21.65 seconds
-	Task:
-	Сравним данные в Ubuntu VirtualBox
-	Decision:
-	# uname -a
-	   Linux VirtualBox 5.3.0-42-generic #34~18.04.1-Ubuntu SMP Fri Feb 28 13:42:26 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
-	Task:
-	Сканируем диапазон портов.
-	Decision:
-	# nmap -sT -p 21-80 12.18.0.20
-	    Starting Nmap 7.70 ( https://nmap.org ) at 2020-03-26 22:12 EDT
-	    Nmap scan report for 12.18.0.20
-	    Host is up (0.00050s latency).
-	    Not shown: 59 closed ports
-	    PORT STATE SERVICE
-	    22/tcp open ssh
-	    Nmap done: 1 IP address (1 host up) scanned in 0.10 seconds
-	# nmap -sT -p 13722-13783 linuxbox
-	Task:
-	Теперь давайте рассмотрим как найти все подключенные к сети устройства, для этого достаточно использовать опцию -sL и указать маску нашей сети. в моем случае это 12.18.0.15/24. Найдем сначала маску нашей локальной сети
-	Decision:
-	# ip addr show
-	    1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN qlen 1
-	        link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-	        inet 127.0.0.1/8 scope host lo
-	           valid_lft forever preferred_lft forever
-	        inet6 ::1/128 scope host
-	           valid_lft forever preferred_lft forever
-	    2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
-	        link/ether 08:00:27:d4:b1:c3 brd ff:ff:ff:ff:ff:ff
-	        inet 12.18.0.15/24 brd 12.18.0.255 scope global dynamic enp0s3
-	           valid_lft 2516sec preferred_lft 2516sec
-	        inet6 fe80::ea38:7ca0:47a8:e1c5/64 scope link
-	           valid_lft forever preferred_lft forever
-	    3: virbr0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN qlen 1000
-	        link/ether 52:54:00:a5:ce:ae brd ff:ff:ff:ff:ff:ff
-	        inet 12.18.122.1/24 brd 12.18.122.255 scope global virbr0
-	           valid_lft forever preferred_lft forever
-	    4: virbr0-nic: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast master virbr0 state DOWN qlen 1000
-	        link/ether 52:54:00:a5:ce:ae brd ff:ff:ff:ff:ff:ff
-	# nmap -sL 12.18.0.15/24
-	    Starting Nmap 6.40 ( http://nmap.org ) at 2018-04-24 22:24 +08
-	    Nmap scan report for 12.18.0.0
-	    Nmap scan report for 12.18.0.1
-	    Nmap scan report for 12.18.0.2
-	    Nmap scan report for 12.18.0.3
-	    Nmap scan report for 12.18.0.4
-	    …
-	    Nmap scan report for 12.18.0.254
-	    Nmap scan report for 12.18.0.255
-	    Nmap done: 256 IP addresses (0 hosts up) scanned in 0.35 seconds
-	Task:
-	Иногда это сканирование может не дать никаких результатов, потому что некоторые операционные системы имеют защиту от сканирования портов. Но это можно обойти, просто использовав для сканирования ping всех ip адресов сети, для этого есть опция -sn. программа обнаружит активные устройства в сети
-	Decision:
-	# nmap -sn 12.18.0.15/24
-	    Starting Nmap 6.40 ( http://nmap.org ) at 2018-04-24 22:25 +08
-	    Nmap scan report for 12.18.0.1
-	    Host is up (0.014s latency).
-	    MAC Address: C4:6E:1F:E2:B9:E8 (Unknown)
-	    Nmap scan report for 12.18.0.100
-	    Host is up (0.034s latency).
-	    MAC Address: 84:BE:52:63:EC:AD (Unknown)
-	    Nmap scan report for 12.18.0.101
-	    Host is up (0.010s latency).
-	    MAC Address: AC:AF:B9:2C:89:32 (Unknown)
-	    Nmap scan report for 12.18.0.103
-	    Host is up (0.00026s latency).
-	    MAC Address: C4:46:19:23:7E:31 (Hon Hai Precision Ind. Co.)
-	    Nmap scan report for 12.18.0.15
-	    Host is up.
-	    Nmap done: 256 IP addresses (5 hosts up) scanned in 1.86 seconds
-	Task:
-	Дальше мы можем сканировать порты nmap для нужного узла запустив утилиту без опций
-	Decision:
-	# nmap 12.18.0.1
-	    Starting Nmap 6.40 ( http://nmap.org ) at 2018-04-24 22:26 +08
-	    Nmap scan report for 12.18.0.1
-	    Host is up (0.016s latency).
-	    Not shown: 998 closed ports
-	    PORT STATE SERVICE
-	    80/tcp open http
-	    1900/tcp open upnp
-	    MAC Address: C4:6E:1F:E2:B9:E8 (Unknown)
-	    Nmap done: 1 IP address (1 host up) scanned in 0.51 seconds
-	Task:
-	Чтобы узнать более подробную информацию о машине и запущенных на ней сервисах вы можете использовать опцию -sV. Утилита подключится к каждому порту и определит всю доступную информацию.
-	Decision:
-	# nmap -sV 12.18.0.1
-	    Starting Nmap 6.40 ( http://nmap.org ) at 2018-04-24 22:27 +08
-	    Nmap scan report for 12.18.0.1
-	    Host is up (0.020s latency).
-	    Not shown: 998 closed ports
-	    PORT STATE SERVICE VERSION
-	    80/tcp open http TP-LINK WR740N WAP http config
-	    1900/tcp open upnp ipOS 7.0 (TP-LINK TL-WR740N WAP 4.0; UPnP 1.0)
-	    MAC Address: C4:6E:1F:E2:B9:E8 (Unknown)
-	    Service Info: Device: WAP
-	    Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .
-	    Nmap done: 1 IP address (1 host up) scanned in 7.35 seconds
-	    [root@localhost в]# nmap -sV 12.18.0.15
-	    Starting Nmap 6.40 ( http://nmap.org ) at 2018-04-24 22:28 +08
-	    Nmap scan report for 12.18.0.15
-	    Host is up (0.000021s latency).
-	    Not shown: 998 closed ports
-	    PORT STATE SERVICE VERSION
-	    22/tcp open ssh OpenSSH 7.4 (protocol 2.0)
-	    111/tcp open rpcbind 2-4 (RPC #100000)
-	    Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .
-	    Nmap done: 1 IP address (1 host up) scanned in 6.42 seconds
-	Task:
-	На нашей машине запущен ssh, а поэтому мы можем попытаться рассмотреть эту службу подробнее с помощью стандартных скриптов nmap. Скрипты позволяют проверить порт более детально, найти возможные уязвимости. Для этого используйте опцию -sC и -p чтобы задать порт.
-	Decision:
-	# nmap -sC 12.18.0.15-p 22
-	    Starting Nmap 6.40 ( http://nmap.org ) at 2018-04-24 22:30 +08
-	    Nmap scan report for 12.18.0.15
-	    Host is up (2100s latency).
-	    PORT STATE SERVICE
-	    22/tcp open ssh
-	    | ssh-hostkey: 2048 3а:43:аd:9р:81:23:10:к0:dд:16:рe:82:a8:76:пf:43 (RSA)
-	    |_256 чр:а8:e7:3й:dр:1a:фe:63:18:87:11:cы:с7:78:би:0я (ECDSA)
-	    Nmap done: 1 IP address (1 host up) scanned in 0.94 seconds
-	https://github.com/David138it/MyPortfolio/tree/main/TaskDecision/Engineer-Isu
-	Мы рассмотрели как выполняется сканирование портов nmap, а также несколько простых примеров использования этой утилиты. Эти команды nmap могут быть полезными многим системным администраторам, чтобы улучшить безопасность их систем. Рассмотрели системы обнаружения вторжения. анализирующие активность в сети или системе на предмет неавторизованных и злонамеренных действий. И программу chkrootkit,  предназначена для поиска враждебного кода (rootkit) и иных подозрительных событий в системе
-	Task:
-	Установка и обновление rkhunter
-	Decision:
-	# apt-get install rkhunter
-	# cd /tmp
-	# wget https://sourceforge.net/projects/rkhunter/files/rkhunter/1.4.6/rkhunter-1.4.6.tar.gz
-	# tar -xvf rkhunter-1.4.6.tar.gz
-	# cd rkhunter-1.4.6
-	# ./installer.sh --layout default --install
-	# rkhunter --update
-	        Invalid WEB_CMD configuration option: Relative pathname: "/bin/false"
-	# vim /etc/rkhunter.conf
-	# cat /etc/rkhunter.conf
-	        UPDATE_MIRRORS=0 на UPDATE_MIRRORS=1
-	        MIRRORS_MODE=1 на MIRRORS_MODE=0
-	        WEB_CMD="/bin/false" на WEB_CMD=""
-	# rkhunter --update
-	# rkhunter --propupd
-	# vim /etc/cron.daily/rkhunter.sh
-	# cat /etc/cron.daily/rkhunter.sh
-	#!/bin/sh
-	(
-	/usr/local/bin/rkhunter --versioncheck
-	/usr/local/bin/rkhunter --update
-	/usr/local/bin/rkhunter --cronjob --report-warnings-only
-	) | /bin/mail -s 'rkhunter Daily Run (I-X)' tmail@gmail.com
-	# chmod 755 /etc/cron.daily/rkhunter.sh
-	# rkhunter --list rootkits
-	# rkhunter --check
-	# cat /var/log/rkhunter.log
-	# cat /var/log/rkhunter.log | grep hidden
-	# lsof | grep /etc/net/scripts
-	# cat /var/log/rkhunter.log | grep -A5 "\[ Warning \]"
-	Task:
-	Теперь необходимо собрать информацию о файлах в системе, это нужно, чтобы программа могла понять пытался ли кто модифицировать системные файлы при следующей проверке.
-	Decision:
-	# rkhunter --propupd
-	        [ Rootkit Hunter version 1.4.6 ]
-	        File updated: searched for 181 files, found 151
-	Task:
-	Обновление желательно выполнять регулярно, поэтому давайте создадим специальный скрипт и будем запускать его с помощью cron каждый день. Для этого создайте файл скрипта в папке /etc/cron.daily
-	Decision:
-	# vim /etc/cron.daily/rkhunter.sh
-	# cat /etc/cron.daily/rkhunter.sh
-	        #!/bin/sh
-	        (
-	            /usr/local/bin/rkhunter --versioncheck
-	            /usr/local/bin/rkhunter --update
-	            /usr/local/bin/rkhunter --cronjob --report-warnings-only
-	        ) | /bin/mail -s 'rkhunter Daily Run (192.168.0.12)' work38@gmail.com
-	# chmod 755 /etc/cron.daily/rkhunter.sh
-		Task:
-	посмотреть все руткиты, которые может найти программа
-	Decision:
-	# rkhunter --list rootkits
-	        Rootkits checked for:
-	            55808 Trojan - Variant A, AjaKit, aPa Kit, Adore, Apache Worm, Ambient (ark),
-	            Balaur, BeastKit, beX2, BOBKit, Boonana (Koobface.A), cb,
-	            CiNtuser Worm (Slapper.B variant), CX, Danny-Boy's Abuse Kit, Devil, Diamorphine LKM, Dica,
-	            Dreams, Duarawkz, Ebury, Enye LKM, Flea Linux, FreeBSD,
-	            Fu, Fuck`it, GasKit, Heroin LKM, HjC Kit, ignoKit,
-	            iLLogiC, Inqtana-A, Inqtana-B, Inqtana-C, IntoXonia-NG, Irix,
-	            Jynx, Jynx2, KBeast, Keydnap, Kitko, Knark,
-	            Komplex, ld-linuxv.so, Li0n Worm, Lockit/LJK2, Mokes, Mood-NT,
-	            MRK, Ni0, Ohhara, Optic Kit (Tux), OSXRK, Oz,
-	            Phalanx, Phalanx2, Portacelo, Proton, R3dstorm Toolkit, RH-Sharpe's,
-	            RSHA's, Scalper Worm, Shutdown, SHV4, SHV5, Sin,
-	            SInAR, Slapper, Sneakin, Solaris Wanuk, Spanish, Suckit,
-	            SunOS / NSDAP, SunOS Rootkit, Superkit, TBD (Telnet BackDoor), TeLeKiT, Togroot,
-	            T0rn, trNkit, Trojanit Kit, Turtle2, Tuxtendo, URK,
-	            Vampire, VcKit, Volc, w00tkit, weaponX, Xzibit,
-	            X-Org SunOS, zaRwT.KiT, ZK
-	Task:
-	Для того чтобы проверить Linux на вирусы всю систему выполните от суперпользователя
-	Decision:
-	# rkhunter --check
-	        [ Rootkit Hunter version 1.4.6 ]
-	        Checking system commands...
-	          Performing 'strings' command checks
-	            Checking 'strings' command                               [ OK ]
-	          Performing 'shared libraries' checks
-	            Checking for preloading variables                        [ None found ]
-	            Checking for preloaded libraries                         [ None found ]
-	            Checking LD_LIBRARY_PATH variable                        [ Not found ]
-	          Performing file properties checks
-	            Checking for prerequisites                               [ OK ]
-	            /usr/sbin/adduser                                        [ OK ]
-	            /usr/sbin/chroot                                         [ OK ]
-	        ...
-	        System checks summary
-	        =====================
-	        File properties checks...
-	            Files checked: 151
-	            Suspect files: 1
-	        Rootkit checks...
-	            Rootkits checked : 500
-	            Possible rootkits: 8
-	        Applications checks...
-	            All checks skipped
-	        The system checks took: 5 minutes and 19 seconds
-	        All results have been written to the log file: /var/log/rkhunter.log
-	        One or more warnings have been found while checking the system.
-	        Please check the log file (/var/log/rkhunter.log)
-	# cat /var/log/rkhunter.log
-	    ...
-	        [07:21:07] Running Rootkit Hunter version 1.4.6 on VirtualBox
-	        [07:21:07]
-	        [07:21:07] Info: Start date is Вс апр 19 07:21:07 MSK 2020
-	        [07:21:07]
-	        [07:21:07] Checking configuration file and command-line options...
-	        [07:21:07] Info: Detected operating system is 'Linux'
-	        [07:21:07] Info: Found O/S name: Ubuntu 18.04.4 LTS
-	        [07:21:07] Info: Command line is /usr/bin/rkhunter --check
-	        [07:21:07] Info: Environment shell is /bin/bash; rkhunter is using dash
-	        ...
-	        [07:21:09] Starting system checks...
-	        [07:21:09]
-	        [07:21:09] Info: Starting test name 'system_commands'
-	        [07:21:09] Checking system commands...
-	        ...
-	        [07:21:10]   Scanning for string /usr/sbin/ntpsx             [ OK ]
-	        [07:21:10]   Scanning for string /usr/sbin/.../bkit-ava      [ OK ]
-	        [07:21:10]   Scanning for string /usr/sbin/.../bkit-d        [ OK ]
-	        [07:21:10]   Scanning for string /usr/sbin/.../bkit-shd      [ OK ]
-	        [07:21:10]   Scanning for string /usr/sbin/.../bkit-f        [ OK ]
-	        ...
-	        [07:21:21] Info: Starting test name 'properties'
-	        [07:21:21] Performing file properties checks
-	        [07:21:24]   Checking for prerequisites                      [ OK ]
-	        [07:21:36]   /usr/sbin/adduser                               [ OK ]
-	        [07:21:36] Info: Found file '/usr/sbin/adduser': it is whitelisted for the 'script replacement' check.
-	        [07:21:37]   /usr/sbin/chroot                                [ OK ]
-	        [07:21:37]   /usr/sbin/cron                                  [ OK ]
-	        [07:21:39]   /usr/sbin/groupadd                              [ OK ]
-	        [07:21:39]   /usr/sbin/groupdel                              [ OK ]
-	        ...
-	        [07:27:17] Info: Starting test name 'rootkits'
-	        [07:27:17] Checking for rootkits...
-	        [07:27:17]
-	        [07:27:17] Info: Starting test name 'known_rkts'
-	        [07:27:17] Performing check of known rootkit files and directories
-	        ...
-	        [07:31:12] Info: Starting test name 'malware'
-	        [07:31:12] Performing malware checks
-	        ...
-	        [07:31:38]   Performing check for enabled xinetd services
-	        [07:31:38] Info: Using xinetd configuration file '/etc/xinetd.conf'
-	        [07:31:38]     Checking '/etc/xinetd.conf' for enabled services [ None found ]
-	        [07:31:39]     Checking '/etc/xinetd.d/vnc' for enabled services [ Warning ]
-	        [07:31:40]   Checking for enabled xinetd services            [ Warning ]
-	        [07:31:40] Warning: Found enabled xinetd service: /etc/xinetd.d/vnc
-	        ...
-	        [07:32:00] Performing checks on the network ports
-	        [07:32:00] Info: Starting test name 'ports'
-	        [07:32:00] Performing check for backdoor ports
-	        [07:32:00] Checking for TCP port 1524 [ Not found ]
-	        [07:32:00] Checking for TCP port 1984 [ Not found ]
-	        [07:32:00] Checking for UDP port 2001 [ Not found ]
-	        [07:32:00] Checking for TCP port 2006 [ Not found ]
-	        [07:32:01] Checking for TCP port 2128 [ Not found ]
-	        ...
-	        ...
-	        [07:32:04] Info: Starting test name 'passwd_changes'
-	        [07:32:04]   Checking for passwd file changes                [ Warning ]
-	        [07:32:04] Warning: Unable to check for passwd file differences: no copy of the passwd file exists.
-	        [07:32:04]
-	        [07:32:04] Info: Starting test name 'group_changes'
-	        [07:32:04]   Checking for group file changes                 [ Warning ]
-	        [07:32:04] Warning: Unable to check for group file differences: no copy of the group file exists.
-	        [07:32:04]   Checking root account shell history files       [ OK ]
-	        ...
-	        [07:32:04] Info: Starting test name 'system_configs'
-	        [07:32:04] Performing system configuration file checks
-	        [07:32:04]   Checking for an SSH configuration file          [ Found ]
-	        [07:32:04] Info: Found an SSH configuration file: /etc/ssh/sshd_config
-	        [07:32:04] Info: Rkhunter option ALLOW_SSH_ROOT_USER set to 'no'.
-	        [07:32:04] Info: Rkhunter option ALLOW_SSH_PROT_V1 set to '0'.
-	        [07:32:05]   Checking if SSH root access is allowed          [ Warning ]
-	        [07:32:05] Warning: The SSH configuration option 'PermitRootLogin' has not been set.
-	        The default value may be 'yes', to allow root access.
-	        [07:32:05]   Checking if SSH protocol v1 is allowed          [ Warning ]
-	        [07:32:05] Warning: The SSH configuration option 'Protocol' has not been set.
-	        The default value may be '2,1', to allow the use of protocol version 1.
-	        ...
-
-	        [07:55:21] Info: Starting test name 'filesystem'
-	        [07:55:21] Performing filesystem checks
-	        [07:55:21] Info: SCAN_MODE_DEV set to 'THOROUGH'
-	        [07:55:28]   Checking /dev for suspicious file types         [ Warning ]
-	        [07:55:28] Warning: Suspicious file types found in /dev:
-	        [07:55:28]          /dev/shm/squid-cf__readers.shm: data
-	        [07:55:28]          /dev/shm/squid-cf__queues.shm: data
-	        [07:55:28]          /dev/shm/squid-cf__metadata.shm: data
-	        [07:55:30]   Checking for hidden files and directories       [ None found ]
-	        [07:55:31]   Checking for missing log files                  [ Skipped ]
-	        ...
-
-	        [07:55:31] Info: Starting test name 'apps'
-	        [07:55:31] Checking application versions..
-	        ...
-	        [07:55:39] System checks summary
-	        [07:55:39] =====================
-	        [07:55:39]
-	        [07:55:39] File properties checks...
-	        [07:55:39] Files checked: 151
-	        [07:55:39] Suspect files: 1
-	        [07:55:39]
-	        [07:55:39] Rootkit checks...
-	        [07:55:39] Rootkits checked : 500
-	        [07:55:39] Possible rootkits: 8
-	        [07:55:39]
-	        [07:55:39] Applications checks...
-	        [07:55:40] All checks skipped
-	        [07:55:40]
-	        [07:55:40] The system checks took: 5 minutes and 19 seconds
-	        [07:55:40]
-	        [07:55:40] Info: End date is Вс апр 19 07:55:40 MSK 2020
-	        ...
-	Task:
-	И обнаружено несколько  скрытых файла, но я знаю, что эти файлы созданы программой  /dev/shm/squid-cf__metadata.shm. Вы можете отследить какая программа работает с определенным файлом с помощью команды lsof
-	Decision:
-	# lsof | grep /адрес/файла
-	# lsof | grep /dev/shm/squid-cf__metadata.shm
-	        lsof: WARNING: can't stat() fuse.gvfsd-fuse file system /run/user/1000/gvfs
-	              Output information may be incomplete.
-	        squid      1170                  root  mem       REG               0,24         8          3 /dev/shm/squid-cf__metadata.shm
-	        squid      1170                  root    4u      REG               0,24         8          3 /dev/shm/squid-cf__metadata.shm
-	Task:
-	Для удобства просмотра лога вы можете не смотреть его полностью, а выбрать только предупреждения
-	Decision:
-	# cat /var/log/rkhunter.log | grep -A5 "\[ Warning \]"
-	        [07:51:19]   /usr/bin/lwp-request                            [ Warning ]
-	        [07:51:19] Warning: The command '/usr/bin/lwp-request' has been replaced by a script: /usr/bin/lwp-request: Perl script text executable
-	        [07:51:19]   /usr/bin/bsd-mailx                              [ OK ]
-	        [07:51:20]   /usr/bin/x86_64-linux-gnu-size                  [ OK ]
-	        [07:51:20]   /usr/bin/x86_64-linux-gnu-strings               [ OK ]
-	        [07:51:20]   /usr/bin/telnet.netkit                          [ OK ]
-	        --
-	        [07:54:57]   Checking for suspicious (large) shared memory segments [ Warning ]
-	        [07:54:57] Warning: The following suspicious (large) shared memory segments have been found:
-	        [07:54:57]          Process: /usr/bin/gnome-shell    PID: 2179    Owner: linux    Size: 3,7MB (configured size allowed: 1,0MB)
-	        [07:54:57]          Process: /usr/bin/gnome-shell    PID: 2179    Owner: linux    Size: 3,7MB (configured size allowed: 1,0MB)
-	        [07:54:57]          Process: /usr/bin/nautilus-desktop    PID: 2396    Owner: linux    Size: 32MB (configured size allowed: 1,0MB)
-	        [07:54:57]          Process: /usr/bin/gnome-shell    PID: 2179    Owner: linux    Size: 1,5MB (configured size allowed: 1,0MB)
-	        --
-	        [07:55:19]   Checking for passwd file changes                [ Warning ]
-	        [07:55:19] Warning: User 'postfix' has been added to the passwd file.
-	        [07:55:19]
-	        [07:55:19] Info: Starting test name 'group_changes'
-	        [07:55:19]   Checking for group file changes                 [ Warning ]
-	        [07:55:19] Warning: Group 'postfix' has been added to the group file.
-	        [07:55:19] Warning: Group 'postdrop' has been added to the group file.
-	        [07:55:19]   Checking root account shell history files       [ None found ]
-	        [07:55:19]
-	        [07:55:19] Info: Starting test name 'system_configs'
-	        --
-	        [07:55:20]   Checking if SSH root access is allowed          [ Warning ]
-	        [07:55:20] Warning: The SSH configuration option 'PermitRootLogin' has not been set.
-	               The default value may be 'yes', to allow root access.
-	        [07:55:20]   Checking if SSH protocol v1 is allowed          [ Not set ]
-	        [07:55:20]   Checking for other suspicious configuration settings [ None found ]
-	        [07:55:20]
-	        --
-	        [07:55:28]   Checking /dev for suspicious file types         [ Warning ]
-	        [07:55:28] Warning: Suspicious file types found in /dev:
-	        [07:55:28]          /dev/shm/squid-cf__readers.shm: data
-	        [07:55:28]          /dev/shm/squid-cf__queues.shm: data
-	        [07:55:28]          /dev/shm/squid-cf__metadata.shm: data
-	        [07:55:30]   Checking for hidden files and directories       [ None found ]
-	Task:
-	Установка и Проверка системы с помощью chkrootkit
-	Decision:
-	# apt-get install chkrootkit
-	# chkrootkit
-	# chklastlog
-	Task:
-	Сканирование безопасности с помощью Lynis
-	Decision:
-	mkdir /sec
-	# cd /sec
-	# git clone http://github.com/CISOfy/lynis.git
-	# cd lynis/
-	# ls -l
-	    итого 304
-	    -rw-r--r--. 1 root root 131853 окт 22 01:52 CHANGELOG.md
-	    -rw-r--r--. 1 root root   3214 окт 22 01:52 CODE_OF_CONDUCT.md
-	    -rw-r--r--. 1 root root   2708 окт 22 01:52 CONTRIBUTING.md
-	    -rw-r--r--. 1 root root   2559 окт 22 01:52 CONTRIBUTORS.md
-	    drwxr-xr-x. 3 root root    173 окт 22 01:52 db
-	    -rw-r--r--. 1 root root  20207 окт 22 01:52 default.prf
-	    -rw-r--r--. 1 root root    172 окт 22 01:52 developer.prf
-	    drwxr-xr-x. 6 root root    171 окт 22 01:52 extras
-	    -rw-r--r--. 1 root root   4378 окт 22 01:52 FAQ
-	    -rw-r--r--. 1 root root   1094 окт 22 01:52 HAPPY_USERS.md
-	    drwxr-xr-x. 2 root root   4096 окт 22 01:52 include
-	    -rw-r--r--. 1 root root   1528 окт 22 01:52 INSTALL
-	    -rw-r--r--. 1 root root  35146 окт 22 01:52 LICENSE
-	    -rwxr-xr-x. 1 root root  49917 окт 22 01:52 lynis
-	    -rw-r--r--. 1 root root   5746 окт 22 01:52 lynis.8
-	    drwxr-xr-x. 2 root root    104 окт 22 01:52 plugins
-	    -rw-r--r--. 1 root root   4657 окт 22 01:52 README
-	    -rw-r--r--. 1 root root   5710 окт 22 01:52 README.md
-	    -rw-r--r--. 1 root root    539 окт 22 01:52 SECURITY.md
-	# file lynis
-	    lynis: POSIX shell script, ASCII text executable, with very long lines
-	# ./lynis -h
-	    [ Lynis 3.0.2 ]
-	    ################################################################################
-	      Lynis comes with ABSOLUTELY NO WARRANTY. This is free software, and you are
-	      welcome to redistribute it under the terms of the GNU General Public License.
-	      See the LICENSE file for details about using this software.
-	      2007-2020, CISOfy - https://cisofy.com/lynis/
-	      Enterprise support available (compliance, plugins, interface and tools)
-	    ################################################################################
-	    [+] Initializing program
-	    ------------------------------------
-	      Usage: lynis command [options]
-	      Command:
-	        audit
-	            audit system                  : Perform local security scan
-	            audit system remote <host>    : Remote security scan
-	            audit dockerfile <file>       : Analyze Dockerfile
-	        show
-	            show                          : Show all commands
-	            show version                  : Show Lynis version
-	            show help                     : Show help
-	        update
-	            update info                   : Show update details
-	      Options:
-	        Alternative system audit modes
-	        --forensics                       : Perform forensics on a running or mounted system
-	        --pentet                         : Non-privileged, show points of interest for pentesting
-	        Layout options
-	        --no-colors                       : Don't use colors in output
-	        --quiet (-q)                      : No output
-	        --reverse-colors                  : Optimize color display for light backgrounds
-	        --reverse-colours                 : Optimize colour display for light backgrounds
-	        Misc options
-	        --debug                           : Debug logging to screen
-	        --no-log                          : Don't create a log file
-	        --profile <profile>               : Scan the system with the given profile file
-	        --view-manpage (--man)            : View man page
-	        --verbose                         : Show more details on screen
-	        --version (-V)                    : Display version number and quit
-	        --wait                            : Wait between a set of tests
-	        --slow-warning <seconds>  : Threshold for slow test warning in seconds (default 10)
-	        Enterprise options
-	        --plugindir <path>                : Define path of available plugins
-	        --upload                          : Upload data to central node
-	        More options available. Run './lynis show options', or use the man page.
-	# ./lynis show version
-	    3.0.2
-	# ./lynis show commands
-	    Commands:
-	    lynis audit
-	    lynis configure
-	    lynis generate
-	    lynis show
-	    lynis update
-	    lynis upload-only
-	Task:
-	Запускаем аудит Linux-системы
-	Decision:
-	# ./lynis audit system
-	    [ Lyns 3.0.2 ]
-	    ################################################################################
-	      Lynis comes with ABSOLUTELY NO WARRANTY. This is free software, and you are
-	      welcome to redistribute it under the terms of the GNU General Public License.
-	      See the LICENSE file for details about using this software.
-	      2007-2020, CISOfy - https://cisofy.com/lynis/
-	      Enterprise support available (compliance, plugins, interface and tools)
-	    ################################################################################
-	    [+] Initializing program
-	    ------------------------------------
-	      - Detecting OS...                                           [ DONE ]
-	      - Checking profiles...                                      [ DONE ]
-	      - Detecting language and localization                       [ ru ]
-	      ---------------------------------------------------
-	      Program version:           3.0.2
-	      Operating system:          Linux
-	      Operating system name:     C Linux
-	      Operating system version:  8
-	      Kernel version:            4.18.0
-	      Hardware platform:         x86_64
-	      Hostname:                  localhost
-	      ---------------------------------------------------
-	      Profiles:                  /sec/lynis/default.prf
-	      Log file:                  /var/log/lynis.log
-	      Report file:               /var/log/lynis-report.dat
-	      Report version:            1.0
-	      Plugin directory:          ./plugins
-	      ---------------------------------------------------
-	      Auditor:                   [Not Specified]
-	      Language:                  ru
-	      Test category:             all
-	      Test group:                all
-	      ---------------------------------------------------
-	      - Program update status...                                  [ NO UPDATE ]
-	    [+] System Tools
-	    ------------------------------------
-	      - Scanning available tools...
-	      - Checking system binaries...
-	    [+] Plugins (Стадия 1)
-	    ------------------------------------
-	     Примечание: плагины имеют более обширные тесты и могут занять несколько минут до завершения
-	      - Plugin: pam
-	        [.
-	      [WARNING]: Test CORE-1000 had a long execution: 16.583672 seconds
-
-	    .]
-	      - Plugin: systemd
-	        [.
-	      [WARNING]: Test PLGN-0010 had a long execution: 28.077768 seconds
-	    ...............]
-	    [+] Boot and services
-	    ------------------------------------
-	      - Service Manager                                           [ systemd ]
-	      - Checking UEFI boot                                        [ ВКЛЮЧЕНО ]
-	      - Checking Secure Boot                                      [ ОТКЛЮЧЕНО ]
-	        - Boot loader                                             [ NONE FOUND ]
-	      - Check running services (systemctl)                        [ Завершено ]
-	            Result: found 45 running services
-	      - Check enabled services at boot (systemctl)                [ Завершено ]
-	            Result: found 60 enabled services
-	      - Check startup files (permissions)                         [ ОК ]
-	    [+] Kernel
-	    ------------------------------------
-	      - Checking default runlevel                                 [ runlevel 5 ]
-	      - Checking CPU support (NX/PAE)
-	        CPU support: PAE and/or NoeXecute supported               [ Найдено ]
-	      - Checking kernel version and release                       [ Завершено ]
-	      - Checking kernel type                                      [ Завершено ]
-	      - Checking loaded kernel modules                            [ Завершено ]
-	          Found 96 active modules
-	      - Checking Linux kernel configuration file                  [ Найдено ]
-	      - Checking default I/O kernel scheduler                     [ НЕ НАЙДЕНО ]
-	      - Checking core dumps configuration
-	        - configuration in systemd conf files                     [ DEFAULT ]
-	        - configuration in etc/profile                            [ DEFAULT ]
-	        - 'hard' configuration in security/limits.conf            [ DEFAULT ]
-	        - 'soft' configuration in security/limits.conf            [ DEFAULT ]
-	        - Checking setuid core dumps configuration                [ DISABLED ]
-	      - Check if reboot is needed                                 [ НЕТ ]
-	    [+] Память и процессы
-	    ------------------------------------
-	      - Checking /proc/meminfo                                    [ Найдено ]
-	      - Searching for dead/zombie processes                       [ НЕ НАЙДЕНО ]
-	      - Searching for IO waiting processes                        [ НЕ НАЙДЕНО ]
-	      - Search prelink tooling                                    [ НЕ НАЙДЕНО ]
-	    [+] Users, Groups and Authentication
-	    ------------------------------------
-	      - Administrator accounts                                    [ ОК ]
-	      - Unique UIDs                                               [ ОК ]
-	      - Consistency of group files (grpck)                        [ ОК ]
-	      - Unique group IDs                                          [ ОК ]
-	      - Unique group names                                        [ ОК ]
-	      - Password file consistency                                 [ ОК ]
-	      - Password hashing methods                                  [ ПРЕДЛОЖЕНИЕ ]
-	      - Checking minimum group password hashing rounds            [ ОТКЛЮЧЕНО ]
-	      - Checking maximum group password hashing rounds            [ ОТКЛЮЧЕНО ]
-	      - Query system users (non daemons)                          [ Завершено ]
-	      - NIS+ authentication support                               [ NOT ENABLED ]
-	      - NIS authentication support                                [ NOT ENABLED ]
-	      - Sudoers file(s)                                           [ Найдено ]
-	        - Permissions for directory: /etc/sudoers.d               [ ОК ]
-	        - Permissions for: /etc/sudoers                           [ ОК ]
-	      - PAM password strength tools                               [ ОК ]
-	      - PAM configuration file (pam.conf)                         [ НЕ НАЙДЕНО ]
-	      - PAM configuration files (pam.d)                           [ Найдено ]
-	      - PAM modules                                               [ Найдено ]
-	      - LDAP module in PAM                                        [ НЕ НАЙДЕНО ]
-	      - Accounts without expire date                              [ ПРЕДЛОЖЕНИЕ ]
-	      - Accounts without password                                 [ ОК ]
-	      - Checking user password aging (minimum)                    [ ОТКЛЮЧЕНО ]
-	      - User password aging (maximum)                             [ ОТКЛЮЧЕНО ]
-	      - Checking expired passwords                                [ ОК ]
-	      - Checking Linux single user mode authentication            [ ОК ]
-	      - Determining default umask
-	        - umask (/etc/profile and /etc/profile.d)                 [ ПРЕДЛОЖЕНИЕ ]
-	        - umask (/etc/login.defs)                                 [ ОК ]
-	        - umask (/etc/init.d/functions)                           [ ПРЕДЛОЖЕНИЕ ]
-	      - LDAP authentication support                               [ NOT ENABLED ]
-	      - Logging failed login attempts                             [ ОТКЛЮЧЕНО ]
-	    [+] Shells
-	    ------------------------------------
-	      - Checking shells from /etc/shells
-	        Result: found 8 shells (valid shells: 8).
-	        - Session timeout settings/tools                          [ Отсутствует ]
-	      - Checking default umask values
-	        - Checking default umask in /etc/bashrc                   [ WEAK ]
-	        - Checking default umask in /etc/csh.cshrc                [ WEAK ]
-	        - Checking default umask in /etc/profile                  [ WEAK ]
-	    [+] File systems
-	    ------------------------------------
-	      - Checking mount points
-	        - Checking /home mount point                              [ ОК ]
-	        - Checking /tmp mount point                               [ ПРЕДЛОЖЕНИЕ ]
-	        - Checking /var mount point                               [ ПРЕДЛОЖЕНИЕ ]
-	      - Checking LVM volume groups                                [ Найдено ]
-	        - Checking LVM volumes                                    [ Найдено ]
-	      - Query swap partitions (fstab)                             [ ОК ]
-	      - Testing swap partitions                                   [ ОК ]
-	      - Testing /proc mount (hidepid)                             [ ПРЕДЛОЖЕНИЕ ]
-	      - Checking for old files in /tmp                            [ Найдено ]
-	      - Checking /tmp sticky bit                                  [ ОК ]
-	      - Checking /var/tmp sticky bit                              [ ОК ]
-	      - ACL support root file system                              [ ВКЛЮЧЕНО ]
-	      - Mount options of /                                        [ ОК ]
-	      - Mount options of /boot                                    [ DEFAULT ]
-	      - Mount options of /dev                                     [ PARTIALLY HARDENED ]
-	      - Mount options of /dev/shm                                 [ PARTIALLY HARDENED ]
-	      - Mount options of /home                                    [ DEFAULT ]
-	      - Mount options of /run                                     [ HARDENED ]
-	      - Total without nodev:14 noexec:20 nosuid:13 ro or noexec (W^X): 19 of total 40
-	      - Checking Locate database                                  [ НЕ НАЙДЕНО ]
-	      - Disable kernel support of some filesystems
-	        - Discovered kernel modules: cramfs squashfs udf
-	    [+] USB Devices
-	    ------------------------------------
-	      - Checking usb-storage driver (modprobe config)             [ NOT DISABLED ]
-	      - Checking USB devices authorization                        [ ВКЛЮЧЕНО ]
-	      - Checking USBGuard                                         [ НЕ НАЙДЕНО ]
-	    [+] Storage
-	    ------------------------------------
-	      - Checking firewire ohci driver (modprobe config)           [ NOT DISABLED ]
-	    [+] NFS
-	    ------------------------------------
-	      - Query rpc registered programs                             [ Завершено ]
-	      - Query NFS versions                                        [ Завершено ]
-	      - Query NFS protocols                                       [ Завершено ]
-	      - Check running NFS daemon                                  [ НЕ НАЙДЕНО ]
-	    [+] Name services
-	    ------------------------------------
-	      - Searching DNS domain name                                 [ Найдено ]
-	          Domain name: localdomain
-	      - Checking /etc/hosts
-	        - Duplicate entries in hosts file                         [ Отсутствует ]
-	        - Presence of configured hostname in /etc/hosts           [ Найдено ]
-	        - Hostname mapped to localhost                            [ Найдено ]
-	        - Localhost mapping to IP address                         [ ОК ]
-	    [+] Ports and packages
-	    ------------------------------------
-	      - Searching package managers
-	        - Searching DNF package manager                           [ Найдено ]
-	          - Querying DNF package manager
-	      [WARNING]: Test PKGS-7350 had a long execution: 43.169379 seconds
-	      - Using DNF to find vulnerable packages                     [ Отсутствует ]
-	      [WARNING]: Test PKGS-7352 had a long execution: 18.497839 seconds
-	      [WARNING]: Test PKGS-7354 had a long execution: 10.694343 seconds
-	      - Checking package audit tool                               [ INSTALLED ]
-	        Found: dnf
-	      - Toolkit for automatic upgrades                            [ НЕ НАЙДЕНО ]
-	    [+] Networking
-	    ------------------------------------
-	      - Checking IPv6 configuration                               [ ВКЛЮЧЕНО ]
-	          Configuration method                                    [ AUTO ]
-	          IPv6 only                                               [ NO ]
-	      - Checking configured nameservers
-	        - Testing nameservers
-	            Nameserver: 192.168.0.1                               [ ОК ]
-	        - Minimal of 2 responsive nameservers                     [ ПРЕДУПРЕЖДЕНИЕ ]
-	        - DNSSEC supported (systemd-resolved)                     [ ДА ]
-	      - Checking default gateway                                  [ Завершено ]
-	      - Getting listening ports (TCP/UDP)                         [ Завершено ]
-	      - Checking promiscuous interfaces                           [ ПРЕДУПРЕЖДЕНИЕ ]
-	      - Checking waiting connections                              [ ОК ]
-	      - Checking status DHCP client                               [ NOT ACTIVE ]
-	      - Checking for ARP monitoring software                      [ НЕ НАЙДЕНО ]
-	      - Uncommon network protocols                                [ 0 ]
-	    [+] Printers and Spools
-	    ------------------------------------
-	      - Checking cups daemon                                      [ ЗАПУЩЕНО ]
-	      - Checking CUPS configuration file                          [ ОК ]
-	        - File permissions                                        [ ОК ]
-	      - Checking CUPS addresses/sockets                           [ Найдено ]
-	      - Checking lp daemon                                        [ НЕ ЗАПУЩЕНО ]
-	    [+] Software: e-mail and messaging
-	    ------------------------------------
-	    [+] Software: firewalls
-	    ------------------------------------
-	      - Checking iptables kernel module                           [ Найдено ]
-	        - Checking iptables policies of chains                    [ Найдено ]
-	        - Checking for empty ruleset                              [ ОК ]
-	        - Checking for unused rules                               [ Найдено ]
-	      - Checking host based firewall                              [ ACTIVE ]
-	    [+] Software: webserver
-	    ------------------------------------
-	      - Checking Apache                                           [ НЕ НАЙДЕНО ]
-	      - Checking nginx                                            [ НЕ НАЙДЕНО ]
-	    [+] SSH Support
-	    ------------------------------------
-	      - Checking running SSH daemon                               [ Найдено ]
-	        - Searching SSH configuration                             [ Найдено ]
-	        - OpenSSH option: AllowTcpForwarding                      [ ПРЕДЛОЖЕНИЕ ]
-	        - OpenSSH option: ClientAliveCountMax                     [ ПРЕДЛОЖЕНИЕ ]
-	        - OpenSSH option: ClientAliveInterval                     [ ОК ]
-	        - OpenSSH option: Compression                             [ ПРЕДЛОЖЕНИЕ ]
-	        - OpenSSH option: FingerprintHash                         [ ОК ]
-	        - OpenSSH option: GatewayPorts                            [ ОК ]
-	        - OpenSSH option: IgnoreRhosts                            [ ОК ]
-	        - OpenSSH option: LoginGraceTime                          [ ОК ]
-	        - OpenSSH option: LogLevel                                [ ПРЕДЛОЖЕНИЕ ]
-	        - OpenSSH option: MaxAuthTries                            [ ПРЕДЛОЖЕНИЕ ]
-	        - OpenSSH option: MaxSessions                             [ ПРЕДЛОЖЕНИЕ ]
-	        - OpenSSH option: PermitRootLogin                         [ ПРЕДЛОЖЕНИЕ ]
-	        - OpenSSH option: PermitUserEnvironment                   [ ОК ]
-	        - OpenSSH option: PermitTunnel                            [ ОК ]
-	        - OpenSSH option: Port                                    [ ПРЕДЛОЖЕНИЕ ]
-	        - OpenSSH option: PrintLastLog                            [ ОК ]
-	        - OpenSSH option: StrictModes                             [ ОК ]
-	        - OpenSSH option: TCPKeepAlive                            [ ПРЕДЛОЖЕНИЕ ]
-	        - OpenSSH option: UseDNS                                  [ ОК ]
-	        - OpenSSH option: X11Forwarding                           [ ПРЕДЛОЖЕНИЕ ]
-	        - OpenSSH option: AllowAgentForwarding                    [ ПРЕДЛОЖЕНИЕ ]
-	        - OpenSSH option: AllowUsers                              [ НЕ НАЙДЕНО ]
-	        - OpenSSH option: AllowGroups                             [ НЕ НАЙДЕНО ]
-	    [+] SNMP Support
-	    ------------------------------------
-	      - Checking running SNMP daemon                              [ НЕ НАЙДЕНО ]
-	    [+] Databases
-	    ------------------------------------
-	        No database engines found
-	    [+] LDAP Services
-	    ------------------------------------
-	      - Checking OpenLDAP instance                                [ НЕ НАЙДЕНО ]
-	    [+] PHP
-	    ------------------------------------
-	      - Checking PHP                                              [ НЕ НАЙДЕНО ]
-	    [+] Squid Support
-	    ------------------------------------
-	      - Checking running Squid daemon                             [ НЕ НАЙДЕНО ]
-	    [+] Logging and files
-	    ------------------------------------
-	      - Checking for a running log daemon                         [ ОК ]
-	        - Checking Syslog-NG status                               [ НЕ НАЙДЕНО ]
-	        - Checking systemd journal status                         [ Найдено ]
-	        - Checking Metalog status                                 [ НЕ НАЙДЕНО ]
-	        - Checking RSyslog status                                 [ Найдено ]
-	        - Checking RFC 3195 daemon status                         [ НЕ НАЙДЕНО ]
-	        - Checking minilogd instances                             [ НЕ НАЙДЕНО ]
-	      - Checking logrotate presence                               [ ОК ]
-	      - Checking remote logging                                   [ NOT ENABLED ]
-	      - Checking log directories (static list)                    [ Завершено ]
-	      - Checking open log files                                   [ Завершено ]
-	      - Checking deleted files in use                             [ FILES FOUND ]
-	    [+] Insecure services
-	    ------------------------------------
-	      - Installed inetd package                                   [ НЕ НАЙДЕНО ]
-	      - Installed xinetd package                                  [ ОК ]
-	        - xinetd status                                           [ NOT ACTIVE ]
-	      - Installed rsh client package                              [ ОК ]
-	      - Installed rsh server package                              [ ОК ]
-	      - Installed telnet client package                           [ ОК ]
-	      - Installed telnet server package                           [ НЕ НАЙДЕНО ]
-	      - Checking NIS client installation                          [ ОК ]
-	      - Checking NIS server installation                          [ ОК ]
-	      - Checking TFTP client installation                         [ ОК ]
-	      - Checking TFTP server installation                         [ ОК ]
-	    [+] Banners and identification
-	    ------------------------------------
-	      - /etc/issue                                                [ Найдено ]
-	        - /etc/issue contents                                     [ WEAK ]
-	      - /etc/issue.net                                            [ Найдено ]
-	        - /etc/issue.net contents                                 [ WEAK ]
-	    [+] Scheduled tasks
-	    ------------------------------------
-	      - Checking crontab and cronjob files                        [ Завершено ]
-	      - Checking atd status                                       [ ЗАПУЩЕНО ]
-	        - Checking at users                                       [ Завершено ]
-	        - Checking at jobs                                        [ Отсутствует ]
-	    [+] Accounting
-	    ------------------------------------
-	      - Checking accounting information                           [ ОК ]
-	      - Checking sysstat accounting data                          [ НЕ НАЙДЕНО ]
-	      - Checking auditd                                           [ ВКЛЮЧЕНО ]
-	        - Checking audit rules                                    [ ПРЕДЛОЖЕНИЕ ]
-	        - Checking audit configuration file                       [ ОК ]
-	        - Checking auditd log file                                [ Найдено ]
-	    [+] Time and Synchronization
-	    ------------------------------------
-	      - NTP daemon found: chronyd                                 [ Найдено ]
-	      - Checking for a running NTP daemon or client               [ ОК ]
-	    [+] Cryptography
-	    ------------------------------------
-	      - Checking for expired SSL certificates [0/7]               [ Отсутствует ]
-	      - Found 0 encrypted and 1 unencrypted swap devices in use.  [ OK ]
-	      - Kernel entropy is sufficient                              [ ДА ]
-	      - HW RNG & rngd                                             [ НЕТ ]
-	      - SW prng                                                   [ НЕТ ]
-	    [+] Virtualization
-	    ------------------------------------
-	    [+] Containers
-	    ------------------------------------
-	    [+] Security frameworks
-	    ------------------------------------
-	      - Checking presence AppArmor                                [ НЕ НАЙДЕНО ]
-	      - Checking presence SELinux                                 [ Найдено ]
-	        - Checking SELinux status                                 [ ВКЛЮЧЕНО ]
-	          - Checking current mode and config file                 [ ОК ]
-	            Current SELinux mode: enforcing
-	            Found 0 permissive SELinux object types
-	            Found 80 unconfined and 0 initrc_t processes
-	      - Checking presence TOMOYO Linux                            [ НЕ НАЙДЕНО ]
-	      - Checking presence grsecurity                              [ НЕ НАЙДЕНО ]
-	      - Checking for implemented MAC framework                    [ ОК ]
-	    [+] Software: file integrity
-	    ------------------------------------
-	      - Checking file integrity tools
-	      - IMA/EVM (status)                                          [ ВКЛЮЧЕНО ]
-	      - Checking presence integrity tool                          [ Найдено ]
-	    [+] Software: System tooling
-	    ------------------------------------
-	      - Checking automation tooling
-	      - Automation tooling                                        [ НЕ НАЙДЕНО ]
-	      - Checking for IDS/IPS tooling                              [ Отсутствует ]
-	    [+] Software: Вредоносное ПО
-	    ------------------------------------
-	    [+] File Permissions
-	    ------------------------------------
-	      - Starting file permissions check
-	        File: /etc/at.deny                                        [ ПРЕДЛОЖЕНИЕ ]
-	        File: /etc/cron.deny                                      [ ПРЕДЛОЖЕНИЕ ]
-	        File: /etc/crontab                                        [ ПРЕДЛОЖЕНИЕ ]
-	        File: /etc/group                                          [ ОК ]
-	        File: /etc/group-                                         [ ОК ]
-	        File: /etc/issue                                          [ ОК ]
-	        File: /etc/issue.net                                      [ ОК ]
-	        File: /etc/motd                                           [ ОК ]
-	        File: /etc/passwd                                         [ ОК ]
-	        File: /etc/passwd-                                        [ ОК ]
-	        File: /etc/ssh/sshd_config                                [ ОК ]
-	        Directory: /etc/cron.d                                    [ ПРЕДЛОЖЕНИЕ ]
-	        Directory: /etc/cron.daily                                [ ПРЕДЛОЖЕНИЕ ]
-	        Directory: /etc/cron.hourly                               [ ПРЕДЛОЖЕНИЕ ]
-	        Directory: /etc/cron.weekly                               [ ПРЕДЛОЖЕНИЕ ]
-	        Directory: /etc/cron.monthly                              [ ПРЕДЛОЖЕНИЕ ]
-	    [+] Home directories
-	    ------------------------------------
-	      - Permissions of home directories                           [ ОК ]
-	      - Ownership of home directories                             [ ОК ]
-	      - Checking shell history files                              [ ОК ]
-	    [+] Kernel Hardening
-	    ------------------------------------
-	      - Comparing sysctl key pairs with scan profile
-	        - fs.protected_hardlinks (exp: 1)                         [ ОК ]
-	        - fs.protected_symlinks (exp: 1)                          [ ОК ]
-	        - fs.suid_dumpable (exp: 0)                               [ ОК ]
-	        - kernel.core_uses_pid (exp: 1)                           [ ОК ]
-	        - kernel.ctrl-alt-del (exp: 0)                            [ ОК ]
-	        - kernel.dmesg_restrict (exp: 1)                          [ DIFFERENT ]
-	        - kernel.kptr_restrict (exp: 2)                           [ DIFFERENT ]
-	        - kernel.randomize_va_space (exp: 2)                      [ ОК ]
-	        - kernel.sysrq (exp: 0)                                   [ DIFFERENT ]
-	        - kernel.yama.ptrace_scope (exp: 1 2 3)                   [ DIFFERENT ]
-	        - net.ipv4.conf.all.accept_redirects (exp: 0)             [ ОК ]
-	        - net.ipv4.conf.all.accept_source_route (exp: 0)          [ ОК ]
-	        - net.ipv4.conf.all.bootp_relay (exp: 0)                  [ ОК ]
-	        - net.ipv4.conf.all.forwarding (exp: 0)                   [ DIFFERENT ]
-	        - net.ipv4.conf.all.log_martians (exp: 1)                 [ DIFFERENT ]
-	        - net.ipv4.conf.all.mc_forwarding (exp: 0)                [ ОК ]
-	        - net.ipv4.conf.all.proxy_arp (exp: 0)                    [ ОК ]
-	        - net.ipv4.conf.all.rp_filter (exp: 1)                    [ ОК ]
-	        - net.ipv4.conf.all.send_redirects (exp: 0)               [ ОК ]
-	        - net.ipv4.conf.default.accept_redirects (exp: 0)         [ ОК ]
-	        - net.ipv4.conf.default.accept_source_route (exp: 0)      [ DIFFERENT ]
-	        - net.ipv4.conf.default.log_martians (exp: 1)             [ DIFFERENT ]
-	        - net.ipv4.icmp_echo_ignore_broadcasts (exp: 1)           [ ОК ]
-	        - net.ipv4.icmp_ignore_bogus_error_responses (exp: 1)     [ ОК ]
-	        - net.ipv4.tcp_syncookies (exp: 1)                        [ ОК ]
-	        - net.ipv4.tcp_timestamps (exp: 0 1)                      [ ОК ]
-	        - net.ipv6.conf.all.accept_redirects (exp: 0)             [ ОК ]
-	        - net.ipv6.conf.all.accept_source_route (exp: 0)          [ ОК ]
-	        - net.ipv6.conf.default.accept_redirects (exp: 0)         [ ОК ]
-	        - net.ipv6.conf.default.accept_source_route (exp: 0)      [ ОК ]
-	    [+] Hardening
-	    ------------------------------------
-	        - Installed compiler(s)                                   [ Найдено ]
-	        - Installed malware scanner                               [ НЕ НАЙДЕНО ]
-	    [+] Пользовательские тесты
-	    ------------------------------------
-	      - Running custom tests...                                   [ NONE ]
-	    [+] Plugins (Стадия 2)
-	    ------------------------------------
-	      - Plugins (phase 2)                                         [ DONE ]
-	    ================================================================================
-	      -[ Lynis 3.0.2 Results ]-
-	      Warnings (2):
-	      ----------------------------
-	      ! Couldn't find 2 responsive nameservers [NETW-2705]
-	          https://cisofy.com/lynis/controls/NETW-2705/
-	      ! Found promiscuous interface [NETW-3015]
-	        - Details  : virbr0-nic
-	        - Solution : Determine if this mode is required or whitelist interface in profile
-	          https://cisofy.com/lynis/controls/NETW-3015/
-	      Suggestions (46):
-	      ----------------------------
-	      * If not required, consider explicit disabling of core dump in /etc/security/limits.conf file [KRNL-5820]
-	          https://cisofy.com/lynis/controls/KRNL-5820/
-	      * Check PAM configuration, add rounds if applicable and expire passwords to encrypt with new values [AUTH-9229]
-	          https://cisofy.com/lynis/controls/AUTH-9229/
-	      * Configure minimum encryption algorithm rounds in /etc/login.defs [AUTH-9230]
-	          https://cisofy.com/lynis/controls/AUTH-9230/
-	      * Configure maximum encryption algorithm rounds in /etc/login.defs [AUTH-9230]
-	          https://cisofy.com/lynis/controls/AUTH-9230/
-	      * When possible set expire dates for all password protected accounts [AUTH-9282]
-	          https://cisofy.com/lynis/controls/AUTH-9282/
-	      * Configure minimum password age in /etc/login.defs [AUTH-9286]
-	          https://cisofy.com/lynis/controls/AUTH-9286/
-	      * Configure maximum password age in /etc/login.defs [AUTH-9286]
-	          https://cisofy.com/lynis/controls/AUTH-9286/
-	      * Default umask in /etc/profile or /etc/profile.d/custom.sh could be more strict (e.g. 027) [AUTH-9328]
-	          https://cisofy.com/lynis/controls/AUTH-9328/
-	      * To decrease the impact of a full /tmp file system, place /tmp on a separate partition [FILE-6310]
-	          https://cisofy.com/lynis/controls/FILE-6310/
-	      * To decrease the impact of a full /var file system, place /var on a separate partition [FILE-6310]
-	          https://cisofy.com/lynis/controls/FILE-6310/
-	      * Check 10 files in /tmp which are older than 90 days [FILE-6354]
-	          https://cisofy.com/lynis/controls/FILE-6354/
-	      * The database required for 'locate' could not be found. Run 'updatedb' or 'locate.updatedb' to create this file. [FILE-6410]
-	          https://cisofy.com/lynis/controls/FILE-6410/
-	      * Consider disabling unused kernel modules [FILE-6430]
-	        - Details  : /etc/modprobe.d/blacklist.conf
-	        - Solution : Add 'install MODULENAME /bin/true' (without quotes)
-	          https://cisofy.com/lynis/controls/FILE-6430/
-	      * Disable drivers ltusere USB storage when not used, to prevent unauthorized storage or data theft [USB-1000]
-	          https://cisofy.com/lynis/controls/USB-1000/
-	      * Disable drivers ltusere firewire storage when not used, to prevent unauthorized storage or data theft [STRG-1846]
-	          https://cisofy.com/lynis/controls/STRG-1846/
-	      * Split resolving between localhost and the hostname of the system [NAME-4406]
-	          https://cisofy.com/lynis/controls/NAME-4406/
-	      * Consider using a tool to automatically apply upgrades [PKGS-7420]
-	          https://cisofy.com/lynis/controls/PKGS-7420/
-	      * Check your resolv.conf file and fill in a backup nameserver if possible [NETW-2705]
-	          https://cisofy.com/lynis/controls/NETW-2705/
-	      * Determine if protocol 'dccp' is really needed on this system [NETW-3200]
-	          https://cisofy.com/lynis/controls/NETW-3200/
-	      * Determine if protocol 'sctp' is really needed on this system [NETW-3200]
-	          https://cisofy.com/lynis/controls/NETW-3200/
-	      * Determine if protocol 'rds' is really needed on this system [NETW-3200]
-	          https://cisofy.com/lynis/controls/NETW-3200/
-	      * Determine if protocol 'tipc' is really needed on this system [NETW-3200]
-	          https://cisofy.com/lynis/controls/NETW-3200/
-	      * Check CUPS configuration if it really needs to listen on the network [PRNT-2308]
-	          https://cisofy.com/lynis/controls/PRNT-2308/
-	      * Check iptables rules to see which rules are currently not used [FIRE-4513]
-	          https://cisofy.com/lynis/controls/FIRE-4513/
-	      * Consider hardening SSH configuration [SSH-7408]
-	        - Details  : AllowTcpForwarding (set YES to NO)
-	          https://cisofy.com/lynis/controls/SSH-7408/
-	      * Consider hardening SSH configuration [SSH-7408]
-	        - Details  : ClientAliveCountMax (set 3 to 2)
-	          https://cisofy.com/lynis/controls/SSH-7408/
-	      * Consider hardening SSH configuration [SSH-7408]
-	        - Details  : Compression (set YES to NO)
-	          https://cisofy.com/lynis/controls/SSH-7408/
-	      * Consider hardening SSH configuration [SSH-7408]
-	        - Details  : LogLevel (set INFO to VERBOSE)
-	          https://cisofy.com/lynis/controls/SSH-7408/
-	      * Consider hardening SSH configuration [SSH-7408]
-	        - Details  : MaxAuthTries (set 6 to 3)
-	          https://cisofy.com/lynis/controls/SSH-7408/
-	      * Consider hardening SSH configuration [SSH-7408]
-	        - Details  : MaxSessions (set 10 to 2)
-	          https://cisofy.com/lynis/controls/SSH-7408/
-	      * Consider hardening SSH configuration [SSH-7408]
-	        - Details  : PermitRootLogin (set YES to (FORCED-COMMANDS-ONLY|NO|PROHIBIT-PASSWORD|WITHOUT-PASSWORD))
-	          https://cisofy.com/lynis/controls/SSH-7408/
-	      * Consider hardening SSH configuration [SSH-7408]
-	        - Details  : Port (set 22 to )
-	          https://cisofy.com/lynis/controls/SSH-7408/
-	      * Consider hardening SSH configuration [SSH-7408]
-	        - Details  : TCPKeepAlive (set YES to NO)
-	          https://cisofy.com/lynis/controls/SSH-7408/
-	      * Consider hardening SSH configuration [SSH-7408]
-	        - Details  : X11Forwarding (set YES to NO)
-	          https://cisofy.com/lynis/controls/SSH-7408/
-	      * Consider hardening SSH configuration [SSH-7408]
-	        - Details  : AllowAgentForwarding (set YES to NO)
-	          https://cisofy.com/lynis/controls/SSH-7408/
-	      * Enable logging to an external logging host for archiving purposes and additional protection [LOGG-2154]
-	          https://cisofy.com/lynis/controls/LOGG-2154/
-	      * Check what deleted files are still in use and why. [LOGG-2190]
-	          https://cisofy.com/lynis/controls/LOGG-2190/
-	      * Add a legal banner to /etc/issue, to warn unauthorized users [BANN-7126]
-	          https://cisofy.com/lynis/controls/BANN-7126/
-	      * Add legal banner to /etc/issue.net, to warn unauthorized users [BANN-7130]
-	          https://cisofy.com/lynis/controls/BANN-7130/
-	      * Enable sysstat to collect accounting (no results) [ACCT-9626]
-	          https://cisofy.com/lynis/controls/ACCT-9626/
-	      * Audit daemon is enabled with an empty ruleset. Disable the daemon or define rules [ACCT-9630]
-	          https://cisofy.com/lynis/controls/ACCT-9630/
-	      * Determine if automation tools are present for system management [TOOL-5002]
-	          https://cisofy.com/lynis/controls/TOOL-5002/
-	      * Consider restricting file permissions [FILE-7524]
-	        - Details  : See screen output or log file
-	        - Solution : Use chmod to change file permissions
-	          https://cisofy.com/lynis/controls/FILE-7524/
-	      * One or more sysctl values differ from the scan profile and could be tweaked [KRNL-6000]
-	        - Solution : Change sysctl value or disable test (skip-test=KRNL-6000:<sysctl-key>)
-	          https://cisofy.com/lynis/controls/KRNL-6000/
-	      * Harden compilers ltusere restricting access to root user only [HRDN-7222]
-	          https://cisofy.com/lynis/controls/HRDN-7222/
-	      * Harden the system by installing at least one malware scanner, to perform periodic file system scans [HRDN-7230]
-	        - Solution : Install a tool ltusere rkhunter, chkrootkit, OSSEC
-	          https://cisofy.com/lynis/controls/HRDN-7230/
-	      Follow-up:
-	      ----------------------------
-	      - Show details of a test (lynis show details TEST-ID)
-	      - Check the logfile for all details (less /var/log/lynis.log)
-	      - Read security controls texts (https://cisofy.com)
-	      - Use --upload to upload data to central system (Lynis Enterprise users)
-	    ================================================================================
-	      Lynis security scan details:
-	      Hardening index : 65 [#############       ]
-	      Tests performed : 266
-	      Plugins enabled : 2
-	      Components:
-	      - Firewall               [V]
-	      - Malware scanner        [X]
-	      Scan mode:
-	      Normal [V]  Forensics [ ]  Integration [ ]  Pentest [ ]
-	      Lynis modules:
-	      - Compliance status      [?]
-	      - Security audit         [V]
-	      - Vulnerability scan     [V]
-	      Files:
-	      - Test and debug information      : /var/log/lynis.log
-	      - Report data                     : /var/log/lynis-report.dat
-	    ================================================================================
-	      Lynis 3.0.2
-	      Auditing, system hardening, and compliance for UNIX-based systems
-	      (Linux, macOS, BSD, and others)
-	      2007-2020, CISOfy - https://cisofy.com/lynis/
-	      Enterprise support available (compliance, plugins, interface and tools)
-	    ================================================================================
-	      [TIP]: Enhance Lynis audits by adding your settings to custom.prf (see /sec/lynis/default.prf for all settings)
-	Task:
-	Lynis даёт возможность найти дополнительную информацию о каждом предложении по исправлению с помощью команды show details, за которой следует номер теста TEST-ID. Например, чтобы узнать дополнительную информацию для теста SSH-7408 я ввожу $ ./lynis show details SSH-7408 и получаю
-	Decision:
-	# ./lynis show details SSH-7408
-	    2020-10-22 01:58:22 Performing test ID SSH-7408 (Check SSH specific defined options)
-	    2020-10-22 01:58:22 Test: Checking specific defined options in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:22 Test: Checking AllowTcpForwarding in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:22 Result: Option AllowTcpForwarding found
-	    2020-10-22 01:58:22 Result: Option AllowTcpForwarding value is YES
-	    2020-10-22 01:58:22 Result: OpenSSH option AllowTcpForwarding is in a weak configuration state and should be fixed
-	    2020-10-22 01:58:22 Suggestion: Consider hardening SSH configuration [test:SSH-7408] [details:AllowTcpForwarding (set YES to NO)] [solution:-]
-	    2020-10-22 01:58:23 Hardening: assigned partial number of hardening points (0 of 3). Currently having 137 points (out of 200)
-	    2020-10-22 01:58:23 Test: Checking ClientAliveCountMax in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:23 Result: Option ClientAliveCountMax found
-	    2020-10-22 01:58:23 Result: Option ClientAliveCountMax value is 3
-	    2020-10-22 01:58:23 Result: OpenSSH option ClientAliveCountMax is configured reasonably
-	    2020-10-22 01:58:23 Suggestion: Consider hardening SSH configuration [test:SSH-7408] [details:ClientAliveCountMax (set 3 to 2)] [solution:-]
-	    2020-10-22 01:58:23 Hardening: assigned partial number of hardening points (1 of 3). Currently having 138 points (out of 203)
-	    2020-10-22 01:58:23 Test: Checking ClientAliveInterval in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:23 Result: Option ClientAliveInterval found
-	    2020-10-22 01:58:23 Result: Option ClientAliveInterval value is 0
-	    2020-10-22 01:58:23 Result: OpenSSH option ClientAliveInterval is configured very well
-	    2020-10-22 01:58:23 Hardening: assigned maximum number of hardening points for this item (3). Currently having 141 points (out of 206)
-	    2020-10-22 01:58:23 Test: Checking Compression in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:23 Result: Option Compression found
-	    2020-10-22 01:58:23 Result: Option Compression value is YES
-	    2020-10-22 01:58:23 Result: OpenSSH option Compression is in a weak configuration state and should be fixed
-	    2020-10-22 01:58:23 Suggestion: Consider hardening SSH configuration [test:SSH-7408] [details:Compression (set YES to NO)] [solution:-]
-	    2020-10-22 01:58:23 Hardening: assigned partial number of hardening points (0 of 3). Currently having 141 points (out of 209)
-	    2020-10-22 01:58:23 Test: Checking FingerprintHash in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:23 Result: Option FingerprintHash found
-	    2020-10-22 01:58:23 Result: Option FingerprintHash value is SHA256
-	    2020-10-22 01:58:23 Result: OpenSSH option FingerprintHash is configured very well
-	    2020-10-22 01:58:23 Hardening: assigned maximum number of hardening points for this item (3). Currently having 144 points (out of 212)
-	    2020-10-22 01:58:23 Test: Checking GatewayPorts in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:23 Result: Option GatewayPorts found
-	    2020-10-22 01:58:23 Result: Option GatewayPorts value is NO
-	    2020-10-22 01:58:23 Result: OpenSSH option GatewayPorts is configured very well
-	    2020-10-22 01:58:23 Hardening: assigned maximum number of hardening points for this item (3). Currently having 147 points (out of 215)
-	    2020-10-22 01:58:23 Test: Checking IgnoreRhosts in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:23 Result: Option IgnoreRhosts found
-	    2020-10-22 01:58:23 Result: Option IgnoreRhosts value is YES
-	    2020-10-22 01:58:23 Result: OpenSSH option IgnoreRhosts is configured very well
-	    2020-10-22 01:58:23 Hardening: assigned maximum number of hardening points for this item (3). Currently having 150 points (out of 218)
-	    2020-10-22 01:58:23 Test: Checking LoginGraceTime in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:23 Result: Option LoginGraceTime found
-	    2020-10-22 01:58:23 Result: Option LoginGraceTime value is 120
-	    2020-10-22 01:58:23 Result: OpenSSH option LoginGraceTime is configured very well
-	    2020-10-22 01:58:23 Hardening: assigned maximum number of hardening points for this item (3). Currently having 153 points (out of 221)
-	    2020-10-22 01:58:24 Test: Checking LogLevel in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:24 Result: Option LogLevel found
-	    2020-10-22 01:58:24 Result: Option LogLevel value is INFO
-	    2020-10-22 01:58:24 Result: OpenSSH option LogLevel is configured reasonably
-	    2020-10-22 01:58:24 Suggestion: Consider hardening SSH configuration [test:SSH-7408] [details:LogLevel (set INFO to VERBOSE)] [solution:-]
-	    2020-10-22 01:58:24 Hardening: assigned partial number of hardening points (1 of 3). Currently having 154 points (out of 224)
-	    2020-10-22 01:58:24 Test: Checking MaxAuthTries in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:24 Result: Option MaxAuthTries found
-	    2020-10-22 01:58:24 Result: Option MaxAuthTries value is 6
-	    2020-10-22 01:58:24 Result: OpenSSH option MaxAuthTries is configured reasonably
-	    2020-10-22 01:58:24 Suggestion: Consider hardening SSH configuration [test:SSH-7408] [details:MaxAuthTries (set 6 to 3)] [solution:-]
-	    2020-10-22 01:58:24 Hardening: assigned partial number of hardening points (1 of 3). Currently having 155 points (out of 227)
-	    2020-10-22 01:58:24 Test: Checking MaxSessions in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:24 Result: Option MaxSessions found
-	    2020-10-22 01:58:24 Result: Option MaxSessions value is 10
-	    2020-10-22 01:58:24 Result: OpenSSH option MaxSessions is in a weak configuration state and should be fixed
-	    2020-10-22 01:58:24 Suggestion: Consider hardening SSH configuration [test:SSH-7408] [details:MaxSessions (set 10 to 2)] [solution:-]
-	    2020-10-22 01:58:24 Hardening: assigned partial number of hardening points (0 of 3). Currently having 155 points (out of 230)
-	    2020-10-22 01:58:24 Test: Checking PermitRootLogin in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:24 Result: Option PermitRootLogin found
-	    2020-10-22 01:58:24 Result: Option PermitRootLogin value is YES
-	    2020-10-22 01:58:24 Result: OpenSSH option PermitRootLogin is in a weak configuration state and should be fixed
-	    2020-10-22 01:58:24 Suggestion: Consider hardening SSH configuration [test:SSH-7408] [details:PermitRootLogin (set YES to (FORCED-COMMANDS-ONLY|NO|PROHIBIT-PASSWORD|WITHOUT-PASSWORD))] [solution:-]
-	    2020-10-22 01:58:24 Hardening: assigned partial number of hardening points (0 of 3). Currently having 155 points (out of 233)
-	    2020-10-22 01:58:24 Test: Checking PermitUserEnvironment in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:24 Result: Option PermitUserEnvironment found
-	    2020-10-22 01:58:24 Result: Option PermitUserEnvironment value is NO
-	    2020-10-22 01:58:24 Result: OpenSSH option PermitUserEnvironment is configured very well
-	    2020-10-22 01:58:24 Hardening: assigned maximum number of hardening points for this item (3). Currently having 158 points (out of 236)
-	    2020-10-22 01:58:24 Test: Checking PermitTunnel in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:24 Result: Option PermitTunnel found
-	    2020-10-22 01:58:24 Result: Option PermitTunnel value is NO
-	    2020-10-22 01:58:24 Result: OpenSSH option PermitTunnel is configured very well
-	    2020-10-22 01:58:24 Hardening: assigned maximum number of hardening points for this item (3). Currently having 161 points (out of 239)
-	    2020-10-22 01:58:24 Test: Checking Port in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:24 Result: Option Port found
-	    2020-10-22 01:58:24 Result: Option Port value is 22
-	    2020-10-22 01:58:24 Result: OpenSSH option Port is in a weak configuration state and should be fixed
-	    2020-10-22 01:58:24 Suggestion: Consider hardening SSH configuration [test:SSH-7408] [details:Port (set 22 to )] [solution:-]
-	    2020-10-22 01:58:24 Hardening: assigned partial number of hardening points (0 of 3). Currently having 161 points (out of 242)
-	    2020-10-22 01:58:24 Test: Checking PrintLastLog in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:24 Result: Option PrintLastLog found
-	    2020-10-22 01:58:24 Result: Option PrintLastLog value is YES
-	    2020-10-22 01:58:24 Result: OpenSSH option PrintLastLog is configured very well
-	    2020-10-22 01:58:25 Hardening: assigned maximum number of hardening points for this item (3). Currently having 164 points (out of 245)
-	    2020-10-22 01:58:25 Test: Checking StrictModes in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:25 Result: Option StrictModes found
-	    2020-10-22 01:58:25 Result: Option StrictModes value is YES
-	    2020-10-22 01:58:25 Result: OpenSSH option StrictModes is configured very well
-	    2020-10-22 01:58:25 Hardening: assigned maximum number of hardening points for this item (3). Currently having 167 points (out of 248)
-	    2020-10-22 01:58:25 Test: Checking TCPKeepAlive in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:25 Result: Option TCPKeepAlive found
-	    2020-10-22 01:58:25 Result: Option TCPKeepAlive value is YES
-	    2020-10-22 01:58:25 Result: OpenSSH option TCPKeepAlive is in a weak configuration state and should be fixed
-	    2020-10-22 01:58:25 Suggestion: Consider hardening SSH configuration [test:SSH-7408] [details:TCPKeepAlive (set YES to NO)] [solution:-]
-	    2020-10-22 01:58:25 Hardening: assigned partial number of hardening points (0 of 3). Currently having 167 points (out of 251)
-	    2020-10-22 01:58:25 Test: Checking UseDNS in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:25 Result: Option UseDNS found
-	    2020-10-22 01:58:25 Result: Option UseDNS value is NO
-	    2020-10-22 01:58:25 Result: OpenSSH option UseDNS is configured very well
-	    2020-10-22 01:58:25 Hardening: assigned maximum number of hardening points for this item (3). Currently having 170 points (out of 254)
-	    2020-10-22 01:58:25 Test: Checking X11Forwarding in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:25 Result: Option X11Forwarding found
-	    2020-10-22 01:58:25 Result: Option X11Forwarding value is YES
-	    2020-10-22 01:58:25 Result: OpenSSH option X11Forwarding is in a weak configuration state and should be fixed
-	    2020-10-22 01:58:25 Suggestion: Consider hardening SSH configuration [test:SSH-7408] [details:X11Forwarding (set YES to NO)] [solution:-]
-	    2020-10-22 01:58:25 Hardening: assigned partial number of hardening points (0 of 3). Currently having 170 points (out of 257)
-	    2020-10-22 01:58:25 Test: Checking AllowAgentForwarding in /tmp/lynis.nTvV333rOB
-	    2020-10-22 01:58:25 Result: Option AllowAgentForwarding found
-	    2020-10-22 01:58:25 Result: Option AllowAgentForwarding value is YES
-	    2020-10-22 01:58:25 Result: OpenSSH option AllowAgentForwarding is in a weak configuration state and should be fixed
-	    2020-10-22 01:58:25 Suggestion: Consider hardening SSH configuration [test:SSH-7408] [details:AllowAgentForwarding (set YES to NO)] [solution:-]
-	    2020-10-22 01:58:25 Hardening: assigned partial number of hardening points (0 of 3). Currently having 170 points (out of 260)
-	    2020-10-22 01:58:25 ====
-	Source:
-	1. https://drive.google.com/drive/folders/1SUpqELdGy0O2zEDbmfnx35zViexy5xZL
-	2. https://losst.ru/kak-polzovatsya-nmap-dlya-skanirovaniya-seti
-	3. https://www.server-world.info/en/note?os=CentOS_7&p=tripwire
-	4. https://www.lisenet.com/2017/configure-tripwire-on-centos-7/
-	5. https://habr.com/sandbox/29825/
-	6. https://kamaok.org.ua/?p=813
-	7. https://habr.com/company/first/blog/243487/
-	8. https://www.youtube.com/playlist?list=PLZhCxwdwDOs_mcD3BzbfiJX-V1kHbMjsh
-	9. https://www.youtube.com/playlist?list=PLtSGboPf3g50Aejrp6KjQsqqjxvAO4aKw
-    10. https://www.youtube.com/playlist?list=PLdEqf7lxtAH--exov42yypdvOi7bDqoBQ
-    11. https://losst.ru/proverka-linux-na-virusy
-    12. https://www.youtube.com/watch?v=t6wO3qsxrSo&list=PL76C3E97EB0FDB323&index=18&t=0s
-    13. https://linuxconfig.org/how-to-install-xinetd-service-in-redhat-8
-
 Обработка и сортировка данных 
 	Task:
 	Exe files
@@ -13324,279 +11686,1039 @@ Mail for feedback: David138it@gmail.com
 	Py-ExeFiles
 	$ deactivate
 
+
+
 Утилита для сканирования безопасности сети Nmap 
-Task:
-У руководителя уже установлена тестовая система Centos в машине Qemu-Kvm. Наша первая задача скоипровать у него систему 
-Decision:
-$ sudo virsh list --all
- ID   Имя           Состояние
--------------------------------
- 2    Centos9       работает
- -    Alt           выключен
- -    Centos        выключен
- -    Kali          выключен
- -    ubuntu22.04   выключен
- -    Windows       выключен
-$ sudo virsh shutdown Centos9
-$ sudo virsh domblklist Centos9
- Назначение   Источник
----------------------------------------------------
- vda          /var/lib/libvirt/images/Centos9.img
- sda          -
-$ rsync -avzP tuser@192.168.122.153:/var/lib/libvirt/images/Centos9.img Centos/.
-$ sudo virsh dumpxml Centos9 > Centos9.xml
-$ head Centos9.xml
-<domain type='kvm'>
-  <name>Centos9</name>
-  <uuid>8cdbcba9-a955-4ca1-b75e-ab3145255c8d</uuid>
-  <metadata>
-    <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
-      <libosinfo:os id="http://centos.org/centos-stream/9"/>
-    </libosinfo:libosinfo>
-  </metadata>
-  <memory unit='KiB'>2097152</memory>
-  <currentMemory unit='KiB'>2097152</currentMemory>
-$ sudo head /etc/libvirt/qemu/Centos9.xml
-<!--
-WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT ARE LIKELY TO BE
-OVERWRITTEN AND LOST. Changes to this xml configuration should be made using:
-  virsh edit Centos9
-or other application using the libvirt API.
--->
-<domain type='kvm'>
-  <name>Centos9</name>
-  <uuid>8cdbcba9-a955-4ca1-b75e-ab3145255c8d</uuid>
-$ sudo qemu-img info Centos9.img
-image: Centos9.img
-file format: qcow2
-virtual size: 50 GiB (53687091200 bytes)
-disk size: 50 GiB
-cluster_size: 65536
-Snapshot list:
-ID        TAG               VM SIZE                DATE     VM CLOCK     ICOUNT
-1         snapshot1             0 B 2023-09-28 13:18:14 00:00:00.000          0
-Format specific information:
-    compat: 1.1
-    compression type: zlib
-    lazy refcounts: true
-    refcount bits: 16
-    corrupt: false
-    extended l2: false
-Child node '/file':
-    filename: Centos9.img
-    protocol type: file
-    file length: 50 GiB (53695545344 bytes)
+	Task:
+    Для защиты выпускной квалификационной работы по теме "Утилита для сканирования безопасности сети Nmap" проанализировал состояние виртуальных машин в Qemu-Kvm инструментом Nmap. Дополнительно для перехвата трафиков использовал Tcpdump. Для того чтобы обезопасить свои системы, настроил правила в Iptables и развернул антируткит, который по определенному раписанию выгружал отчет о состоянии системы. В курсовой работе своил навыки по следующим инструментам: Qemu-Kvm, Virtualbox, Linux, Ssh, Iptables, Nmap, Bash, Vsftpd, Telnet, Nginx, Squid, Tcpdump, Icmp, Tripwire, Rkhunter, Crontab
+    Task:
+    У руководителя уже установлена тестовая система Centos в машине Qemu-Kvm. Наша первая задача скоипровать у него систему 
+    Decision:
+    $ sudo virsh list --all
+     ID   Имя           Состояние
+    -------------------------------
+     2    Centos9       работает
+     -    Alt           выключен
+     -    Centos        выключен
+     -    Kali          выключен
+     -    ubuntu22.04   выключен
+     -    Windows       выключен
+    $ sudo virsh shutdown Centos9
+    $ sudo virsh domblklist Centos9
+     Назначение   Источник
+    ---------------------------------------------------
+     vda          /images/Centos9.img
+     sda          -
+    $ rsync -avzP user@IpAddrCentos:/images/Centos9.img Centos/.
+    $ sudo virsh dumpxml Centos9 > Centos9.xml
+    $ head Centos9.xml
+    <domain type='kvm'>
+      <name>Centos9</name>
+      <uuid>8cdbcba9-a955-4ca1-b75e-ab3145255c8d</uuid>
+      <metadata>
+        <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
+          <libosinfo:os id="http://centos.org/centos-stream/9"/>
+        </libosinfo:libosinfo>
+      </metadata>
+      <memory unit='KiB'>2097152</memory>
+      <currentMemory unit='KiB'>2097152</currentMemory>
+    $ sudo head /etc/libvirt/qemu/Centos9.xml
+    <!--
+    WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT ARE LIKELY TO BE
+    OVERWRITTEN AND LOST. Changes to this xml configuration should be made using:
+      virsh edit Centos9
+    or other application using the libvirt API.
+    -->
+    <domain type='kvm'>
+      <name>Centos9</name>
+      <uuid>8cdbcba9-a955-4ca1-b75e-ab3145255c8d</uuid>
+    $ sudo qemu-img info Centos9.img
+    image: Centos9.img
+    file format: qcow2
+    virtual size: 50 GiB (53687091200 bytes)
     disk size: 50 GiB
-$ sudo qemu-img convert Centos9.img tmp.bin -p
-$ VBoxManage convertdd tmp.bin virtualbox.vdi
-$ VBoxManage modifyvdi virtualbox.vdi compact
-
-Task:
-Работа с iptables. 
-Проверяем наличие пакета iptables. 
-Убедимся, что iptables запускается при старте системы. 
-Выводим список текущих правил iptables.
-проанализируем какие порты открыты в сервере Centos. 
-Для этого нужно подключиться с сервера ubuntu.
-Decision:
-$ virsh start Centos9
-$ virsh start ubuntu22.04
-$ ssh -X tuser@192.168.122.153
-$ sudo su
-[root@kvm-tcentos tuser]# yum install iptables-services
-[root@kvm-tcentos tuser]# iptables --version
-[root@kvm-tcentos tuser]# iptables -L -v
-Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
- pkts bytes target     prot opt in     out     source               destination         
-Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
- pkts bytes target     prot opt in     out     source               destination         
-Chain OUTPUT (policy ACCEPT 0 packets, 0 bytes)
- pkts bytes target     prot opt in     out     source               destination 
-[root@kvm-tcentos tuser]# service iptables start
-[root@kvm-tcentos tuser]# service iptables status
-$ ssh -X tuser@192.168.122.184
-$ sudo su
-root@kvm-ubuntu:/home/tuser# nmap 192.168.122.153
-Starting Nmap 7.80 ( https://nmap.org ) at 2023-10-17 08:33 CDT
-Nmap scan report for kvm-tcentos (192.168.122.153)
-Host is up (0.00089s latency).
-Not shown: 999 filtered ports
-PORT   STATE SERVICE
-22/tcp open  ssh
-MAC Address: 52:54:00:FE:3C:41 (QEMU virtual NIC)
-Nmap done: 1 IP address (1 host up) scanned in 5.30 seconds
-Task:
-В сервере Centos Напишем набор правил iptables, в котором мы разрешаем все исходящие соединения и строго ограничиваем входящие. 
-Доступ будет возможен по портам TCP: 21, 22, 25, 53, 80, 143, 443, по портам UDP: 20, 21, 53, также мы пропускаем пакеты для уже установленных соединений.
-С удаленной машины просканируем порты на нашем сервере.
-Decision:
-[root@kvm-tcentos tuser]# vim firewall.sh
-[root@kvm-tcentos tuser]# cat firewall.sh
-#!/bin/bash
-IPT="/sbin/iptables"
-# Очищаем правила и удаляем цепочки.
-$IPT -F
-$IPT -X
-# По умолчанию доступ запрещен.
-$IPT -P INPUT DROP
-$IPT -P FORWARD DROP
-$IPT -P OUTPUT DROP
-# Список разрешенных TCP и UDP портов.
-TCP_PORTS="21,22,25,53,80,143,443"
-UDP_PORTS="53,21,20"
-# Разрешаем пакеты для интерфейса обратной петли.
-$IPT -A INPUT -i lo -j ACCEPT
-$IPT -A OUTPUT -o lo -j ACCEPT
-# Разрешаем пакеты для установленных соединений.
-$IPT -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-# Разрешаем исходящие соединения.
-$IPT -A OUTPUT -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-# Разрешаем доступ к портам, описанным в переменных TCP_PORTS и UDP_PORTS.
-$IPT -A INPUT -p tcp -m multiport --dport $TCP_PORTS -j ACCEPT
-$IPT -A INPUT -p udp -m multiport --dport $UDP_PORTS -j ACCEPT
-# Разрешаем исходящий ping.
-$IPT -A INPUT -p icmp -m icmp --icmp-type echo-reply -j ACCEPT
-[root@kvm-tcentos tuser]# chmod +x firewall.sh
-[root@kvm-tcentos tuser]# ./firewall.sh
-[root@kvm-tcentos tuser]# iptables -L -v
-Chain INPUT (policy DROP 1986 packets, 87384 bytes)
- pkts bytes target     prot opt in     out     source               destination         
-    0     0 ACCEPT     all  --  lo     any     anywhere             anywhere            
-   79  5604 ACCEPT     all  --  any    any     anywhere             anywhere             state RELATED,ESTABLISHED
-    9   396 ACCEPT     tcp  --  any    any     anywhere             anywhere             multiport dports ftp,ssh,smtp,domain,http,imap,https
-    0     0 ACCEPT     udp  --  any    any     anywhere             anywhere             multiport dports domain,ftp,ftp-data
-    0     0 ACCEPT     icmp --  any    any     anywhere             anywhere             icmp echo-reply
-Chain FORWARD (policy DROP 0 packets, 0 bytes)
- pkts bytes target     prot opt in     out     source               destination         
-Chain OUTPUT (policy DROP 0 packets, 0 bytes)
- pkts bytes target     prot opt in     out     source               destination         
-    0     0 ACCEPT     all  --  any    lo      anywhere             anywhere            
-   60  7920 ACCEPT     all  --  any    any     anywhere             anywhere             state NEW,RELATED,ESTABLISHED
-[root@kvm-tcentos tuser]# service iptables save
-root@kvm-ubuntu:# nmap 192.168.122.153
-Starting Nmap 7.80 ( https://nmap.org ) at 2023-10-17 08:37 CDT
-Nmap scan report for kvm-tcentos (192.168.122.153)
-Host is up (0.00095s latency).
-Not shown: 993 filtered ports
-PORT    STATE  SERVICE
-21/tcp  closed ftp
-22/tcp  open   ssh
-25/tcp  closed smtp
-53/tcp  closed domain
-80/tcp  closed http
-143/tcp closed imap
-443/tcp closed https
-MAC Address: 52:54:00:FE:3C:41 (QEMU virtual NIC)
-Nmap done: 1 IP address (1 host up) scanned in 5.20 seconds
-Task:
-	Если сетевых интерфейсов два или более, то необходимо включить
-	перенаправление трафика. Для этого в файле /etc/sysctl.conf
-	строку
-	net.ipv4.ip_forward = 0
-	меняем на
-	net.ipv4.ip_forward = 1
-	и перечитываем конфигурационный файл
-	[root@linuxbox ~]# sysctl -p /etc/sysctl.conf
-	Запрещаем доступ к фтп всем пользователям, кроме пользователя с MAC-
-	адресом e6:e6:f0:41:89:85.
-	iptables -A INPUT -p tcp --dport 21 -m mac --mac-source ! e6:e6:f0:41:89:85 -j DROP
-	Перенаправление пакетов, идущих на 80-й порт, на стандартный порт
-	прокси-сервера.
-	iptables -t nat -A PREROUTING -s 192.168.79.0/24 -p tcp --dport 80 -j
-	REDIRECT --to-port 3128
-	Предоставляем доступ из Интернет к веб-серверу, который расположен
-	в локальной сети (проброс порта). Вместо 192.168.79.2 укажите IP-адрес
-	вашего веб-сервера.
-	iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination
-	192.168.79.2:80
-	Включаем маскарадинг для доступа в Интернет пользователей локальной
-	сети.
-	iptables -t nat -A POSTROUTING -o eth0 -s 192.168.0.0/24 -j MASQUERADE
-Task:
-Просканируем удаленный хост.
-Decision:
-# dnf install nmap
-# nmap -A -T4 192.168.122.184
-Starting Nmap 7.92 ( https://nmap.org ) at 2023-09-29 11:07 +08
-Nmap scan report for kvm-ubuntu (192.168.122.184)
-Host is up (0.00084s latency).
-Not shown: 998 filtered tcp ports (no-response)
-PORT    STATE  SERVICE VERSION
-22/tcp  open   ssh     OpenSSH 8.9p1 Ubuntu 3ubuntu0.3 (Ubuntu Linux; protocol 2.0)
-| ssh-hostkey: 
-|   256 87:e5:ac:5b:03:13:bc:7c:98:7f:71:74:b7:ba:18:66 (ECDSA)
-|_  256 ab:67:ef:9c:a4:0b:9c:34:a4:d9:7c:88:29:9f:dd:a1 (ED25519)
-443/tcp closed https
-MAC Address: 52:54:00:90:60:D2 (QEMU virtual NIC)
-Device type: general purpose
-Running: Linux 5.X
-OS CPE: cpe:/o:linux:linux_kernel:5
-OS details: Linux 5.0 - 5.4
-Network Distance: 1 hop
-Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
-TRACEROUTE
-HOP RTT     ADDRESS
-1   0.84 ms kvm-ubuntu (192.168.122.184)
-OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 8.51 seconds
-Task:
-Сканируем диапазон портов
-Decision:
-# nmap -sT -p 21-80 192.168.122.184
-Starting Nmap 7.92 ( https://nmap.org ) at 2023-09-29 11:14 +08
-Nmap scan report for kvm-ubuntu (192.168.122.184)
-Host is up (0.00072s latency).
-Not shown: 59 filtered tcp ports (no-response)
-PORT   STATE SERVICE
-22/tcp open  ssh
-MAC Address: 52:54:00:90:60:D2 (QEMU virtual NIC)
-Nmap done: 1 IP address (1 host up) scanned in 1.67 seconds
-Task:
-Перехватываем весь трафик для MAC-адреса 52:54:00:90:60:d2 на сетевом интерфейсе enp1s0.
-Decision:
-$ ping 192.168.122.153
-# tcpdump -n -i enp1s0 "ether host 52:54:00:90:60:d2"
-dropped privs to tcpdump
-tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
-listening on enp1s0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
-11:23:29.841820 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 1, seq 1, length 64
-11:23:30.852588 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 1, seq 2, length 64
-11:23:31.876447 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 1, seq 3, length 64
-11:23:32.900487 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 1, seq 4, length 64
-11:23:33.924327 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 1, seq 5, length 64
-11:23:34.948423 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 1, seq 6, length 64
-11:23:35.076227 ARP, Request who-has 192.168.122.153 tell 192.168.122.184, length 28
-11:23:35.076254 ARP, Reply 192.168.122.153 is-at 52:54:00:fe:3c:41, length 28
-11:23:35.972252 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 1, seq 7, length 64
-...
-Task:
-Перехватываем только ICMP-пакеты
-Decision:
-# tcpdump -i enp1s0 -n -nn -ttt 'ip proto \icmp'
-dropped privs to tcpdump
-tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
-listening on enp1s0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
- 00:00:00.000000 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 6, seq 1, length 64
- 00:00:01.001585 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 6, seq 2, length 64
- 00:00:01.024016 IP 192.168.122.184 > 192.168.122.153: ICMP echo request, id 6, seq 3, length 64
-
-
-
-Source:
-https://serverspace.ru/support/help/utilita-rsync-dlya-sinkhronizatsii-fajlov/
-https://elatov.github.io/2013/06/migrate-from-libvirt-kvm-to-virtualbox/
-https://www.opennet.ru/tips/1870_qemu_virtualbox_disk.shtml
-
-https://blog.sedicomm.com/2016/12/16/iptables-ustanovka-i-nastrojka/?ysclid=ln3wplng53988958006#1
+    cluster_size: 65536
+    Snapshot list:
+    ID        TAG               VM SIZE                DATE     VM CLOCK     ICOUNT
+    1         snapshot1             0 B 2023-09-28 13:18:14 00:00:00.000          0
+    Format specific information:
+        compat: 1.1
+        compression type: zlib
+        lazy refcounts: true
+        refcount bits: 16
+        corrupt: false
+        extended l2: false
+    Child node '/file':
+        filename: Centos9.img
+        protocol type: file
+        file length: 50 GiB (53695545344 bytes)
+        disk size: 50 GiB
+    $ sudo qemu-img convert Centos9.img tmp.bin -p
+    $ VBoxManage convertdd tmp.bin virtualbox.vdi
+    $ VBoxManage modifyvdi virtualbox.vdi compact
+    Task:
+    Работа с iptables. 
+    Проверяем наличие пакета iptables. 
+    Убедимся, что iptables запускается при старте системы. 
+    Выводим список текущих правил iptables.
+    проанализируем какие порты открыты в сервере Centos. 
+    Для этого нужно подключиться с сервера ubuntu.
+    Decision:
+    $ virsh start Centos9
+    $ virsh start ubuntu22.04
+    $ ssh -X user@IpAddrCentos
+    $ sudo su
+    [root@centos user]# yum install iptables-services
+    [root@centos user]# iptables --version
+    [root@centos user]# iptables -L -v
+    Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
+     pkts bytes target     prot opt in     out     source               destination         
+    Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+     pkts bytes target     prot opt in     out     source               destination         
+    Chain OUTPUT (policy ACCEPT 0 packets, 0 bytes)
+     pkts bytes target     prot opt in     out     source               destination 
+    [root@centos user]# systemctl start iptables
+    [root@centos user]# systemctl enable iptables
+    [root@centos user]# service iptables status
+    $ ssh -X user@IpAddrUbuntu
+    user@ubuntu:~$ nmap IpAddrCentos
+    Starting Nmap 7.80 ( https://nmap.org ) at 2023-10-17 08:33 CDT
+    Nmap scan report for centos (IpAddrCentos)
+    Host is up (0.00089s latency).
+    Not shown: 999 filtered ports
+    PORT   STATE SERVICE
+    22/tcp open  ssh
+    MAC Address: MacAddrCentos (QEMU virtual NIC)
+    Nmap done: 1 IP address (1 host up) scanned in 5.30 seconds
+    Task:
+    В сервере Centos Напишем набор правил iptables, в котором мы разрешаем все исходящие соединения и строго ограничиваем входящие. 
+    Доступ будет возможен по портам TCP: 21, 22, 25, 53, 80, 143, 443, по портам UDP: 20, 21, 53, также мы пропускаем пакеты для уже установленных соединений.
+    С удаленной машины просканируем порты на нашем сервере.
+    Decision:
+    [root@centos user]# vim firewall.sh
+    [root@centos user]# cat firewall.sh
+    #!/bin/bash
+    IPT="/sbin/iptables"
+    # Очищаем правила и удаляем цепочки.
+    $IPT -F
+    $IPT -X
+    # По умолчанию доступ запрещен.
+    $IPT -P INPUT DROP
+    $IPT -P FORWARD DROP
+    $IPT -P OUTPUT DROP
+    # Список разрешенных TCP и UDP портов.
+    TCP_PORTS="21,22,25,53,80,143,443"
+    UDP_PORTS="53,21,20"
+    # Разрешаем пакеты для интерфейса обратной петли.
+    $IPT -A INPUT -i lo -j ACCEPT
+    $IPT -A OUTPUT -o lo -j ACCEPT
+    # Разрешаем пакеты для установленных соединений.
+    $IPT -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+    # Разрешаем исходящие соединения.
+    $IPT -A OUTPUT -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+    # Разрешаем доступ к портам, описанным в переменных TCP_PORTS и UDP_PORTS.
+    $IPT -A INPUT -p tcp -m multiport --dport $TCP_PORTS -j ACCEPT
+    $IPT -A INPUT -p udp -m multiport --dport $UDP_PORTS -j ACCEPT
+    # Разрешаем исходящий ping.
+    $IPT -A INPUT -p icmp -m icmp --icmp-type echo-reply -j ACCEPT
+    [root@centos user]# chmod +x firewall.sh
+    [root@centos user]# ./firewall.sh
+    [root@centos user]# iptables -L -v
+    Chain INPUT (policy DROP 1986 packets, 87384 bytes)
+     pkts bytes target     prot opt in     out     source               destination         
+        0     0 ACCEPT     all  --  lo     any     anywhere             anywhere            
+       79  5604 ACCEPT     all  --  any    any     anywhere             anywhere             state RELATED,ESTABLISHED
+        9   396 ACCEPT     tcp  --  any    any     anywhere             anywhere             multiport dports ftp,ssh,smtp,domain,http,imap,https
+        0     0 ACCEPT     udp  --  any    any     anywhere             anywhere             multiport dports domain,ftp,ftp-data
+        0     0 ACCEPT     icmp --  any    any     anywhere             anywhere             icmp echo-reply
+    Chain FORWARD (policy DROP 0 packets, 0 bytes)
+     pkts bytes target     prot opt in     out     source               destination         
+    Chain OUTPUT (policy DROP 0 packets, 0 bytes)
+     pkts bytes target     prot opt in     out     source               destination         
+        0     0 ACCEPT     all  --  any    lo      anywhere             anywhere            
+       60  7920 ACCEPT     all  --  any    any     anywhere             anywhere             state NEW,RELATED,ESTABLISHED
+    [root@centos user]# service iptables save
+    user@ubuntu:~$ nmap IpAddrCentos
+    Starting Nmap 7.80 ( https://nmap.org ) at 2023-10-17 08:37 CDT
+    Nmap scan report for centos (IpAddrCentos)
+    Host is up (0.00095s latency).
+    Not shown: 993 filtered ports
+    PORT    STATE  SERVICE
+    21/tcp  closed ftp
+    22/tcp  open   ssh
+    25/tcp  closed smtp
+    53/tcp  closed domain
+    80/tcp  closed http
+    143/tcp closed imap
+    443/tcp closed https
+    MAC Address: MacAddrCentos (QEMU virtual NIC)
+    Nmap done: 1 IP address (1 host up) scanned in 5.20 seconds
+    Task:
+    Если сетевых интерфейсов два или более, то необходимо включить перенаправление трафика и перечитать конфигурационный файл
+    Decision:
+    [root@centos user]# vim /etc/sysctl.conf
+    [root@centos user]# cat /etc/sysctl.conf
+    ...
+    net.ipv4.ip_forward = 1
+    [root@centos user]# sysctl -p /etc/sysctl.conf
+    net.ipv4.ip_forward = 1
+    Task:
+    Install and configure an FTP server. Securing the connection to the FTP server.
+    Decision:
+    [root@centos user]# dnf update -y
+    [root@centos user]# dnf install vsftpd -y
+    [root@centos user]# systemctl enable vsftpd --now
+    [root@centos user]# systemctl status vsftpd
+    user@ubuntu:~$ nmap IpAddrCentos
+    Starting Nmap 7.80 ( https://nmap.org ) at 2023-10-18 07:41 CDT
+    Nmap scan report for IpAddrCentos
+    Host is up (0.0012s latency).
+    Not shown: 993 filtered ports
+    PORT    STATE  SERVICE
+    21/tcp  open   ftp
+    22/tcp  open   ssh
+    25/tcp  closed smtp
+    53/tcp  closed domain
+    80/tcp  closed http
+    143/tcp closed imap
+    443/tcp closed https
+    MAC Address: MacAddrCentos (QEMU virtual NIC)
+    Nmap done: 1 IP address (1 host up) scanned in 5.80 seconds
+    [root@centos user]# useradd -m -d "/home/ftpuser" ftpuser
+    [root@centos user]# passwd ftpuser
+    [root@centos user]# mkdir -p /home/ftpuser/shared
+    [root@centos user]# chmod -R 750 /home/ftpuser/shared
+    [root@centos user]# chown ftpuser: /home/ftpuser/shared
+    [root@centos user]# vim /etc/vsftpd/user_list
+    [root@centos user]# cat /etc/vsftpd/user_list | grep ftp
+    ftpuser
+    [root@centos user]# vim /etc/vsftpd/vsftpd.conf
+    [root@centos user]# cat /etc/vsftpd/vsftpd.conf
+    ...
+    anonymous_enable=NO
+    ...
+    local_enable=YES
+    ...
+    write_enable=YES
+    ...
+    chroot_local_user=YES
+    ...
+    allow_writeable_chroot=YES
+    pasv_min_port=31500
+    pasv_max_port=32500
+    userlist_file=/etc/vsftpd/user_list
+    userlist_deny=NO
+    [root@centos user]# systemctl restart vsftpd
+    [root@centos user]# openssl req -x509 -nodes -days 3650 \
+    -newkey rsa:2048 -keyout /etc/vsftpd.pem \
+    -out /etc/vsftpd/vsftpd.pem
+    [root@centos user]# vim /etc/vsftpd/vsftpd.conf
+    [root@centos user]# cat /etc/vsftpd/vsftpd.conf
+    ...
+    #rsa_cert_file=/etc/vsftpd/vsftpd.pem
+    #rsa_private_key_file=/etc/vsftpd.pem
+    #ssl_enable=YES
+    [root@centos user]# systemctl restart vsftpd
+    [root@centos user]# cat /etc/sysconfig/iptables
+    # Generated by iptables-save v1.8.8 (nf_tables) on Sun Oct 22 12:10:33 2023
+    *mangle
+    :PREROUTING ACCEPT [45:3316]
+    :INPUT ACCEPT [45:3316]
+    :FORWARD ACCEPT [0:0]
+    :OUTPUT ACCEPT [34:5048]
+    :POSTROUTING ACCEPT [34:5048]
+    COMMIT
+    # Completed on Sun Oct 22 12:10:33 2023
+    # Generated by iptables-save v1.8.8 (nf_tables) on Sun Oct 22 12:10:33 2023
+    *raw
+    :PREROUTING ACCEPT [45:3316]
+    :OUTPUT ACCEPT [34:5048]
+    COMMIT
+    # Completed on Sun Oct 22 12:10:33 2023
+    # Generated by iptables-save v1.8.8 (nf_tables) on Sun Oct 22 12:10:33 2023
+    *filter
+    :INPUT DROP [0:0]
+    :FORWARD DROP [0:0]
+    :OUTPUT DROP [0:0]
+    -A INPUT -i lo -j ACCEPT
+    -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+    -A INPUT -p tcp -m multiport --dports 21,22,25,53,80,143,443 -j ACCEPT
+    -A INPUT -p udp -m multiport --dports 53,21,20 -j ACCEPT
+    -A INPUT -p icmp -m icmp --icmp-type 0 -j ACCEPT
+    -A OUTPUT -o lo -j ACCEPT
+    -A OUTPUT -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+    COMMIT
+    # Completed on Sun Oct 22 12:10:33 2023
+    # Generated by iptables-save v1.8.8 (nf_tables) on Sun Oct 22 12:10:33 2023
+    *nat
+    :PREROUTING ACCEPT [0:0]
+    :INPUT ACCEPT [0:0]
+    :OUTPUT ACCEPT [0:0]
+    :POSTROUTING ACCEPT [0:0]
+    COMMIT
+    # Completed on Sun Oct 22 12:10:33 2023
+    [root@centos user]# iptables -t filter -A INPUT -p tcp --dport 20:21 -j ACCEPT
+    [root@centos user]# iptables -t filter -A INPUT -p tcp --dport 31500:32500 -j ACCEPT
+    [root@centos user]# service iptables save
+    [root@centos user]# systemctl restart iptables
+    user@ubuntu:~$ telnet IpAddrCentos 21
+    Trying IpAddrCentos...
+    Connected to IpAddrCentos.
+    Escape character is '^]'.
+    220 (vsFTPd 3.0.5)
+    USER ftpuser
+    331 Please specify the password.
+    PASS tpassword
+    230 Login successful.
+    PWD
+    257 "/" is the current directory
+    PASV
+    227 Entering Passive Mode (I,P,126,61).
+    user@ubuntu:~$ 126*256+61
+    32317
+    user@ubuntu:~$ telnet IpAddrCentos 32317
+    Trying IpAddrCentos...
+    Connected to IpAddrCentos.
+    Escape character is '^]'.
+    LIST
+    150 Here comes the directory listing.
+    226 Directory send OK.
+    drwxr-x---    2 1001     1001            6 Oct 21 03:06 shared
+    QUIT
+    221 Goodbye.
+    Task:
+    Запрещаем доступ к фтп всем пользователям, кроме пользователя с MAC-адресом MacAddrUbuntu.
+    Decision:
+    [root@centos user]# iptables -I INPUT -p tcp --dport 21 -m mac ! --mac-source MacAddrUbuntu -j REJECT
+    [root@centos user]# service iptables save
+    [root@centos user]# systemctl restart iptables
+    user@ubuntu:~$ ifconfig | grep MacAddrUbuntu
+            ether MacAddrUbuntu  txqueuelen 1000  (Ethernet)
+    user@ubuntu:~$ ftp IpAddrCentos
+    Connected to IpAddrCentos.
+    220 (vsFTPd 3.0.5)
+    Name (IpAddrCentos:user): ftpuser
+    331 Please specify the password.
+    Password: 
+    230 Login successful.
+    Remote system type is UNIX.
+    Using binary mode to transfer files.
+    ftp> ls
+    229 Entering Extended Passive Mode (|||31695|)
+    150 Here comes the directory listing.
+    drwxr-x---    2 1001     1001            6 Oct 21 03:06 shared
+    226 Directory send OK.
+    ftp> exit
+    221 Goodbye.
+    ┌──(user㉿kali)-[~]
+    └─$ ftp IpAddrCentos
+    ftp: Can't connect to `IpAddrCentos:21': Connection refused
+    ftp: Can't connect to `IpAddrCentos:ftp'
+    ftp> exit
+    ┌──(user㉿kali)-[~]
+    └─$ telnet IpAddrCentos 21 
+    Trying IpAddrCentos...
+    telnet: Unable to connect to remote host: Connection refused
+    Task:
+    Install Nginx
+    Decision:
+    [root@centos user]# dnf update -y
+    [root@centos user]# dnf install nginx
+    [root@centos user]# systemctl start nginx
+    [root@centos user]# systemctl enable nginx
+    [root@centos user]# nginx -v
+    nginx version: nginx/1.22.1
+    [root@centos user]# firefox IpAddrCentos
+    Task:
+    Configure Squid Proxy
+    Decision:
+    ┌──(root㉿kali)-[/home/user]
+    └─#  apt update
+    ┌──(root㉿kali)-[/home/user]
+    └─#  apt install squid
+    ┌──(root㉿kali)-[/home/user]
+    └─# systemctl start squid
+    ┌──(root㉿kali)-[/home/user]
+    └─# systemctl enable squid
+    ┌──(root㉿kali)-[/home/user]
+    └─# grep -Eiv '(^#|^$)' /etc/squid/squid.conf
+    acl localnet src 0.0.0.1-0.255.255.255  # RFC 1122 "this" network (LAN)
+    acl localnet src 10.0.0.0/8             # RFC 1918 local private network (LAN)
+    acl localnet src 100.64.0.0/10          # RFC 6598 shared address space (CGN)
+    acl localnet src 169.254.0.0/16         # RFC 3927 link-local (directly plugged) machines
+    acl localnet src 172.16.0.0/12          # RFC 1918 local private network (LAN)
+    acl localnet src 192.168.0.0/16         # RFC 1918 local private network (LAN)
+    acl localnet src fc00::/7               # RFC 4193 local private network range
+    acl localnet src fe80::/10              # RFC 4291 link-local (directly plugged) machines
+    acl SSL_ports port 443
+    acl Safe_ports port 80          # http
+    acl Safe_ports port 21          # ftp
+    acl Safe_ports port 443         # https
+    acl Safe_ports port 70          # gopher
+    acl Safe_ports port 210         # wais
+    acl Safe_ports port 1025-65535  # unregistered ports
+    acl Safe_ports port 280         # http-mgmt
+    acl Safe_ports port 488         # gss-http
+    acl Safe_ports port 591         # filemaker
+    acl Safe_ports port 777         # multiling http
+    http_access deny !Safe_ports
+    http_access deny CONNECT !SSL_ports
+    http_access allow localhost manager
+    http_access deny manager
+    http_access allow localhost
+    http_access deny to_localhost
+    http_access deny to_linklocal
+    include /etc/squid/conf.d/*.conf
+    http_access deny all
+    http_port 3128
+    coredump_dir /var/spool/squid
+    refresh_pattern ^ftp:           1440    20%     10080
+    refresh_pattern -i (/cgi-bin/|\?) 0     0%      0
+    refresh_pattern .               0       20%     4320
+    ┌──(root㉿kali)-[/home/user]
+    └─# mv /etc/squid/squid.conf /etc/squid/squid.conf.bac
+    ┌──(root㉿kali)-[/home/user]
+    └─# vim /etc/squid/squid.conf
+    ┌──(root㉿kali)-[/home/user]
+    └─# cat /etc/squid/squid.conf    
+    acl localnet src IpAddrKali
+    http_access allow localnet
+    http_port 3128
+    ┌──(root㉿kali)-[/home/user]
+    └─# systemctl restart squid   
+    ┌──(root㉿kali)-[/home/user]
+    └─# cat /var/log/squid/access.log
+    1698153952.395      1 IpAddrKali NONE_NONE/400 3816 - / - HIER_NONE/- text/html
+    1698153953.958      7 IpAddrKali TCP_DENIED/403 4185 GET http://kali:3128/squid-internal-static/icons/SN.png - HIER_NONE/- text/html
+    ...
+    1698154905.087      2 IpAddrKali TCP_MISS/400 3889 GET http://IpAddrKali:3128/ - HIER_DIRECT/IpAddrKali text/html
+    1698154906.698    149 IpAddrKali TCP_TUNNEL/200 39 CONNECT static.vk.com:443 - HIER_DIRECT/87.240.137.164 -
+    1698154906.796      0 IpAddrKali NONE_NONE/400 3838 - /favicon.ico - HIER_NONE/- text/html
+    1698154906.797      2 IpAddrKali TCP_MISS/400 3911 GET http://IpAddrKali:3128/favicon.ico - HIER_DIRECT/IpAddrKali text/html
+    ┌──(root㉿kali)-[/home/user]
+    └─# apt install apache2-utils   
+    ┌──(root㉿kali)-[/home/user]
+    └─# htpasswd -c /etc/squid/passwd user
+    ┌──(root㉿kali)-[/home/user]
+    └─# vim /etc/squid/squid.conf         
+    ┌──(root㉿kali)-[/home/user]
+    └─# cat /etc/squid/squid.conf
+    #acl localnet src IpAddrKali
+    #http_access allow localnet
+    http_port 3128
+    via off
+    auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/passwd
+    auth_param basic children 5
+    auth_param basic credentialsttl 2 hours
+    auth_param basic casesensitive on
+    auth_param basic realm Squid proxy for kali
+    acl auth_users proxy_auth REQUIRED
+    http_access allow auth_users
+    ┌──(root㉿kali)-[/home/user]
+    └─# systemctl restart squid
+    Task:
+    Configure Squid Proxy
+    Decision:
+    [root@centos user]# dnf install squid
+    [root@centos user]# systemctl enable --now squid
+    [root@centos user]# grep -Eiv '(^#|^$)' /etc/squid/squid.conf
+    acl localnet src 0.0.0.1-0.255.255.255  # RFC 1122 "this" network (LAN)
+    acl localnet src 10.0.0.0/8             # RFC 1918 local private network (LAN)
+    acl localnet src 100.64.0.0/10          # RFC 6598 shared address space (CGN)
+    acl localnet src 169.254.0.0/16         # RFC 3927 link-local (directly plugged) machines
+    acl localnet src 172.16.0.0/12          # RFC 1918 local private network (LAN)
+    acl localnet src 192.168.0.0/16         # RFC 1918 local private network (LAN)
+    acl localnet src fc00::/7               # RFC 4193 local private network range
+    acl localnet src fe80::/10              # RFC 4291 link-local (directly plugged) machines
+    acl SSL_ports port 443
+    acl Safe_ports port 80          # http
+    acl Safe_ports port 21          # ftp
+    acl Safe_ports port 443         # https
+    acl Safe_ports port 70          # gopher
+    acl Safe_ports port 210         # wais
+    acl Safe_ports port 1025-65535  # unregistered ports
+    acl Safe_ports port 280         # http-mgmt
+    acl Safe_ports port 488         # gss-http
+    acl Safe_ports port 591         # filemaker
+    acl Safe_ports port 777         # multiling http
+    http_access deny !Safe_ports
+    http_access deny CONNECT !SSL_ports
+    http_access allow localhost manager
+    http_access deny manager
+    http_access allow localnet
+    http_access allow localhost
+    http_access deny all
+    http_port 3128
+    coredump_dir /var/spool/squid
+    refresh_pattern ^ftp:           1440    20%     10080
+    refresh_pattern ^gopher:        1440    0%      1440
+    refresh_pattern -i (/cgi-bin/|\?) 0     0%      0
+    refresh_pattern .               0       20%     4320
+    [root@centos user]# mv /etc/squid/squid.conf /etc/squid/squid.conf.bac
+    [root@centos user]# vim /etc/squid/squid.conf
+    [root@centos user]# cat /etc/squid/squid.conf
+    acl localnet src IpAddrCentos
+    acl localnet src IpAddr.0/32
+    acl Safe_ports port 80
+    acl Safe_ports port 443
+    cache_dir ufs /var/spool/squid 1000 16 256
+    http_access allow localnet
+    http_port 3128   
+    [root@centos user]# systemctl restart squid
+    [root@centos user]# iptables -t filter -A INPUT -p tcp --dport 3128 -j ACCEPT
+    [root@centos user]# service iptables save
+    [root@centos user]# systemctl restart iptables.service
+    [root@centos user]# curl -O -L "https://www.redhat.com/index.html" -x "IpAddrCentos:
+    3128"
+      % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                     Dload  Upload   Total   Spent    Left  Speed
+      0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+    100  156k    0  156k    0     0   147k      0 --:--:--  0:00:01 --:--:--  795k
+    user@ubuntu:~$ sudo nmap IpAddrCentos
+    Starting Nmap 7.80 ( https://nmap.org ) at 2023-10-25 08:12 CDT
+    Nmap scan report for IpAddrCentos
+    Host is up (0.00086s latency).
+    Not shown: 991 filtered ports
+    PORT     STATE  SERVICE
+    20/tcp   closed ftp-data
+    21/tcp   open   ftp
+    22/tcp   open   ssh
+    25/tcp   closed smtp
+    53/tcp   closed domain
+    80/tcp   open   http
+    143/tcp  closed imap
+    443/tcp  closed https
+    3128/tcp open   squid-http
+    MAC Address: MacAddrCentos (QEMU virtual NIC)
+    Nmap done: 1 IP address (1 host up) scanned in 5.16 seconds
+    [root@centos user]# dnf install httpd-tools
+    [root@centos user]# touch /etc/squid/passwd
+    [root@centos user]# chown squid /etc/squid/passwd
+    [root@centos user]# htpasswd /etc/squid/passwd proxyuser
+    [root@centos user]# vim /etc/squid/squid.conf
+    [root@centos user]# cat /etc/squid/squid.conf
+    #acl localnet src IpAddrCentos
+    #acl localnet src IpAddr.0/32
+    #acl Safe_ports port 80
+    #acl Safe_ports port 443
+    #cache_dir ufs /var/spool/squid 1000 16 256
+    #http_access allow localnet
+    http_port 3128   
+    auth_param basic program /usr/lib64/squid/basic_ncsa_auth /etc/squid/passwd
+    auth_param basic children 5
+    auth_param basic realm Squid Basic Authentication
+    auth_param basic credentialsttl 2 hours
+    acl auth_users proxy_auth REQUIRED
+    http_access allow auth_users
+    [root@centos user]# systemctl restart squid
+    [root@centos user]# curl -O -L "https://www.redhat.com/index.html" -x "proxyuser:tpassword@IpAddrCentos:3128"
+      % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                     Dload  Upload   Total   Spent    Left  Speed
+      0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+    100  156k    0  156k    0     0   124k      0 --:--:--  0:00:01 --:--:--  562k
+    Task:
+    Перенаправление пакетов, идущих на 80-й порт, на стандартный порт прокси-сервера.
+    Decision:
+    [root@centos user]# iptables -t nat -A PREROUTING -s IpAddr.0 -p tcp --dport 80 -j REDIRECT --to-port 3128
+    [root@centos user]# service iptables save
+    [root@centos user]# systemctl restart iptables.service
+    Task:
+    Предоставляем доступ из Интернет к веб-серверу, который расположен в локальной сети (проброс порта). Вместо IpAddrUbuntu укажите IP-адрес вашего веб-сервера.
+    Decision:
+    [root@centos user]# iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination IpAddrUbuntu:80
+    [root@centos user]# service iptables save
+    [root@centos user]# systemctl restart iptables.service
+    Tas
+    Включаем маскарадинг для доступа в Интернет пользователей локальной сети.
+    Decision:
+    [root@centos user]# iptables -t nat -A POSTROUTING -o LanCard -s IpAddr.0/32 -j MASQUERADE
+    [root@centos user]# service iptables save
+    [root@centos user]# systemctl restart iptables.service
+    Task:
+    сканирование сети
+    Decision:
+    [root@centos user]# nmap -sL IpAddrCentos/24
+    Starting Nmap 7.92 ( https://nmap.org ) at 2023-10-29 11:25 +08
+    Nmap scan report for IpAddr.0
+    ...
+    Nmap scan report for kali (IpAddrKali)
+    ...
+    Nmap scan report for centos (IpAddr)
+    ...
+    Nmap scan report for ubuntu (IpAddrUbuntu)
+    ...
+    Nmap scan report for IpAddr.255
+    Nmap done: 256 IP addresses (0 hosts up) scanned in 28.06 seconds
+    Decision:
+    Утилита обнаружила активные устройства в сети. Среди них показались ip-адреса, в котором были развернуты мои виртуальные машины
+    Task:
+    Просканируем удаленный хост (агрессивный режим).
+    Decision:
+    user@ubuntu:~$ sudo nmap -A -T4 IpAddrCentos
+    Starting Nmap 7.80 ( https://nmap.org ) at 2023-10-27 23:24 CDT
+    Nmap scan report for IpAddrCentos
+    Host is up (0.00084s latency).
+    Not shown: 992 filtered ports
+    PORT     STATE  SERVICE    VERSION
+    20/tcp   closed ftp-data
+    21/tcp   open   ftp        vsftpd 3.0.5
+    22/tcp   open   ssh        OpenSSH 8.7 (protocol 2.0)
+    25/tcp   closed smtp
+    53/tcp   closed domain
+    143/tcp  closed imap
+    443/tcp  closed https
+    3128/tcp open   http-proxy Squid http proxy 5.5
+    |_http-server-header: squid/5.5
+    |_http-title: ERROR: The requested URL could not be retrieved
+    MAC Address: MacAddrCentos (QEMU virtual NIC)
+    Aggressive OS guesses: Linux 2.6.32 - 3.13 (94%), Linux 2.6.22 - 2.6.36 (92%), Linux 3.10 (92%), Linux 3.10 - 4.11 (92%), Linux 2.6.39 (92%), Linux 2.6.32 (91%), Linux 3.2 - 4.9 (91%), Linux 2.6.32 - 3.10 (91%), Linux 2.6.18 (90%), Linux 3.16 - 4.6 (90%)
+    No exact OS matches for host (test conditions non-ideal).
+    Network Distance: 1 hop
+    Service Info: OS: Unix
+    TRACEROUTE
+    HOP RTT     ADDRESS
+    1   0.83 ms IpAddrCentos
+    OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+    Nmap done: 1 IP address (1 host up) scanned in 24.18 seconds
+    Task:
+    узнать более подробную информацию о машине и запущенных на ней сервисах
+    Decision:
+    [root@centos user]# nmap -sV IpAddrUbuntu
+    Starting Nmap 7.92 ( https://nmap.org ) at 2023-10-29 11:35 +08
+    Nmap scan report for ubuntu (IpAddrUbuntu)
+    Host is up (0.0010s latency).
+    Not shown: 997 filtered tcp ports (no-response)
+    PORT    STATE  SERVICE VERSION
+    22/tcp  open   ssh     OpenSSH 8.9p1 Ubuntu 3ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+    80/tcp  open   http    Apache httpd 2.4.52 ((Ubuntu))
+    443/tcp closed https
+    MAC Address: MacAddrUbuntu (QEMU virtual NIC)
+    Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+    Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+    Nmap done: 1 IP address (1 host up) scanned in 12.27 seconds
+    Task:
+    В виртуальной машине запущен веб-сервер, поэтому мы можем рассмотреть эту службу подробнее.
+    Decision:
+    [root@centos user]# nmap -sC IpAddrUbuntu -p 80
+    Starting Nmap 7.92 ( https://nmap.org ) at 2023-10-29 11:45 +08
+    Nmap scan report for ubuntu (IpAddrUbuntu)
+    Host is up (0.00078s latency).
+    PORT   STATE SERVICE
+    80/tcp open  http
+    |_http-title: david138it
+    MAC Address: MacAddrUbuntu (QEMU virtual NIC)
+    Nmap done: 1 IP address (1 host up) scanned in 1.88 seconds
+    Task:
+    Найти все скрипты, которые позволяют проверить порты более детально, для нашего веб-сервера. Затем попытаемся использовать один из них, для этого достаточно указать его с помощью опции —script. Но сначала вы можете посмотреть информацию о скрипте. 
+    Decision:
+    [root@centos user]# find /usr/share/nmap/scripts/ -name '*.nse' | grep http
+    /usr/share/nmap/scripts/http-brute.nse
+    ...
+    /usr/share/nmap/scripts/riak-http-info.nse
+    [root@centos user]# nmap --script-help http-brute.nse
+    Starting Nmap 7.92 ( https://nmap.org ) at 2023-10-29 11:50 +08
+    http-brute
+    Categories: intrusive brute
+    https://nmap.org/nsedoc/scripts/http-brute.html
+      Performs brute force password auditing against http basic, digest and ntlm authentication.
+      This script uses the unpwdb and brute libraries to perform password
+      guessing. Any successful guesses are stored in the nmap registry, using
+      the creds library, for other scripts to use.
+    [root@centos user]# nmap --script http-brute.nse IpAddrWindServ84 -p 80
+    Starting Nmap 7.92 ( https://nmap.org ) at 2023-10-29 11:54 +08
+    Note: Host seems down. If it is really up, but blocking our ping probes, try -Pn
+    Nmap done: 1 IP address (0 hosts up) scanned in 3.61 seconds
+    [root@centos user]# nmap --script http-brute.nse IpAddrWindServ84 -p 80 -Pn
+    Starting Nmap 7.92 ( https://nmap.org ) at 2023-10-29 12:08 +08
+    Nmap scan report for IpAddrWindServ84
+    Host is up.
+    PORT   STATE    SERVICE
+    80/tcp filtered http
+    Nmap done: 1 IP address (1 host up) scanned in 2.61 seconds
+    Decision:
+    В последней команде пытался узнать пароль веб-сервера. В некоторых случаях можно вытащить логин и пароль. Такое происходит, когда используются параметры входа по умолчанию.
+    Task:
+    Сканируем диапазон портов
+    Decision:
+    user@ubuntu:~$ sudo nmap -sT -p 21-80 IpAddrCentos
+    Starting Nmap 7.80 ( https://nmap.org ) at 2023-10-27 23:41 CDT
+    Nmap scan report for IpAddrCentos
+    Host is up (0.0030s latency).
+    Not shown: 56 filtered ports
+    PORT   STATE  SERVICE
+    21/tcp open   ftp
+    22/tcp open   ssh
+    25/tcp closed smtp
+    53/tcp closed domain
+    MAC Address: MacAddrCentos (QEMU virtual NIC)
+    Nmap done: 1 IP address (1 host up) scanned in 1.85 seconds
+    Task:
+    Перехватываем весь трафик для MAC-адреса MacAddrUbuntu на сетевом интерфейсе LanCard.
+    Decision:
+    user@ubuntu:~$ sudo tcpdump -n -i LanCard "ether host MacAddrCentos"
+    tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+    listening on LanCard, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+    [root@centos user]# ssh user@IpAddrUbuntu
+    user@IpAddrUbuntu's password: 
+    user@ubuntu:~$ sudo tcpdump -n -i LanCard "ether host MacAddrCentos"
+    ...
+    00:11:09.121772 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [S], seq 3127527477, win 64240, options [mss 1460,sackOK,TS val 3107336019 ecr 0,nop,wscale 7], length 0
+    00:11:09.121894 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [S.], seq 2200785231, ack 3127527478, win 65160, options [mss 1460,sackOK,TS val 2462886528 ecr 3107336019,nop,wscale 7], length 0
+    00:11:09.122300 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [.], ack 1, win 502, options [nop,nop,TS val 3107336020 ecr 2462886528], length 0
+    00:11:09.123009 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [P.], seq 1:22, ack 1, win 502, options [nop,nop,TS val 3107336020 ecr 2462886528], length 21: SSH: SSH-2.0-OpenSSH_8.7
+    00:11:09.123086 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [.], ack 22, win 509, options [nop,nop,TS val 2462886529 ecr 3107336020], length 0
+    00:11:09.148795 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 1:42, ack 22, win 509, options [nop,nop,TS val 2462886555 ecr 3107336020], length 41: SSH: SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.3
+    00:11:09.149526 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [.], ack 42, win 502, options [nop,nop,TS val 3107336047 ecr 2462886555], length 0
+    00:11:09.150579 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [P.], seq 22:1382, ack 42, win 502, options [nop,nop,TS val 3107336048 ecr 2462886555], length 1360
+    00:11:09.151887 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 42:1122, ack 1382, win 501, options [nop,nop,TS val 2462886558 ecr 3107336048], length 1080
+    00:11:09.157642 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [P.], seq 1382:1430, ack 1122, win 501, options [nop,nop,TS val 3107336055 ecr 2462886558], length 48
+    00:11:09.171709 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 1122:1654, ack 1430, win 501, options [nop,nop,TS val 2462886578 ecr 3107336055], length 532
+    00:11:09.185522 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [P.], seq 1430:1446, ack 1654, win 501, options [nop,nop,TS val 3107336083 ecr 2462886578], length 16
+    00:11:09.228923 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [.], ack 1446, win 501, options [nop,nop,TS val 2462886635 ecr 3107336083], length 0
+    00:11:09.229685 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [P.], seq 1446:1498, ack 1654, win 501, options [nop,nop,TS val 3107336127 ecr 2462886635], length 52
+    00:11:09.229782 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [.], ack 1498, win 501, options [nop,nop,TS val 2462886636 ecr 3107336127], length 0
+    00:11:09.229995 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 1654:1706, ack 1498, win 501, options [nop,nop,TS val 2462886636 ecr 3107336127], length 52
+    00:11:09.230579 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [P.], seq 1498:1566, ack 1706, win 501, options [nop,nop,TS val 3107336128 ecr 2462886636], length 68
+    00:11:09.238565 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 1706:1758, ack 1566, win 501, options [nop,nop,TS val 2462886644 ecr 3107336128], length 52
+    00:11:09.280247 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [.], ack 1758, win 501, options [nop,nop,TS val 3107336177 ecr 2462886644], length 0
+    00:11:12.034402 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [P.], seq 1566:1714, ack 1758, win 501, options [nop,nop,TS val 3107338932 ecr 2462886644], length 148
+    00:11:12.076713 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [.], ack 1714, win 501, options [nop,nop,TS val 2462889483 ecr 3107338932], length 0
+    00:11:12.274441 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 1758:1794, ack 1714, win 501, options [nop,nop,TS val 2462889680 ecr 3107338932], length 36
+    00:11:12.275003 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [.], ack 1794, win 501, options [nop,nop,TS val 3107339172 ecr 2462889680], length 0
+    00:11:12.275445 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [P.], seq 1714:1834, ack 1794, win 501, options [nop,nop,TS val 3107339173 ecr 2462889680], length 120
+    00:11:12.275497 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [.], ack 1834, win 501, options [nop,nop,TS val 2462889681 ecr 3107339173], length 0
+    00:11:12.447785 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 1794:2422, ack 1834, win 501, options [nop,nop,TS val 2462889854 ecr 3107339173], length 628
+    00:11:12.489012 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [.], ack 2422, win 501, options [nop,nop,TS val 3107339386 ecr 2462889854], length 0
+    00:11:12.489092 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 2422:2474, ack 1834, win 501, options [nop,nop,TS val 2462889895 ecr 3107339386], length 52
+    00:11:12.489453 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [.], ack 2474, win 501, options [nop,nop,TS val 3107339387 ecr 2462889895], length 0
+    00:11:12.489928 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [P.], seq 1834:2242, ack 2474, win 501, options [nop,nop,TS val 3107339387 ecr 2462889895], length 408
+    00:11:12.490014 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [.], ack 2242, win 501, options [nop,nop,TS val 2462889896 ecr 3107339387], length 0
+    00:11:12.493478 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 2474:2582, ack 2242, win 501, options [nop,nop,TS val 2462889899 ecr 3107339387], length 108
+    00:11:12.494668 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 2582:2906, ack 2242, win 501, options [nop,nop,TS val 2462889901 ecr 3107339387], length 324
+    00:11:12.494876 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 2906:2942, ack 2242, win 501, options [nop,nop,TS val 2462889901 ecr 3107339387], length 36
+    00:11:12.494942 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 2942:2978, ack 2242, win 501, options [nop,nop,TS val 2462889901 ecr 3107339387], length 36
+    00:11:12.494972 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 2978:3062, ack 2242, win 501, options [nop,nop,TS val 2462889901 ecr 3107339387], length 84
+    00:11:12.495040 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 3062:3098, ack 2242, win 501, options [nop,nop,TS val 2462889901 ecr 3107339387], length 36
+    00:11:12.495108 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 3098:3198, ack 2242, win 501, options [nop,nop,TS val 2462889901 ecr 3107339387], length 100
+    00:11:12.495173 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 3198:3234, ack 2242, win 501, options [nop,nop,TS val 2462889901 ecr 3107339387], length 36
+    00:11:12.495242 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 3234:3270, ack 2242, win 501, options [nop,nop,TS val 2462889901 ecr 3107339387], length 36
+    00:11:12.495311 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 3270:3370, ack 2242, win 501, options [nop,nop,TS val 2462889901 ecr 3107339387], length 100
+    00:11:12.495324 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [.], ack 3198, win 501, options [nop,nop,TS val 3107339393 ecr 2462889899], length 0
+    00:11:12.495436 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 3370:3406, ack 2242, win 501, options [nop,nop,TS val 2462889901 ecr 3107339393], length 36
+    00:11:12.495512 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [.], ack 3370, win 501, options [nop,nop,TS val 3107339393 ecr 2462889901], length 0
+    00:11:12.495525 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 3406:3522, ack 2242, win 501, options [nop,nop,TS val 2462889901 ecr 3107339393], length 116
+    00:11:12.495620 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 3522:3558, ack 2242, win 501, options [nop,nop,TS val 2462889902 ecr 3107339393], length 36
+    00:11:12.495693 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 3558:3594, ack 2242, win 501, options [nop,nop,TS val 2462889902 ecr 3107339393], length 36
+    00:11:12.495753 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [.], ack 3522, win 501, options [nop,nop,TS val 3107339393 ecr 2462889901], length 0
+    00:11:12.495765 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 3594:3694, ack 2242, win 501, options [nop,nop,TS val 2462889902 ecr 3107339393], length 100
+    00:11:12.495844 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 3694:3730, ack 2242, win 501, options [nop,nop,TS val 2462889902 ecr 3107339393], length 36
+    00:11:12.495907 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [.], ack 3694, win 501, options [nop,nop,TS val 3107339393 ecr 2462889902], length 0
+    00:11:12.536934 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [.], ack 3730, win 501, options [nop,nop,TS val 3107339434 ecr 2462889902], length 0
+    00:11:12.586762 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 3730:3782, ack 2242, win 501, options [nop,nop,TS val 2462889993 ecr 3107339434], length 52
+    00:11:12.586838 IP IpAddrUbuntu.22 > IpAddrCentos.58598: Flags [P.], seq 3782:3898, ack 2242, win 501, options [nop,nop,TS val 2462889993 ecr 3107339434], length 116
+    00:11:12.588205 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [.], ack 3782, win 501, options [nop,nop,TS val 3107339485 ecr 2462889993], length 0
+    00:11:12.588207 IP IpAddrCentos.58598 > IpAddrUbuntu.22: Flags [.], ack 3898, win 501, options [nop,nop,TS val 3107339486 ecr 2462889993], length 0
+    Task:
+    Перехватываем только ICMP-пакеты
+    Decision:
+    user@ubuntu:~$ sudo tcpdump -i LanCard -n -nn -ttt 'ip proto \icmp'
+    tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+    listening on LanCard, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+    [root@centos user]# ping IpAddrUbuntu
+    PING IpAddrUbuntu (IpAddrUbuntu) 56(84) bytes of data.
+    64 bytes from IpAddrUbuntu: icmp_seq=1 ttl=64 time=0.692 ms
+    64 bytes from IpAddrUbuntu: icmp_seq=2 ttl=64 time=0.764 ms
+    64 bytes from IpAddrUbuntu: icmp_seq=3 ttl=64 time=0.868 ms
+    64 bytes from IpAddrUbuntu: icmp_seq=4 ttl=64 time=1.01 ms
+    64 bytes from IpAddrUbuntu: icmp_seq=5 ttl=64 time=1.13 ms
+    ^C
+    --- IpAddrUbuntu ping statistics ---
+    5 packets transmitted, 5 received, 0% packet loss, time 4006ms
+    rtt min/avg/max/mdev = 0.692/0.892/1.130/0.159 ms
+    user@ubuntu:~$ sudo tcpdump -i LanCard -n -nn -ttt 'ip proto \icmp'
+    ...
+     00:00:00.000000 IP IpAddrCentos > IpAddrUbuntu: ICMP echo request, id 4, seq 1, length 64
+     00:00:00.000171 IP IpAddrUbuntu > IpAddrCentos: ICMP echo reply, id 4, seq 1, length 64
+     00:00:01.001145 IP IpAddrCentos > IpAddrUbuntu: ICMP echo request, id 4, seq 2, length 64
+     00:00:00.000077 IP IpAddrUbuntu > IpAddrCentos: ICMP echo reply, id 4, seq 2, length 64
+     00:00:01.001365 IP IpAddrCentos > IpAddrUbuntu: ICMP echo request, id 4, seq 3, length 64
+     00:00:00.000077 IP IpAddrUbuntu > IpAddrCentos: ICMP echo reply, id 4, seq 3, length 64
+     00:00:01.001375 IP IpAddrCentos > IpAddrUbuntu: ICMP echo request, id 4, seq 4, length 64
+     00:00:00.000077 IP IpAddrUbuntu > IpAddrCentos: ICMP echo reply, id 4, seq 4, length 64
+     00:00:01.001573 IP IpAddrCentos > IpAddrUbuntu: ICMP echo request, id 4, seq 5, length 64
+     00:00:00.000125 IP IpAddrUbuntu > IpAddrCentos: ICMP echo reply, id 4, seq 5, length 64
+    Task:
+    Перехватываем DNS-трафик между сервером и каким-нибудь узлом в сети.
+    Decision:
+    $ sudo virsh start Windows12
+    [root@centos user]# nmap IpAddrWindServ
+    Starting Nmap 7.92 ( https://nmap.org ) at 2023-10-28 13:24 +08
+    Nmap scan report for RT-GM2-9 (IpAddrWindServ)
+    Host is up (0.0017s latency).
+    Not shown: 901 filtered tcp ports (no-response), 96 closed tcp ports (reset)
+    PORT    STATE SERVICE
+    53/tcp  open  domain
+    80/tcp  open  http
+    443/tcp open  https
+    Nmap done: 1 IP address (1 host up) scanned in 3.64 seconds
+    [root@centos user]# tcpdump -i LanCard -n -nn -ttt 'host IpAddrWindServ and port 53'
+    Task:
+    Перехватываем входящий трафик на порт 80. сохраняем статистику в файл my.log для первых 500 пакетов. Будет создан бинарный файл my.log, который можно отпарсить с помощью команды
+    Decision:
+    [root@centos user]# firefox IpAddrUbuntu
+    [root@centos user]# tcpdump -v -i LanCard dst port 80
+    dropped privs to tcpdump
+    tcpdump: listening on LanCard, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+    14:07:24.835633 IP (tos 0x0, ttl 64, id 15549, offset 0, flags [DF], proto TCP (6), length 60)
+        centos.45022 > ubuntu.http: Flags [S], cksum 0x76d1 (incorrect -> 0x9a90), seq 1076682845, win 64240, options [mss 1460,sackOK,TS val 3110711737 ecr 0,nop,wscale 7], length 0
+    14:07:24.836511 IP (tos 0x0, ttl 64, id 15550, offset 0, flags [DF], proto TCP (6), length 52)
+        centos.45022 > ubuntu.http: Flags [.], cksum 0x76c9 (incorrect -> 0x51b3), ack 2952605173, win 502, options [nop,nop,TS val 3110711738 ecr 3247231251], length 0
+    14:07:24.836838 IP (tos 0x0, ttl 64, id 15551, offset 0, flags [DF], proto TCP (6), length 412)
+        centos.45022 > ubuntu.http: Flags [P.], cksum 0x7831 (incorrect -> 0xb0a2), seq 0:360, ack 1, win 502, options [nop,nop,TS val 3110711739 ecr 3247231251], length 360: HTTP, length: 360
+            GET / HTTP/1.1
+            Host: IpAddrUbuntu
+            User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+            Accept-Language: ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3
+            Accept-Encoding: gzip, deflate
+            Connection: keep-alive
+            Upgrade-Insecure-Requests: 1
+    14:07:24.844920 IP (tos 0x0, ttl 64, id 15552, offset 0, flags [DF], proto TCP (6), length 52)
+        centos.45022 > ubuntu.http: Flags [.], cksum 0x76c9 (incorrect -> 0x4285), ack 3522, win 489, options [nop,nop,TS val 3110711747 ecr 3247231260], length 0
+    14:07:29.846014 IP (tos 0x0, ttl 64, id 15553, offset 0, flags [DF], proto TCP (6), length 52)
+        centos.45022 > ubuntu.http: Flags [F.], cksum 0x76c9 (incorrect -> 0x2eef), seq 360, ack 3522, win 501, options [nop,nop,TS val 3110716748 ecr 3247231260], length 0
+    14:07:29.846795 IP (tos 0x0, ttl 64, id 15554, offset 0, flags [DF], proto TCP (6), length 52)
+        centos.45022 > ubuntu.http: Flags [.], cksum 0x76c9 (incorrect -> 0x1b63), ack 3523, win 501, options [nop,nop,TS val 3110716749 ecr 3247236262], length 0
+    [root@centos user]# tcpdump -v -n -w my.log dst port 80 -c 500
+    dropped privs to tcpdump
+    tcpdump: listening on LanCard, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+    [root@centos user]# ls my.log
+    my.log
+    [root@centos user]# tcpdump -nr my.log | awk '{print $3}' | grep -oE '[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}' | sort | uniq -c | sort -rn
+    reading from file my.log, link-type EN10MB (Ethernet), snapshot length 262144
+    dropped privs to tcpdump
+          6 IpAddrCentos
+    Decision:
+    Чем больше подключений для одного IP-адреса, тем больше вероятность, что это какая-то нехорошая деятельность.
+    Task:
+    IP-адреса, которые вызывают подозрение, можно заблокировать в iptables с помощью команды, указанной ниже.
+    Decision:
+    [root@centos user]# iptables -A INPUT -s IpAddrUbuntu -j DROP
+    [root@centos user]# service iptables save
+    [root@centos user]# systemctl restart iptables.service
+    Task:
+    Системы обнаружения вторжения (Intrusion Detection System, IDS). Установка и настройка tripwire.
+    Decision:
+    [root@centos user]# dnf -y install epel-releasey
+    [root@centos user]# dnf -y install tripwire
+    [root@centos user]# tripwire-setup-keyfiles
+    [root@centos user]# tripwire --init
+    ...
+    ### Warning: File system error.
+    ### Filename: /proc/pci
+    ### Нет такого файла или каталога
+    ### Continuing...
+    ...
+    [root@centos user]# cat /etc/tripwire/twpol.txt
+    ...
+         /proc/pci                         -> $(Device) ;
+    ...
+    [root@centos user]# vim /etc/tripwire/twpol.txt
+    [root@centos user]# cat /etc/tripwire/twpol.txt
+    ...
+         #/proc/pci                         -> $(Device) ;
+    ...
+    [root@centos user]# tripwire --update-policy --secure-mode low /etc/tripwire/twpol.txt
+    [root@centos user]# tripwire --check —interactive
+    Task:
+    Создаем конфигурацию, Создаем базу данных, Проверим на работоспособность
+    Decision:
+    [root@centos user]# ls /etc/tripwire/
+    centos-local.key  site.key  tw.cfg  twcfg.txt  tw.pol  tw.pol.bak  twpol.txt
+    [root@centos user]# twadmin -m F -c /etc/tripwire/tw.cfg -S /etc/tripwire/site.key /etc/tripwire/twcfg.txt
+    [root@centos user]# vim /etc/tripwire/twpolmake.pl
+    [root@centos user]# cat /etc/tripwire/twpolmake.pl
+    #!/usr/bin/perl
+    # Tripwire Policy File customize tool
+    # ----------------------------------------------------------------
+    # Copyright (C) 2003 Hiroaki Izumi
+    # This program is free software; you can redistribute it and/or
+    # modify it under the terms of the GNU General Public License
+    # as published by the Free Software Foundation; either version 2
+    # of the License, or (at your option) any later version.
+    # This program is distributed in the hope that it will be useful,
+    # but WITHOUT ANY WARRANTY; without even the implied warranty of
+    # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    # GNU General Public License for more details.
+    # You should have received a copy of the GNU General Public License
+    # along with this program; if not, write to the Free Software
+    # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+    # ----------------------------------------------------------------
+    # Usage:
+    #     perl twpolmake.pl {Pol file}
+    # ----------------------------------------------------------------
+    #
+    $POLFILE=$ARGV[0];
+    open(POL,"$POLFILE") or die "open error: $POLFILE" ;
+    my($myhost,$thost) ;
+    my($sharp,$tpath,$cond) ;
+    my($INRULE) = 0 ;
+    while (<POL>) {
+        chomp;
+        if (($thost) = /^HOSTNAME\s*=\s*(.*)\s*;/) {
+            $myhost = `hostname` ; chomp($myhost) ;
+            if ($thost ne $myhost) {
+                $_="HOSTNAME=\"$myhost\";" ;
+            }
+        }
+        elsif ( /^{/ ) {
+            $INRULE=1 ;
+        }
+        elsif ( /^}/ ) {
+            $INRULE=0 ;
+        }
+        elsif ($INRULE == 1 and ($sharp,$tpath,$cond) = /^(\s*\#?\s*)(\/\S+)\b(\s+->\s+.+)$/) {
+            $ret = ($sharp =~ s/\#//g) ;
+            if ($tpath eq '/sbin/e2fsadm' ) {
+                $cond =~ s/;\s+(tune2fs.*)$/; \#$1/ ;
+            }
+            if (! -s $tpath) {
+                $_ = "$sharp#$tpath$cond" if ($ret == 0) ;
+            }
+            else {
+                $_ = "$sharp$tpath$cond" ;
+            }
+        }
+        print "$_\n" ;
+    }
+    close(POL) ;
+    [root@centos user]# perl /etc/tripwire/twpolmake.pl /etc/tripwire/twpol.txt > /etc/tripwire/twpol.txt.new 
+    [root@centos user]# twadmin -m P -c /etc/tripwire/tw.cfg -p /etc/tripwire/tw.pol -S /etc/tripwire/site.key /etc/tripwire/twpol.txt.new
+    [root@centos user]# tripwire -m i -s -c /etc/tripwire/tw.cfg
+    [root@centos user]# tripwire -m c -s -c /etc/tripwire/tw.cfg
+    Open Source Tripwire(R) 2.4.3.7 Integrity Check Report
+    Report generated by:          root
+    Report created on:            Вс 29 окт 2023 14:26:04
+    Database last updated on:     Never
+    ...
+    ===============================================================================
+    Object Summary: 
+    ===============================================================================
+    -------------------------------------------------------------------------------
+    # Section: Unix File System
+    -------------------------------------------------------------------------------
+    No violations.
+    ===============================================================================
+    Error Report: 
+    ===============================================================================
+    ...
+    [root@centos user]# ll /var/lib/tripwire/report
+    итого 28
+    -rw-r--r--. 1 root root  350 окт 29 13:55 centos-20231029-135511.twr
+    -rw-r--r--. 1 root root  350 окт 29 13:57 centos-20231029-135712.twr
+    -rw-r--r--. 1 root root  350 окт 29 14:00 centos-20231029-140029.twr
+    -rw-r--r--. 1 root root  350 окт 29 14:08 centos-20231029-140853.twr
+    -rw-r--r--. 1 root root  350 окт 29 14:09 centos-20231029-140919.twr
+    -rw-r--r--. 1 root root 6446 окт 29 14:27 centos-20231029-142604.twr
+    [root@centos user]# touch /var/lib/tripwire/tfile3.txt
+    [root@centos user]# tripwire -m c -s -c /etc/tripwire/tw.cfg
+    Open Source Tripwire(R) 2.4.3.7 Integrity Check Report
+    ...
+    -------------------------------------------------------------------------------
+    Rule Name: Tripwire Data Files (/var/lib/tripwire)
+    Severity Level: 100
+    -------------------------------------------------------------------------------
+    Added:
+    "/var/lib/tripwire/tfile3.txt"
+    ===============================================================================
+    Error Report: 
+    ===============================================================================
+    ...
+    Decision:
+    Мы создали файл /var/lib/tripwire/tfile3.txt и утилита tripwire показала нам, что мы создали один файл.
+    Task:
+    Поиск руткитов. Установка RkHunter, обновление БД вирусов, Создадим образ нашей ОС, для того, чтобы RootKit Hunter мог сравнивать текущее состояние команд в системе с созданной базой, сканируем систему
+    Decision:
+    [root@centos user]# dnf install rkhunter -y
+    [root@centos user]# rkhunter --update
+    [root@centos user]# cat /etc/rkhunter.conf
+    [root@centos user]# rkhunter --propupd
+    [root@centos user]# rkhunter --check
+    [root@centos user]# cat /var/log/rkhunter/rkhunter.log
+    Task:
+    добавить выполнение сканирования krootkit в планировщик под пользователем
+    Decision:
+    [user@centos ~]$ crontab -e
+    [user@centos ~]$ crontab -l
+    0 14 * * *    /usr/bin/rkhunter --update; /usr/bin/rkhunter -c --createlogfile --cronjob
+    Task:
+    Сбор информации до и после взлома
+    сравнить образ раздела или файла перед взломом с образом из взломанной системы.
+    Decision:
+    [root@centos user]# dd if=/bin/ls of=ls.dd | md5sum ls.dd > sum.txt
+    274+1 записей получено
+    274+1 записей отправлено
+    140760 байт (141 kB, 137 KiB) скопирован, 0,00362538 s, 38,8 MB/s
+    [root@centos user]# cat sum.txt
+    0ad8006df0caff12335f45fdf6c7c0f7  ls.dd
+    [root@centos user]# file /bin/ls
+    /bin/ls: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=bdfe7bf382f12e8361d590aa148cb3e591f83d30, for GNU/Linux 3.2.0, stripped
+    [root@centos user]# stat /bin/ls
+      Файл: /bin/ls
+      Размер: 140760        Блоков: 280        Блок В/В: 4096   обычный файл
+    Устройство: fd00h/64768d        Инода: 33894006    Ссылки: 1
+    Доступ: (0755/-rwxr-xr-x)  Uid: (    0/    root)   Gid: (    0/    root)
+    Контекст: system_u:object_r:bin_t:s0
+    Доступ:        2023-10-29 10:10:37.199000000 +0800
+    Модифицирован: 2023-01-06 19:42:38.000000000 +0800
+    Изменён:       2023-09-28 12:38:12.337575533 +0800
+    Создан:        2023-09-28 12:38:12.333575533 +0800
+    Task:
+    создать список контрольных сумм для популярных файлов, которые обычно могут изменяться при взломе системы
+    Decision:
+    [root@centos user]# md5sum /bin/ls >> sums.txt
+    [root@centos user]# cat sums.txt
+    07c62424e4c26afc0d7e393bab60546c  /bin/ls
+    Source:
+    https://serverspace.ru/support/help/utilita-rsync-dlya-sinkhronizatsii-fajlov/
+    https://elatov.github.io/2013/06/migrate-from-libvirt-kvm-to-virtualbox/
+    https://www.opennet.ru/tips/1870_qemu_virtualbox_disk.shtml
+    https://blog.sedicomm.com/2016/12/16/iptables-ustanovka-i-nastrojka/?ysclid=ln3wplng53988958006#1
+    https://www.youtube.com/playlist?list=PLtSGboPf3g50Aejrp6KjQsqqjxvAO4aKw
+    https://unixcop.com/how-to-install-and-configure-an-ftp-server-on-centos-9-stream/
+    https://losst.pro/kak-otkryt-port-iptables?ysclid=lnvrpgxwj8175390861
+    https://techviewleo.com/configure-vsftpd-ftp-server-on-ubuntu-linux/
+    https://tokmakov.msk.ru/blog/item/477
+    https://stackoverflow.com/questions/38523250/vsftpd-login-is-not-successful
+    https://linux-notes.org/fil-tratsiya-mac-ispol-zuya-iptables-v-linux/?ysclid=lo0z3u2sro842609893
+    https://ru.linux-console.net/?p=1297&ysclid=lo0tx5owhk496498608
+    https://devcoops.com/install-nginx-on-centos-9-stream/
+    https://itsecforu.ru/2022/01/14/%F0%9F%90%89-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-http-%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%B0-kali-linux/?ysclid=lo4exvw84m943299837
+    https://hackware.ru/?p=15739
+    https://support.mozilla.org/ru/kb/parametry-soedineniya-v-firefox
+    https://techviewleo.com/configure-squid-proxy-on-centos-almalinux-rhel/
+    https://uzverss.livejournal.com/109496.html?ysclid=lo9hqkxw2s612202120
+    https://habr.com/ru/companies/alexhost/articles/531170/
+    https://linux-notes.org/ustanovka-i-nastrojka-tripwire-v-centos-redhat-fedora/?ysclid=loazeq8vjc96566460
+    https://linux-notes.org/poisk-rutkitov-v-debian-ubuntu-linux-mint-i-red-hat-centos-fedora/?ysclid=lob3rn9gk6547904603
+    https://winitpro.ru/index.php/2020/04/21/planirovshhik-zadach-cron-v-linux/
+    https://drive.google.com/drive/folders/1SUpqELdGy0O2zEDbmfnx35zViexy5xZL
+    https://losst.ru/kak-polzovatsya-nmap-dlya-skanirovaniya-seti
+    https://www.server-world.info/en/note?os=CentOS_7&p=tripwire
+    https://www.lisenet.com/2017/configure-tripwire-on-centos-7/
+    https://habr.com/sandbox/29825/
+    https://kamaok.org.ua/?p=813
+    https://habr.com/company/first/blog/243487/
+    https://habr.com/sandbox/29825/
 
 Организация локальной сети
     Task:
 	Для защиты лабораторных работ по дисциплине Локально-вычислительные сети в виртуальной машине Ubuntu настроил программу для проектирования сетей Packet Tracer, спроектрировал лабораторные работы по темам "Использование DHCP-протокола через маршрутизатор и через сервер", "Wi-Fi - беспроводная передача данных", а также по теме "Локальная сеть" развернул виртуальные машины в Virtualbox две операционные системы Windows 10 и Windows Server 2012 для настройки локальной сети. В Windows Server установил DHCP и DNS сервера и добавил в домен клиентского компьютера Windows 10.
     Task:
-    Packet Tracer Install Ubuntu 20.04
+    Packet Tracer Install Ubuntu
     Decision:
     $ sudo virsh start ubuntu22.04
-    $ ssh -X tuser@192.168.122.184
+    $ ssh -X user@IpAddrUbuntu
     $ google-chrome https://www.google.ru/search?q=cisco+account+create&newwindow=1&source=hp&ei=Z8eqYdOSEcTIrgSIwIeQDQ&iflsig=ALs-wAMAAAAAYarVd9Qob1A5NSTfBETDiQsuP3G5I7gv&ved=0ahUKEwiT4p6Jgsn0AhVEpIsKHQjgAdIQ4dUDCAY&uact=5&oq=cisco+account+create&gs_lcp=Cgdnd3Mtd2l6EAMyBQgAEIAEMgUIABCABDIGCAAQFhAeMgYIABAWEB4yBggAEBYQHjIGCAAQFhAeMgYIABAWEB4yBggAEBYQHjIGCAAQFhAeMgYIABAWEB5QAFgAYPgEaABwAHgAgAGBAYgBgQGSAQMwLjGYAQCgAQKgAQE&sclient=gws-wiz &
     $ google-chrome https://id.cisco.com/signin/register &
     $ google-chrome https://temp-mail.org/ &
@@ -14182,19 +13304,19 @@ https://blog.sedicomm.com/2016/12/16/iptables-ustanovka-i-nastrojka/?ysclid=ln3w
     Family Desc: Microsoft Windows
     64 bit:      true
     ...
-    $ VBoxManage createvm --name "Windows2012" --ostype "Windows2012_64" --register --basefolder /var/lib/libvirt/vboximages/
+    $ VBoxManage createvm --name "Windows2012" --ostype "Windows2012_64" --register --basefolder /vboximages/
     $ vboxmanage modifyvm Windows2012 --memory 2048 --vram 128
     $ vboxmanage modifyvm Windows2012 --nic1 bridged
-    $ vboxmanage createhd --filename /var/lib/libvirt/vboximages/Windows2012/Windows2012_DISK.vdi --size 75000 --format VDI 
+    $ vboxmanage createhd --filename /vboximages/Windows2012/Windows2012_DISK.vdi --size 75000 --format VDI 
     $ vboxmanage storagectl Windows2012 --name "SATA Controller" --add sata --controller IntelAhci
-    $ vboxmanage storageattach Windows2012 --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium /var/lib/libvirt/vboximages/Windows2012/Windows2012_DISK.vdi
+    $ vboxmanage storageattach Windows2012 --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium /vboximages/Windows2012/Windows2012_DISK.vdi
     $ vboxmanage storagectl Windows2012 --name "IDE Controller" --add ide --controller PIIX4
-    $ vboxmanage storageattach Windows2012 --storagectl "IDE Controller" --port 1 --device 0 --type dvddrive --medium /var/lib/libvirt/iso/Server2012.iso
+    $ vboxmanage storageattach Windows2012 --storagectl "IDE Controller" --port 1 --device 0 --type dvddrive --medium /iso/Server2012.iso
     $ vboxmanage modifyvm Windows2012 --boot1 dvd --boot2 disk --boot3 none --boot4 none
     $ vboxmanage modifyvm Windows2012 --vrde on
     $ vboxmanage modifyvm Windows2012 --vrdemulticon on --vrdeport 10001
     $ vboxmanage modifyvm Windows2012 --graphicscontroller vboxsvga
-    $ vboxmanage sharedfolder add Windows2012 --name "Загрузки" --hostpath /home/david/Загрузки/ --automount
+    $ vboxmanage sharedfolder add Windows2012 --name "Загрузки" --hostpath /Загрузки/ --automount
     $ vboxmanage startvm --type gui Windows2012 &
     Task:
     Установить DHCP и DNS сервера, добавить в домен клиентского компьютера, и проверить их работоспособность. Делать это все мы будем в виртуальной машине KVM с установленными операционными системами Windows Server 2019 и Windows 10. В KVM когда настраиваем сеть операционных систем, нужно подключить внутреннюю сеть и в неразборчивом режиме разрешить все. После чего для настройки сервера запускаем Windows Server 2019
@@ -14228,12 +13350,12 @@ https://blog.sedicomm.com/2016/12/16/iptables-ustanovka-i-nastrojka/?ysclid=ln3w
     Parent UUID:    base
     State:          created
     Type:           normal (base)
-    Location:       /var/lib/libvirt/vboximages/Windows2012/Windows2012_DISK.vdi
+    Location:       /vboximages/Windows2012/Windows2012_DISK.vdi
     Storage format: VDI
     Capacity:       75000 MBytes
     Encryption:     disabled
-    $ VBoxManage clonehd /var/lib/libvirt/vboximages/Windows2012/Snapshots/\{41cf81da-b2f5-4dfe-9afb-e5c0d5f0d301\}.vdi /var/lib/libvirt/vboximages/Windows2012/Windows12static.vdi --format VDI --variant Fixed
-    $ sudo qemu-img convert -f vdi /var/lib/libvirt/vboximages/Windows2012/Windows12static.vdi -O qcow2 /var/lib/libvirt/images/Windows12.qcow2
+    $ VBoxManage clonehd /vboximages/Windows2012/Snapshots/\{41cf81da-b2f5-4dfe-9afb-e5c0d5f0d301\}.vdi /vboximages/Windows2012/Windows12static.vdi --format VDI --variant Fixed
+    $ sudo qemu-img convert -f vdi /vboximages/Windows2012/Windows12static.vdi -O qcow2 /images/Windows12.qcow2
     $ sudo virt-install --osinfo list
     ...
     win2k12r2
@@ -14243,7 +13365,7 @@ https://blog.sedicomm.com/2016/12/16/iptables-ustanovka-i-nastrojka/?ysclid=ln3w
     --ram 2048 \
     --vcpus=2 \
     --import \
-    --disk path=/var/lib/libvirt/images/Windows12.qcow2,format=qcow2 \
+    --disk path=/images/Windows12.qcow2,format=qcow2 \
     --vnc \
     --noautoconsole \
     --os-variant win2k12r2 \
