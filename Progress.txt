@@ -11590,11 +11590,11 @@ Mail for feedback: David138it@gmail.com
     Source:
     1. https://www.altlinux.org/%D0%A1%D0%B5%D1%82%D0%B5%D0%B2%D0%BE%D0%B9_%D0%BC%D0%BE%D1%81%D1%82
 
-Разработка программы на Python, который анализирует, обрабатывает и сортирует код на сайте организации
+Разработка программ, которые анализируют, обрабатывают и сортируюсвт код на сайте организации
 	Task:
 	Разработал программу на Python, который анализирует, обрабатывает и сортирует код на сайте организации. Это позволило мне ускорить процесс корректировки тегов на сайте по запросу Россобрнадзор
 	Task:
-	проверить все страницы на сайте, чтоб не было pdf файлов больше 15 Мб. Решал я данную задачу через командную строку в линукс двумя командами wget и find. thost.ru это наш сайт и нужно проверить например страницу - https://thost.ru/sveden/document
+	проверить все страницы на сайте, чтоб не было pdf файлов больше 15 Мб.
 	Decision:
 	$ wget -r -l 1 -A pdf https://thost.ru/sveden/document
 	$ ls
@@ -11610,17 +11610,16 @@ Mail for feedback: David138it@gmail.com
 	    /home/u/thost.ru/Media/irk/Д и/Документ 1.pdf
 	    /home/u/thost.ru/Media/irk/Д и/Update/Документ 2.pdf
 	    /home/u/thost.ru/Media/irk/Д и/Update/Документ 3.pdf
-	$ ls -l irk.rpa-mu.ru/Media/irk/Д\ и/Update/
-	    итого 84500
-	    -rw-rw-r-- 1 u u  5000118 Okt  6  2016 'Документ 10.pdf'
-	    -rw-rw-r-- 1 u u 10851743 Okt  6  2016 'Документ 9.pdf'
-	    -rw-rw-r-- 1 u u 11842285 Okt  6  2016 'Документ 8.pdf'
-	    -rw-rw-r-- 1 u u   816802 Okt  6  2016 'Документ 7.pdf'
-	    -rw-rw-r-- 1 u u  3057757 Okt  6  2016 'Документ 6.pdf'
-	    -rw-rw-r-- 1 u u 10681421 Okt  6  2016 'Документ 5.pdf'
-	    -rw-rw-r-- 1 u u  3499499 Okt 17  2017 'Документ 4.pdf'
-	    -rw-rw-r-- 1 u u 20055320 Jun 14  2018 'Документ 3.pdf'
-	    -rw-rw-r-- 1 u u 20704036 Jun 14  2018 'Документ 2.pdf'
+$ vim bash-FileWeight.sh
+$ cat bash-FileWeight.sh
+#!/bin/bash
+echo -n "Enter a link to the site: "
+read linksite
+#wget -r -l 1 -A pdf "$linksite"
+user=$(whoami)
+homedir=$(/home/$user)
+echo "$homedir"
+#find /home/u/thost.ru/ -size +15M
 	Вот, пожалуйста, тут мы видим 2 документа в папке Update и 1 документ в папке "Д и" больше 15 Мб.
 
 
