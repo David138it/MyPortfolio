@@ -23,64 +23,13 @@
     <section>
         <div class="container">
             <div class="cards">
-                <!--<div class="card__content" id="page__fixed">
-                    <h2 class="card_hidden" onclick="card__hidden(this)">Постоянное увеличение базы данных на сервере</h2>
-                    <div style="text-align: left;">
-                        <p>Решил проблему с постоянным увеличением базы данных на сервере (Sql)</p>
-                    </div>
-                </div>
                 <div class="card__content" id="">
-                    <h2 class="card_hidden" onclick="card__hidden(this)">Автоматизация работы с системой Гас правосудия</h2>
-                    <div style="text-align: left;">
-                        <p>Разработал скрипты для автоматизации работы с системой Гас правосудия (Windows)</p>
-                    </div>
-                </div>-->
-                <div class="card__content" id="">
-                    <h2 class="card_hidden" onclick="card__hidden(this)">Банковское хранилище данных с функцией обнаружения мошенничества</h2>
-                    <div style="text-align: left;">
-                        <p>Для защиты дипломного проекта по теме "Банковское хранилище данных с функцией обнаружения мошенничества" я разработал корпоративное хранилище архивных данных из разных источников применительно к банковской деятельности с целью идентификации мошеннических операций в системе банка (Sql, Linux, Python).</p>
-                    </div>
-                </div>
-                <div class="card__content" id="">
-                    <h2 class="card_hidden" onclick="card__hidden(this)">Развернул Yandex Clouds</h2>
-                    <div style="text-align: left;">
-                        <p>Добавил виртуальные машины, настроил виртуальные сети, распределил нагрузку между компонентами своей облачной системы и настроил автоматическое масштабирование веб-сервиса при неравномерной нагрузке (Devops); Настроил кластеры баз данных MySQL, PostgreSQL, ClickHouse и воспользовался объектным хранилищем для размещения статических сайтов (Sql); Установил кластеры Kubernetes и настроил их автоматическое масштабирование (Devops); Разработал навыки для Алисы (Python); Настроил права доступа к своим облачным ресурсам и защитил облачные сети (Devops); Рассчитал стоимость потребления облачных ресурсов, нашел самую затратную виртуальную машину и настроил бюджеты и уведомления о расходах (Devops).</p>
-                    </div>
-                </div>
-                <div class="card__content" id="">
-                    <h2 class="card_hidden" onclick="card__hidden(this)">Автоматический перевод</h2>
-                    <div style="text-align: left;">
-                        <p>На языке питон я разработал программу "Автоматический перевод", которая автоматически переводит часть текста с русского на английский язык (English, Py)</p>
-                    </div>
-                </div>
-                <div class="card__content" id="">
-                    <h2 class="card_hidden" onclick="card__hidden(this)">Словарь</h2>
-                    <div style="text-align: left;">
-                        <p>На языке питон я разработал библиотеку "Словарь", в котором по запросу записывал все труднозапоминаемые слова для меня, их перевод и произношение (English, Py)</p>
-                    </div>
-                </div>
-                <div class="card__content" id="">
-                    <h2 class="card_hidden" onclick="card__hidden(this)">Перевод статьи</h2>
-                    <div style="text-align: left;">
-                        <p>Я перевёл зарубежные статьи по It-сфере с английского на русский (English)</p>
-                    </div>
-                </div>
-                <!--<div class="card__content" id="">
-                    <h2 class="card_hidden" onclick="card__hidden(this)">Анализ сайта</h2>
-                    <div style="text-align: left;">
-                        <p>Разработал программу на Python, для анализа данных на сайте организации (Python, Web, Linux)</p>
-                    </div>
-                </div>-->
-                <div class="card__content" id="">
-                    <h2 class="card_hidden" onclick="card__hidden(this)">Импортозамещение</h2>
-                    <div style="text-align: left;">
-                        <p>Настроил автоматическую установку дистрибутива Redos по сети. Это сэкономило время на установке системы Redos в компьютерных классах (Linux)</p>
-                    </div>
-                </div>
-                <div class="card__content" id="">
-                    <h2 class="card_hidden" onclick="card__hidden(this)">Автоматизации работы в компьютерных классах и аудиториях</h2>
-                    <div style="text-align: left;">
-                        <p>Разработал простые скрипты на языках Bash и Python для автоматизации работы в компьютерных классах и аудиториях (Linux, Windows)</p>
+                    <h2 class="card_hidden" onclick="card__hidden(this)">Разработка программ, которые анализируют, обрабатывают и сортируют код на сайте организации</h2>
+                    <div style="display:none; text-align: left;" style=&{head};>
+                        <p><strong>Task:</strong><br />Разработал программы, которые анализируют, обрабатывают и сортируют код на сайте организации. Это позволило мне ускорить процесс корректировки тегов на сайте по запросу Россобрнадзор<br /><strong>Task:</strong><br />проверить все страницы на сайте, на отсутствие pdf файлов больше 15 Мб.<br /><strong>Decision:</strong><br />$ wget https://tsite.ru/sveden/document<br />--2018-11-01 20:12:20--&nbsp; https://tsite.ru/sveden/document<br />Распознаётся tsite.ru (tsite.ru)&hellip; IpAddr<br />Подключение к tsite.ru (tsite.ru)|IpAddr|:443... соединение установлено.<br />ОШИБКА: Нет доверия сертификату для &laquo;tsite.ru&raquo;.<br />ОШИБКА: Неизвестный издатель сертификата &laquo;tsite.ru&raquo;.<br />$ wget --no-check-certificate -r -l 1 -A pdf https://tsite.ru/sveden/document<br />$ vim bash-FileWeight.sh<br />$ chmod +x bash-FileWeight.sh<br />$ cat bash-FileWeight.sh<br />#!/bin/bash<br />echo -n "Enter a link to the site: "<br />read linksite<br />user=$(whoami)<br />echo -n "Come up with a name for the directory where the files will be written: "<br />read linkfiles<br />if [ -d /home/$user/$linkfiles ]; then<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rm -rf /home/$user/$linkfiles<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo "/home/$user/$filename delete"<br />else<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mkdir /home/$user/$linkfiles<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cd /home/$user/$linkfiles<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo "/home/$user/$linkfiles create"<br />fi<br />wget --no-check-certificate -r -l 1 -A pdf $linksite<br />find /home/$user/$linkfiles -size +15M &gt; output<br />$ ./bash-FileWeight.sh<br />Enter a link to the site: https://tsite.ru/sveden/document<br />Come up with a name for the directory where the files will be written: tdir<br />/home/tUser/tdir create<br />...<br />$ cat /home/tUser/tdir/output<br />/home/tUser/tdir/tsite.ru/Media/irk/Документы института/2018/tDoc1.pdf<br />$ ls -l /home/tUser/tdir/tsite.ru/Media/irk/Документы\ института/2018/tDoc1.pdf <br />-rw-r--r--. 1 tUser tUser 20055320 июн 30&nbsp; 2018 '/home/tUser/tdir/tsite.ru/Media/irk/Документы института/2018/tDoc1.pdf'<br /><strong>Source:</strong></p>
+                        <ul>
+                        <li><a href="https://stackoverflow.com/questions/4846007/check-if-directory-exists-and-delete-in-one-command-unix">https://stackoverflow.com/questions/4846007/check-if-directory-exists-and-delete-in-one-command-unix</a></li>
+                        </ul>
                     </div>
                 </div>
                 <div class="card__content" id="">

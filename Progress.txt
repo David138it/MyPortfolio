@@ -11590,38 +11590,57 @@ Mail for feedback: David138it@gmail.com
     Source:
     1. https://www.altlinux.org/%D0%A1%D0%B5%D1%82%D0%B5%D0%B2%D0%BE%D0%B9_%D0%BC%D0%BE%D1%81%D1%82
 
-Разработка программ, которые анализируют, обрабатывают и сортируюсвт код на сайте организации
+Разработка программ, которые анализируют, обрабатывают и сортируют код на сайте организации
 	Task:
-	Разработал программу на Python, который анализирует, обрабатывает и сортирует код на сайте организации. Это позволило мне ускорить процесс корректировки тегов на сайте по запросу Россобрнадзор
+	Разработал программы, которые анализируют, обрабатывают и сортируют код на сайте организации. Это позволило мне ускорить процесс корректировки тегов на сайте по запросу Россобрнадзор
 	Task:
-	проверить все страницы на сайте, чтоб не было pdf файлов больше 15 Мб.
+	Рроверить все страницы на сайте, на отсутствие pdf файлов больше 15 Мб.
 	Decision:
-	$ wget -r -l 1 -A pdf https://thost.ru/sveden/document
-	$ ls
-	    thost.ru
-	$ ls thost.ru/
-	    Media  robots.txt.tmp  sveden
-	$ ls thost.ru/Media/
-	    irk
-	$ ls thost.ru/Media/irk
-	     А            Н             'Р з'
-	    'Д и'  'П к'
-	$ find /home/u/thost.ru/Media/irk -size +15M
-	    /home/u/thost.ru/Media/irk/Д и/Документ 1.pdf
-	    /home/u/thost.ru/Media/irk/Д и/Update/Документ 2.pdf
-	    /home/u/thost.ru/Media/irk/Д и/Update/Документ 3.pdf
-$ vim bash-FileWeight.sh
-$ cat bash-FileWeight.sh
-#!/bin/bash
-echo -n "Enter a link to the site: "
-read linksite
-#wget -r -l 1 -A pdf "$linksite"
-user=$(whoami)
-homedir=$(/home/$user)
-echo "$homedir"
-#find /home/u/thost.ru/ -size +15M
-	Вот, пожалуйста, тут мы видим 2 документа в папке Update и 1 документ в папке "Д и" больше 15 Мб.
+	$ wget https://tsite.ru/sveden/document
+	--2018-11-01 20:12:20--  https://tsite.ru/sveden/document
+	Распознаётся tsite.ru (tsite.ru)… IpAddr
+	Подключение к tsite.ru (tsite.ru)|IpAddr|:443... соединение установлено.
+	ОШИБКА: Нет доверия сертификату для «tsite.ru».
+	ОШИБКА: Неизвестный издатель сертификата «tsite.ru».
+	$ wget --no-check-certificate -r -l 1 -A pdf https://tsite.ru/sveden/document
+	$ vim bash-FileWeight.sh
+	$ chmod +x bash-FileWeight.sh
+	$ cat bash-FileWeight.sh
+	#!/bin/bash
+	echo -n "Enter a link to the site: "
+	read linksite
+	user=$(whoami)
+	echo -n "Come up with a name for the directory where the files will be written: "
+	read linkfiles
+	if [ -d /home/$user/$linkfiles ]; then
+			rm -rf /home/$user/$linkfiles
+			echo "/home/$user/$filename delete"
+	else
+			mkdir /home/$user/$linkfiles
+			cd /home/$user/$linkfiles
+			echo "/home/$user/$linkfiles create"
+	fi
+	wget --no-check-certificate -r -l 1 -A pdf $linksite
+	find /home/$user/$linkfiles -size +15M > output
+	$ ./bash-FileWeight.sh
+	Enter a link to the site: https://tsite.ru/sveden/document
+	Come up with a name for the directory where the files will be written: tdir
+	/home/tUser/tdir create
+	...
+	$ cat /home/tUser/tdir/output
+	/home/tUser/tdir/tsite.ru/Media/irk/Документы института/2018/tDoc1.pdf
+	$ ls -l /home/tUser/tdir/tsite.ru/Media/irk/Документы\ института/2018/tDoc1.pdf 
+	-rw-r--r--. 1 tUser tUser 20055320 июн 30  2018 '/home/tUser/tdir/tsite.ru/Media/irk/Документы института/2018/tDoc1.pdf'
+	Task:
+	Отсортировать html-код страницы по атрибутам <tr><td>
+	Decision:
 
+	Task:
+	Поменять/добавить тег на странице с таблицей,в некоторых строках тег отсутствует.
+	Decision:
+	
+	Source:
+	https://stackoverflow.com/questions/4846007/check-if-directory-exists-and-delete-in-one-command-unix
 
 Утилита для сканирования безопасности сети Nmap 
 	Task:
