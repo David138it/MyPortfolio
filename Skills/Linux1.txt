@@ -5991,40 +5991,6 @@ Bash
 
 Сетевые настройки
   Task:
-  Передача файлов по протоколу FTP
-  Decision:
-  $ ftp test.rbx.net
-      Connected to test.rbx.net.
-      220 Microsoft FTP Service
-  Name (test.rbx.net:s): demo
-      331 Password required for demo.
-  Password:
-      230 User logged in.
-      Remote system type is Windows_NT.
-  ftp> lcd Desktop
-      Local directory now /home/s/Desktop
-  ftp> ls
-      200 PORT command successful.
-      125 Data connection already open; Transfer starting.
-      10-19-20  03:19PM       <DIR>          pub
-      04-08-14  03:09PM                  403 readme.txt
-      226 Transfer complete.
-  ftp> get readme.txt
-      local: readme.txt remote: readme.txt
-      200 PORT command successful.
-      150 Opening ASCII mode data connection.
-      226 Transfer complete.
-      403 bytes received in 0.11 secs (3.4755 kB/s)
-  ftp> bye
-      221 Goodbye.
-  $ ls -l readme.txt
-      -rw-rw-r-- 1 s s 393 Dec  4 20:17 readme.txt
-  Task:
-  Скопируйте при помощи SCP с удаленного сервера s1.stepik-local все файлы из директории /srv/files_on_s/ в локальную директорию /home/box/files_on_client/ (её нужно будет еще создать!). Для доступа к серверу используйте логин box и пароль supersecret, а порт указывать не нужно -- используется порт по умолчанию. Примечание: саму директорию files_on_s копировать не нужно! Таким образом, все файлы из неё должны лежать прямо в /home/box/files_on_client/
-  Decision:
-  $ mkdir /home/box/files_on_client
-  $ scp s1.stepik-local:/srv/files_on_s/* /home/box/files_on_client/
-  Task:
   Передача файлов по протоколу TFTP
   установить его на CentOS 8. Oбновите кэш репозитория пакетов CentOS 8
   Decision:
@@ -6295,7 +6261,6 @@ Bash
       Verbose mode on.
   Task:
   загрузить файл fstab, файл hosts и сохранить его в каталоге /etc
-
   Decision:
   tftp> put fstab
       putting fstab to 192.168.0.104:fstab [netascii]

@@ -7656,59 +7656,6 @@ Docker
     Decision:
     Обновить версию криптопро скачав на сайте https://cryptopro.ru/products/csp/downloads
 	Task:
-	Установить Hyper-V в Windows Server 2012
-	Decision:
-	диспетчер серверов - локальный сервер - управление - добавить роли и компоненты - выбор сервера - роли сервера - hyper-v - компоненты - средства удаленного администрирования - средства администрирования ролей - средства управления hyper-v - виртуальные коммутаторы - ethernet - хранилище по умолчанию - виртальных жестких дисков - C:\Data\VHD - конфигурации виртуальной машины - C:\Data\VM - автоматический перезапуск -готово - пуск - диспетчер hyper-v - выбираем нашу машину - создать - виртуальная машина - имя и местонахождение - Alt - C:\Data\VM\Alt - выделить память - 2048 - настройка сети - подключаем к сети - параметры установок - файл изо образа - C:\Data\alt-server-10.0-x86_64.iso - готово - пуск
-	Task:
-	Установить Hyper-V в Windows Server 2012 c помощью Shell
-	Decision:
-	PS C:\Windows\system32> Get-Module -ListAvailable
-	    Каталог: C:\Windows\system32\WindowsPowerShell\v1.0\Modules
-	ModuleType Version    Name                                ExportedCo
-	---------- -------    ----                                ----------
-	...
-	Binary     1.1        Hyper-V                             {Add-VMDvd
-	...
-	PS C:\Windows\system32> Import-Module -Name Hyper-V
-	PS C:\Windows\system32> Get-VM
-
-	Name State CPUUsage(%) MemoryAssigned(M) Uptime   Status
-	---- ----- ----------- ----------------- ------   ------
-	Alt  Off   0           0                 00:00:00 Работает нормально
-	PS C:\Windows\system32> $ram=1*1024*1024*1024
-	PS C:\Windows\system32> $ram
-	1073741824
-	PS C:\Windows\system32> $hdd=10*1024*1024*1024
-	PS C:\Windows\system32> $hdd
-	10737418240
-	PS C:\Windows\system32> NEW-VM -Name Alt2 -MemoryStartupBytes $ram -NewVHDPath 'C:\Data\VM\Alt2\Alt2.vhdx'-NewVHD
-	SizeBytes $hdd -Path 'C:\Data\VM\Alt2'
-	Name State CPUUsage(%) MemoryAssigned(M) Uptime   Status
-	---- ----- ----------- ----------------- ------   ------
-	Alt2 Off   0           0                 00:00:00 Работает нормально
-	PS C:\Windows\system32> Get-VM
-	Name State CPUUsage(%) MemoryAssigned(M) Uptime   Status
-	---- ----- ----------- ----------------- ------   ------
-	Alt  Off   0           0                 00:00:00 Работает нормально
-	Alt2 Off   0           0                 00:00:00 Работает нормально
-	PS C:\Windows\system32> Start-VM -name Alt2
-	PS C:\Windows\system32> Get-VM
-	Name State   CPUUsage(%) MemoryAssigned(M) Uptime   Status
-	---- -----   ----------- ----------------- ------   ------
-	Alt  Off     0           0                 00:00:00 Работает нормально
-	Alt2 Running 0           1024              00:00:16 Работает нормально
-	PS C:\Windows\system32> Stop-VM Alt2
-	Подтверждение
-	Hyper-V не удается завершить работу виртуальной машины Alt2, так как служба интеграции по завершению работы недоступна.
-	 Во избежание потенциальной потери данных вы можете приостановить виртуальную машину или сохранить ее состояние. Другим
-	 вариантом является отключение виртуальной машины, но при этом возможна потеря данных.
-	[Y] Да - Y  [N] Нет - N  [S] Приостановить - S  [?] Справка (значением по умолчанию является "Y"): y
-	PS C:\Windows\system32> Get-VM
-	Name State CPUUsage(%) MemoryAssigned(M) Uptime   Status
-	---- ----- ----------- ----------------- ------   ------
-	Alt  Off   0           0                 00:00:00 Работает нормально
-	Alt2 Off   0           0                 00:00:00 Работает нормально
-	Task:
 	Конвертация Hyper-V vhdx в KVM qcow2
 	Decision:
 	$ qemu-img check -r all Alt2.vhdx
