@@ -1,224 +1,8 @@
 Mail for feedback: David138it@gmail.com
 
-Администрирование виртуальных машин
-Task:
-Настройка Qemu-Kvm
-Decision:
-$ ip addr
-...
-5: virbr0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default qlen 1000
-    link/ether 52:54:00:b7:00:3c brd ff:ff:ff:ff:ff:ff
-    inet 192.168.122.1/24 brd 192.168.122.255 scope global virbr0
-       valid_lft forever preferred_lft forever
-$ sudo virsh net-list
- Имя       Состояние   Автозапуск   Постоянный
-------------------------------------------------
- default   активен     yes          yes
-$ sudo virsh net-edit default
-<network>
-  <name>default</name>
-  <uuid>745f121b-3c89-1281-a19a-aa62808c4241</uuid>
-  <forward mode="nat">
-  <bridge delay="0" name="virbr0" stp="on">
-  <mac address="16:18:00:21:8c:15">
-  <ip address="192.168.122.1" netmask="255.255.255.0">
-    <dhcp>
-      <range end="192.168.122.254" start="192.168.122.2">
-    </range></dhcp>
-  </ip>
-</mac></bridge></forward></network>
-$ sudo virt-install \
---network network=default \
---name Centos9 \
---ram 2048 \
---vcpus 2 \
---disk path=/var/lib/libvirt/images/Centos9.img,size=75,format=qcow2 \
---graphics vnc,password=tpassword \
---location /var/lib/libvirt/iso/CentOS-Stream-9-latest-x86_64-dvd1.iso \
---boot cdrom,hd,menu=on 
-WARNING  Не удалось подключиться к графической консоли. Для этого необходимо установить virt-viewer.
-...
-$ sudo dnf install virt-viewer
-$ sudo virt-install \
---network network=default \
---name Centos9 \
---ram 2048 \
---vcpus 2 \
---disk path=/var/lib/libvirt/images/Centos9.img,size=50,format=qcow2 \
---graphics vnc,password=tpassword \
---location /var/lib/libvirt/iso/CentOS-Stream-9-latest-x86_64-dvd1.iso \
---boot cdrom,hd,menu=on 
-Запуск установки...
-Получение «vmlinuz»                                        |  11 MB  00:00     
-Получение «initrd.img»                                     |  79 MB  00:00     
-Выделение «Centos9.img»                                    |  50 GB  00:20     
-WARNING  Переопределение объёма памяти на 3072 МиБ, необходимых для установки centos-stream9 с помощью сети.
-Удаление диска «Centos9.img»                               |         00:00     
-ERROR    конфигурация не поддерживается: VNC password is 9 characters long, only 8 permitted
-Возможно, установка домена завершилась неудачей. 
-Если вы уверены, что установка прошла нормально, перезапустите домен:
- virsh --connect qemu:///system start Centos9
-В противном случае начните процесс установки заново.
-$ sudo virt-install \
---network network=default \
---name Centos9 \
---ram 2048 \
---vcpus 2 \
---disk path=/var/lib/libvirt/images/Centos9.img,size=50,format=qcow2 \
---graphics vnc \
---location /var/lib/libvirt/iso/CentOS-Stream-9-latest-x86_64-dvd1.iso \
---boot cdrom,hd,menu=on 
-$ sudo virsh list --all
- ID   Имя           Состояние
--------------------------------
- 2    Centos9       работает
- -    Alt           выключен
- -    Centos        выключен
- -    Kali          выключен
- -    ubuntu22.04   выключен
- -    Windows       выключен
-$ virt-viewer --connect qemu:///system --wait Centos9
-$ sudo virsh vncdisplay Centos9
-127.0.0.1:0
-$ sudo virsh domblklist Centos9
- Назначение   Источник
----------------------------------------------------
- vda          /var/lib/libvirt/images/Centos9.img
- sda          -
-
-Source:
-https://bozza.ru/art-260.html
-
-Разработка тестовых баз в mysql (Sql)
-  Decision:
-  https://github.com/David138it/Sql-DevelopmentOfTestBases
+Sql
   Task:
-  Эспорт и импорт баз данных
-  Decision:
-  $ sudo mysql -u root
-      Welcome to the MySQL monitor.  Commands end with ; or \g.
-      Your MySQL connection id is 10
-      Server version: 8.0.28-0uu0.20.04.3 (uu)
-      Copyright (c) 2000, 2022, Oracle and/or its affiliates.
-      Oracle is a registered trademark of Oracle Corporation and/or its
-      affiliates. Other names may be trademarks of their respective
-      owners.
-      Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-  mysql> SELECT User, Host FROM mysql.user;
-      +------------------+-----------+
-      | User             | Host      |
-      +------------------+-----------+
-      | debian-sys-maint | localhost |
-      | mysql.infoschema | localhost |
-      | mysql.session    | localhost |
-      | mysql.sys        | localhost |
-      | root             | localhost |
-      | tuser         | localhost |
-      +------------------+-----------+
-      6 rows in set (0.43 sec)
-  mysql> SHOW DATABASES;
-      +--------------------+
-      | Database           |
-      +--------------------+
-      | OnlineBookStore    |
-      | information_schema |
-      | mysql              |
-      | performance_schema |
-      | sys                |
-      | tdb       |
-      +--------------------+
-      6 rows in set (0.80 sec)
-  mysql> exit
-      Bye
-  $ mysqldump -u tuser -p tdb > data-dump.sql
-  Enter password:
-      mysqldump: Got error: 1045: Access denied for user 'tuser'@'localhost' (using password: YES) when trying to connect
-  $ mysqldump -u root -p tdb > data-dump0.sql
-  Enter password:
-      mysqldump: Got error: 1698: Access denied for user 'root'@'localhost' when trying to connect
-  $ sudo mysqldump -u root -p tdb > data-dump0.sql
-  Enter password:
-  $ ls
-       data-dump0.sql   test0.py   Документы   Изображения   Общедоступные   Шаблоны
-       pt              Видео      Загрузки    Музыка       'Рабочий стол'
-  $ ls
-      data-dump0.sql  data-dump1.sql
-  $ sudo mysql -u root
-      Welcome to the MySQL monitor.  Commands end with ; or \g.
-      Your MySQL connection id is 14
-      Server version: 8.0.28-0uu0.20.04.3 (uu)
-      Copyright (c) 2000, 2022, Oracle and/or its affiliates.
-      Oracle is a registered trademark of Oracle Corporation and/or its
-      affiliates. Other names may be trademarks of their respective
-      owners.
-      Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-  mysql> CREATE DATABASE tdb;
-      Query OK, 1 row affected (0.30 sec)
-  mysql> \q
-      Bye
-  $ mysql -u root -p tdb < data-dump0.sql
-  Enter password:
-      ERROR 1698 (28000): Access denied for user 'root'@'localhost'
-  $ sudo mysql -u root -p tdb < data-dump0.sql
-  Enter password:
-  $ sudo mysql -u root
-      Welcome to the MySQL monitor.  Commands end with ; or \g.
-      Your MySQL connection id is 18
-      Server version: 8.0.28-0uu0.20.04.3 (uu)
-      Copyright (c) 2000, 2022, Oracle and/or its affiliates.
-      Oracle is a registered trademark of Oracle Corporation and/or its
-      affiliates. Other names may be trademarks of their respective
-      owners.
-      Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-  mysql> SHOW DATABASES;
-      +--------------------+
-      | Database           |
-      +--------------------+
-      | adminDB            |
-      | information_schema |
-      | mysql              |
-      | performance_schema |
-      | sys                |
-      | tdb       |
-      +--------------------+
-      6 rows in set (0.15 sec)
-  mysql> USE tdb;
-      Reading table information for completion of table and column names
-      You can turn off this feature to get a quicker startup with -A
-      Database changed
-  mysql> SHOW TABLES;
-      +------------------------+
-      | Tables_in_tdb |
-      +------------------------+
-      | author                 |
-      | book                   |
-      | buy                    |
-      | buy_book               |
-      | buy_step               |
-      | city                   |
-      | client                 |
-      | genre                  |
-      | step                   |
-      +------------------------+
-      9 rows in set (0.01 sec)
-  mysql> SELECT * FROM book;
-      +---------+------------------------------------------+-----------+----------+--------+--------+
-      | book_id | title                                    | author_id | genre_id | price  | amount |
-      +---------+------------------------------------------+-----------+----------+--------+--------+
-      |       1 | Мастер и Маргарита                       |         1 |        1 | 670.99 |      3 |
-      |       2 | Белая гвардия                            |         1 |        1 | 540.50 |      5 |
-      |       3 | Идиот                                    |         2 |        1 | 460.00 |     10 |
-      |       4 | Братья Карамазовы                        |         2 |        1 | 799.01 |      2 |
-      |       5 | Игрок                                    |         2 |        1 | 480.50 |     10 |
-      |       6 | Стихотворения и поэмы                    |         3 |        2 | 650.00 |     15 |
-      |       7 | Черный человек                           |         3 |        2 | 570.20 |      6 |
-      |       8 | Лирика                                   |         4 |        2 | 518.99 |      2 |
-      +---------+------------------------------------------+-----------+----------+--------+--------+
-      8 rows in set (0.00 sec)
-  Source:
-  1. https://steptuser.org/course/63054/syllabus
-  Task:
-  Работа с базами данных "Командировки", "Нарушения правил дорожного движения", "Книжный интернет-магазин", "Тестирование", "Абитуриент", "Аналитика образовательных курсов", "Склад книг"
+  В таблицах "Командировки", "Нарушения правил дорожного движения" рассмотреть основные понятия реляционной модели, а также различные виды SQL запросов к одной таблице базы данных. В базе данных "Книжный интернет-магазин" рассмотреть связи между таблицами реляционной базы данных, а также различные виды запросов, построенных на связанных таблица. В базе данных "Тестирование", "Абитуриент", "Аналитика образовательных курсов" рассмотреть несколько предметных областей, для каждой строится логическая модель базы данных. К каждой предметной области формулируются задания, которые можно выполнить запросами SQL.
   Task:
   Создать таблицу командировки, в которой представлена информация о командировках сотрудников какой-либо организации (фамилия сотрудника, город, куда он ездил, размер суточных, даты первого и последнего дня командировки)
   Decision:
@@ -8922,10 +8706,9 @@ https://bozza.ru/art-260.html
       +---------+--------------------+-----------+----------+--------+--------+
       Affected rows: 6
   Source:
-  https://steptuser.org/course/63054/syllabus
+  https://stepik.org/course/63054/info
 
-
-Разработка мини-программ на двух языках C++ и Python (C++, Python)
+С/С++ vs Python
   Task:
   Мне нужно написать программу, которая считывает возраст человека. Программа сначала запрашивает год рождения.
   Decision:
@@ -9305,7 +9088,7 @@ https://bozza.ru/art-260.html
   15
   Do you want to continue? (y/n): n
 
-Техническая поддержка пользователей 
+Windows vs Linux
   Task:
   Установить Centos рядом с Windows
   Decision:
@@ -9328,63 +9111,11 @@ https://bozza.ru/art-260.html
   $ sudo dnf install -y ffmpeg ffmpeg-devel
   $ ffmpeg -version
   Source:
-  1. https://setiwik.ru/kak-vklyuchit-repozitoriy-epel-v-centos-9-stream/
-  2. https://setiwik.ru/kak-ustanovit-ffmpeg-na-centos-9-stream/?ysclid=lkordttfyw687770645
+  https://setiwik.ru/kak-vklyuchit-repozitoriy-epel-v-centos-9-stream/
+  https://setiwik.ru/kak-ustanovit-ffmpeg-na-centos-9-stream/?ysclid=lkordttfyw687770645
 
-Разработка корпоративного хранилища архивных данных из разных источников применительно к банковской деятельности с целью идентификации мошеннических операций в системе банка (Linux, Python, Sql)
-  Decision:
-  https://github.com/David138it/Engineer-DevelopmentOfABankDataWarehouseWithFraudDetection
-  Task:
-  Разработать ETL процесс, получающий ежедневную выгрузку данных (предоставляется за 3 дня), загружающий ее в хранилище данных и ежедневно строящий отчет.
-  Ежедневно некие информационные системы выгружают три следующих файла:
-  1. Список транзакций за текущий день. Формат – CSV.
-  2. Список терминалов полным срезом. Формат – XLSX.
-  3. Список паспортов, включенных в «черный список» - с накоплением с начала месяца. Формат – XLSX.
-  Сведения о картах, счетах и клиентах хранятся в СУБД PostgreSQL. Во вложении реквизиты для подключения. 
-  Вам предоставляется выгрузка за последние три дня, ее надо обработать. В качестве хранилища выступает ваша учебная база (edu). Данные должны быть загружены в хранилище со следующей структурой (имена сущностей указаны по существу, без особенностей правил нейминга, указанных далее).
-  Типы данных в полях можно изменять на однородные если для этого есть необходимость. Имена полей менять нельзя. Ко всем таблицам SCD1 должны
-  быть добавлены технические поля create_dt, update_dt; ко всем таблицам SCD2 должны быть добавлены технические поля effective_from, effective_to, deleted_flg.
-  По результатам загрузки ежедневно необходимо строить витрину отчетности по мошенническим операциям. Витрина строится накоплением, каждый новый отчет укладывается в эту же таблицу с новым report_dt.
-  В витрине должны содержаться следующие поля:
-  1. event_dt - Время наступления события. Если событие наступило по результату нескольких действий – указывается время действия, по которому установлен факт мошенничества.
-  2. passport - Номер паспорта клиента, совершившего мошенническую операцию.
-  3. fio - ФИО клиента, совершившего мошенническую операцию.
-  4. phone - Номер телефона клиента, совершившего мошенническую операцию.
-  5. event_type - Описание типа мошенничества.
-  6. report_dt - Время построения отчета.
-  Признаки мошеннических операций:
-  1. Совершение операции при просроченном или заблокированном паспорте.
-  2. Совершение операции при недействующем договоре.
-  3. Совершение операций в разных городах в течение одного часа.
-  4. Попытка подбора суммы. В течение 20 минут проходит более 3х операций соследующим шаблоном – каждая последующая меньше предыдущей, при этом отклонены все кроме последней. Последняя операция (успешная) в такой цепочке считается мошеннической.
-  При именовании таблиц необходимо придерживаться следующих правил (для автоматизации проверки):
-  1. DE13MA.<CODE>_STG_<TABLE_NAME> - Таблицы для размещения стейджинговых таблиц (первоначальная загрузка), промежуточное выделение инкремента, если требуется. Временные таблицы, если такие потребуются в расчете, можно также складывать с таким именованием. Имя таблиц можете выбирать произвольное, но смысловое.
-  2. DE13MA.<CODE>_DWH_FACT_<TABLE_NAME> - Таблицы фактов, загруженных в хранилище. В качестве фактов выступают сами транзакции и «черный список» паспортов. Имя таблиц – как в ER диаграмме.
-  3. DE13MA.<CODE>_DWH_DIM_<TABLE_NAME> - Таблицы измерений, хранящиеся в формате SCD1. Имя таблиц – как в ER диаграмме.
-  4. DE13MA.<CODE>_DWH_DIM_<TABLE_NAME>_HIST - Таблицы измерений, хранящиеся в SCD2 формате (только для тех, кто выполняет усложненное задание). Имя таблиц – как в ER диаграмме.
-  5. DE13MA.<CODE>_REP_FRAUD - Таблица с отчетом.
-  6. DE13MA.<CODE>_META_<TABLE_NAME> - Таблицы для хранения метаданных. Имя таблиц можете выбирать произвольное, но
-  смысловое.
-  7. <CODE> - 4 буквы вашего персонального кода.
-  Выгружаемые файлы именуются согласно следующему шаблону:
-  1. transactions_DDMMYYYY.txt
-  2. passport_blacklist_DDMMYYYY.xlsx
-  3. terminals_DDMMYYYY.xlsx
-  Предполагается что в один день приходит по одному такому файлу. После загрузки соответствующего файла он должен быть переименован в файл с расширением .backup чтобы при следующем запуске файл не искался и перемещен в каталог archive:
-  1. transactions_DDMMYYYY.txt.backup
-  2. passport_blacklist_DDMMYYYY.xlsx.back
-  3. upterminals_DDMMYYYY.xlsx.backup
-  Желающие могут придумать, обосновать и реализовать более технологичные и учитывающие сбои способы обработки (за это будет повышен балл).
-  В classroom выкладывается zip-архив, содержащий следующие файлы и каталоги:
-  1. main.py - Файл, обязательный. Основной процесс обработки.
-  2. файлы с данными - Файл, обязательный. Те файлы, которые вы получили в качестве задания. Просто скопируйте все 9 файлов.
-  3. main.ddl - Файл, обязательный. Файл с SQL кодом для создания всех необходимых объектов в базе edu.
-  4. main.cron - Файл, обязательный. Файл для постановки вашего процесса на расписание, в формате crontab
-  5. archive - Каталог, обязательный. Пустой, сюда должны перемещаться отработанные файлы
-  6. sql_scripts - Каталог, необязательный. Если вы включаете в main.py какие-то SQL скрипты, вынесенные в отдельные файлы – помещайте их сюда.
-  7. py_scripts - Каталог, необязательный. Если вы включаете в main.py какие-то python скрипты, вынесенные в отдельные файлы – помещайте их сюда.
-  Decision:
-  По следующим признакам получилось выявить мошеннические транзакции: выполнение операции с просроченным или заблокированным паспортом, выполнение операции с недействительным контрактом, выполнение операций в разных городах в течение одного часа
+
+  
 
 Добавил виртуальные машины, настроил виртуальные сети, распределил нагрузку между компонентами своей облачной системы и настроил автоматическое масштабирование веб-сервиса при неравномерной нагрузке
   Task:
