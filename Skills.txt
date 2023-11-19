@@ -11551,6 +11551,2669 @@ C/C++
     http://www.codebind.com/linux-tutorials/install-opengl-ubuntu-linux/
     https://prognote.ru/articles/how-to-install-qt-5-on-linux-ubuntu
 
+Django
+Разработка сайта
+	Task:
+	Для улучшения своего сайта, в котором публиковал все решенные мной интересные задачи, разработал еще один проект с разработкой сайта, в котором применялись следующие инструменты и библиотеки: python, django, pillow, html, css, sqlite3. Также поменял домен в timeweb.
+	Decision:
+	$ mkdir djsite
+	$ cd djsite/
+	$ python3 -m venv venv
+	$ source venv/bin/activate
+	$ pip install django
+	$ django-admin startproject coolsite
+	$ cd coolsite/
+	$ python manage.py runserver
+	$ python manage.py runserver 4000
+	$ python manage.py startapp women
+	$ vim coolsite/settings.py
+	$ cat coolsite/settings.py
+	...
+	INSTALLED_APPS = [
+	    'django.contrib.admin',
+	    'django.contrib.auth',
+	    'django.contrib.contenttypes',
+	    'django.contrib.sessions',
+	    'django.contrib.messages',
+	    'django.contrib.staticfiles',
+	    'women.apps.WomenConfig'
+	]
+	...
+	$ vim women/views.py
+	$ cat women/views.py
+	from django.http import HttpResponse
+	from django.shortcuts import render
+	# Create your views here.
+	def index(request): #HttpRequest
+		return HttpResponse("Страница приложения Women")
+	def categories(request): #HttpRequest
+		return HttpResponse("<h1>Статьи по категориям</h1>")
+	$ vim coolsite/urls.py
+	$ cat coolsite/urls.py
+	...
+	from django.contrib import admin
+	from django.urls import path, include
+	#from women.views import index
+	from women.views import *
+	urlpatterns = [
+	    path('admin/', admin.site.urls),
+	    #path('women/', index), #http://127.0.0.1:8000/women/
+	    #path('', index), #http://127.0.0.1:8000/
+	    #path('cats/', categories), #http://127.0.0.1:8000/cats/
+	    path('women/', include('women.urls')), #http://127.0.0.1:8000/women/
+	]
+	$ touch women/urls.py
+	$ vim women/urls.py
+	$ cat women/urls.py
+	from django.urls import path
+	from .views import *
+	urlpatterns = [
+		path('', index), #http://127.0.0.1:8000/women/
+		path('cats/', categories), #http://127.0.0.1:8000/women/cats/
+	]
+	$ python manage.py runserver
+	$ vim coolsite/urls.py
+	$ cat coolsite/urls.py
+	...
+	urlpatterns = [
+	    path('admin/', admin.site.urls),
+	    #path('women/', index), #http://127.0.0.1:8000/women/
+	    #path('', index), #http://127.0.0.1:8000/
+	    #path('cats/', categories), #http://127.0.0.1:8000/cats/
+	    #path('women/', include('women.urls')), #http://127.0.0.1:8000/women/
+	    path('', include('women.urls')), #http://127.0.0.1:8000/women/
+	]
+	handler404 = pageNotFound
+	$ vim women/urls.py
+	$ cat women/urls.py
+	from django.urls import path, re_path
+	from .views import *
+	urlpatterns = [
+		#path('', index), #http://127.0.0.1:8000/women/
+		#path('home/', index, name='home'), #http://127.0.0.1:8000/
+		path('', index, name='home'), #http://127.0.0.1:8000/
+		#path('cats/', categories), #http://127.0.0.1:8000/women/cats/
+		#path('cats/', categories), #http://127.0.0.1:8000/cats/
+		path('cats/<int:catid>/', categories), #http://127.0.0.1:8000/cats/1/
+		re_path(r'^archive/(?P<year>[0-9]{4})/', archive), #http://127.0.0.1:8000/archive/2020/
+	]
+	$ vim women/views.py
+	$ cat women/views.py
+	from django.http import HttpResponse, HttpResponseNotFound, Http404
+	from django.shortcuts import render, redirect
+	# Create your views here.
+	def index(request): #HttpRequest
+		return HttpResponse("Страница приложения Women")
+	#def categories(request):
+		#return HttpResponse("<h1>Статьи по категориям</h1>")
+	def categories(request, catid):
+		#print(request.GET) #http://127.0.0.1:8000/cats/1/?name=Gagarina&type=pop
+		#if(request.GET):
+			#print(request.GET) #http://127.0.0.1:8000/cats/1
+		if(request.POST):
+			print(request.POST) 
+		return HttpResponse(f"<h1>Статьи по категориям</h1><p>{catid}</p>")
+	def archive(request, year):
+		if int(year)>2020:
+			#raise Http404() #http://127.0.0.1:8000/archive/2022/
+			#return redirect('/', )
+			return redirect('home', permanent=True)
+		return HttpResponse(f"<h1>Архив по годам</h1><p>{year}</p>") #http://127.0.0.1:8000/archive/2020/
+	def pageNotFound(request, exception):
+		return HttpResponseNotFound("<h1>Страница не найдена</h1>")
+	$ vim coolsite/settings.py
+	$ cat coolsite/settings.py
+	...
+	#DEBUG = True
+	DEBUG = False
+	#ALLOWED_HOSTS = []
+	ALLOWED_HOSTS = ['127.0.0.1']
+	...
+	$ python manage.py runserver
+	$ vim women/models.py
+	$ cat women/models.py
+	from django.db import models
+	# Create your models here.
+	class Women(models.Model):
+		"""docstring for Women"""
+		title=models.CharField(max_length=255)
+		content=models.TextField(blank=True)
+		photo=models.ImageField(upload_to="photos/%Y/%m/%d/")
+		time_create=models.DateTimeField(auto_now_add=True)
+		time_update=models.DateTimeField(auto_now=True)
+		is_published=models.BooleanField(default=True)
+	$ vim coolsite/settings.py
+	$ cat coolsite/settings.py
+	import os
+	from pathlib import Path
+	...
+	DEBUG = True
+	#DEBUG = False
+	#ALLOWED_HOSTS = []
+	...
+	DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+	MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+	MEDIA_URL = '/media/'
+	$ vim coolsite/urls.py
+	$ cat coolsite/urls.py
+	from django.conf.urls.static import static
+	from django.contrib import admin
+	from coolsite import settings
+	from django.urls import path, include
+	#from women.views import index
+	from women.views import *
+	...
+	if settings.DEBUG:
+	    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+	handler404 = pageNotFound
+	$ python manage.py makemigrations
+	$ python manage.py sqlmigrate women 0001
+	$ python manage.py migrate
+	$ sqlite3 db.sqlite3
+	sqlite> SELECT * FROM sqlite_master where type='table';
+	$ python manage.py shell
+	>>> from women.models import Women
+	>>> Women(title='Anjeline Joli', content='Биография Anjeline Joli')
+	>>> w1=_
+	>>> w1
+	>>> w1.save()
+	>>> w1
+	>>> w1.id
+	>>> w1.title
+	>>> w1.time_create
+	>>> w1.pk
+	>>> from django.db import connection
+	>>> connection.queries
+	>>> w2.save()
+	>>> connection.queries
+	>>> w3=Women()
+	>>> w3.title='Juli Roberts'
+	>>> w3.content='Биография Juli Roberts'
+	>>> w3.save()
+	>>> connection.queries
+	>>> # objects
+	>>> Women.objects
+	>>> w4=Women.objects.create(title='Uma Turman', content='Биография Uma Turman')
+	>>> w4
+	>>> Women.objects.create(title='Kira Nightly', content='Биография Kira Nightly')
+	>>> Women.objects.all()
+	>>> exit()
+	$ vim women/models.py
+	$ cat women/models.py
+	...
+		def __str__(self):
+			return self.title
+	$ python manage.py shell
+	>>> from women.models import Women
+	>>> Women.objects.all()
+	>>> w=_
+	>>> w[0]
+	>>> w[1]
+	>>> w[0].title
+	>>> len(w)
+	>>> for wi in w:
+	...     print(wi.title)
+	>>> Women.objects.filter(title='Enn Hatay')
+	>>> from django.db import connection
+	>>> connection.queries
+	>>> Women.objects.filter(pk=2)
+	>>> Women.objects.filter(pk__gte=2)
+	>>> Women.objects.exclude(pk=2)
+	>>> Women.objects.get(pk=2)
+	>>> Women.objects.filter(pk__lte=4).order_by('title')
+	>>> Women.objects.order_by('title')
+	>>> Women.objects.order_by('time_update')
+	>>> Women.objects.order_by('-time_update')
+	>>> wu=Women.objects.get(pk=2)
+	>>> wu.title='Margo Robbi'
+	>>> wu.content='Биография Margo Robbi'
+	>>> wu.save()
+	>>> connection.queries
+	>>> wd=Women.objects.filter(pk__gte=4)
+	>>> wd
+	>>> wd.delete()
+	>>> exit()
+	$ mkdir women/templates
+	$ mkdir women/templates/women
+	$ touch women/templates/women/index.html
+	$ vim women/templates/women/index.html
+	$ cat women/templates/women/index.html
+	{% extends 'women/base.html' %}
+	{% block content %}
+	<h1>{{title}}</h1>
+	<!--<p>Содержимое главной страницы</p>-->
+	<ul>
+		{% for p in posts %}
+		<li>
+			<h2>{{p.title}}</h2>
+			<p>{{p.content}}</p>
+			<hr>
+		</li>
+		{% endfor %}
+	</ul>
+	{% endblock %}
+	$ touch women/templates/women/about.html
+	$ vim women/templates/women/about.html
+	$ cat women/templates/women/about.html
+	{% extends 'women/base.html' %}
+	{% block content %}
+	<h1>{{title}}</h1>
+	<p>Содержимое главной страницы</p>
+	{% endblock %}
+	$ touch women/templates/women/base.html
+	$ vim women/templates/women/base.html
+	$ cat women/templates/women/base.html
+	<!DOCTYPE html>
+	<html lang="en"><head><meta charset="utf-8">
+		<title>{{ title }}</title>
+	</head><body>
+	{% block mainmenu %}
+	<ul>
+		{% for m in menu %}
+		<li>{{m}}</li>
+		{% endfor %}
+	</ul>
+	{% endblock mainmenu %}
+	{% block content %}
+	{% endblock %}
+	</ul>
+	</body></html>
+	$ vim women/views.py
+	$ cat women/views.py
+	from django.http import HttpResponse, HttpResponseNotFound, Http404
+	from django.shortcuts import render, redirect
+	from .models import *
+	# Create your views here.
+	#def index(request): #HttpRequest
+	#	return HttpResponse("Страница приложения Women")
+	menu=["О сайте", "Добавить статью", "Обратная связь", "Войти"]
+	def index(request):
+		#return render(request, 'women/index.html', {'title':'Главная страница'})
+		posts=Women.objects.all()
+		return render(request, 'women/index.html', {'posts':posts, 'menu':menu, 'title':'Главная страница'})
+	def about(request):
+		return render(request, 'women/about.html', {'menu':menu, 'title':'О сайте'})
+	...
+	$ vim women/urls.py
+	$ cat women/urls.py
+	...
+	urlpatterns = [
+		#path('', index), #http://127.0.0.1:8000/women/
+		#path('home/', index, name='home'), #http://127.0.0.1:8000/
+		path('', index, name='home'), #http://127.0.0.1:8000/
+		#path('cats/', categories), #http://127.0.0.1:8000/women/cats/
+		#path('cats/', categories), #http://127.0.0.1:8000/cats/
+		#path('cats/<int:catid>/', categories), #http://127.0.0.1:8000/cats/1/
+		#re_path(r'^archive/(?P<year>[0-9]{4})/', archive), #http://127.0.0.1:8000/archive/2020/
+		path('about/', about, name='about'), #http://127.0.0.1:8000/
+	]
+	$ python manage.py runserver	
+	$ mkdir women/static
+	$ mkdir women/static/women
+	$ mkdir women/static/women/css
+	$ touch women/static/women/css/style.css
+	html, body {
+		font-family: 'Arial';
+		margin: 0;
+		padding: 0;
+		height: 100%;
+		width: 100%;
+		color: #444;
+	}
+	a {
+		color: #0059b2;
+		text-decoration: none;
+	}
+	a:hover {
+		color: #CC0000;
+		text-decoration: underline;
+	}
+	img {max-width: 600px; height: auto;}
+	img.img-article-left {
+		max-width: 300px;
+		height: auto;
+		float: left;
+		padding: 0 10px 10px 0;
+	}
+	img.img-article-left.thumb {
+		max-width: 150px;
+		height: auto;
+	}
+	p.link-read-post {
+		text-align: right;
+	}
+	p.link-read-post a {
+		padding: 10px;
+		min-width: 100px;
+		background: #333671;
+		color: #fff;
+		text-decoration: none;
+	}
+	div.article-panel {
+	    background: #eee;
+	    padding: 5px 10px 5px 10px;
+	    box-sizing: border-box;
+	    overflow: hidden;
+	    color: #555;
+	}
+	div.article-panel p.first {
+	    margin: 0;
+	    float: left;
+	}
+	div.article-panel p.last {
+	    margin: 0;
+	    float: right;
+	}
+	ul.list-articles {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+	ul.list-articles li {
+		border-bottom: 1px solid #ccc;
+	}
+	.table-page {
+		width: 100%;
+		height: 100%;
+		vertical-align: top;
+	}
+	.table-page tr {height: 100%;}
+	.clear {clear: both;}
+	.header {
+		background: #3F4137;
+		height: 60px;
+	}
+	.logo {
+		background: url('../images/logo.png') no-repeat 10px 5px;
+		width: 70px;
+		height: 60px;
+	}
+	ul.mainmenu {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		height: 60px;
+		color: #fdc073;
+		font-size: 20px;
+		overflow: hidden;
+	}
+	ul.mainmenu li {
+		float: left;
+		margin: 18px 40px 0 30px;
+	}
+	ul.mainmenu li.logo {margin: 0;}
+	ul.mainmenu li.last {float: right;}
+	ul.mainmenu li a {
+		color: #fdc073;
+		text-decoration: none;
+	}
+	ul.mainmenu li a:hover {
+		color: #FDA83D;
+	}
+	.panelitems {
+		text-align: center;
+	}
+	ul.langitem {
+		list-style: none;
+		display: inline-block;
+		margin: 30px;
+		padding: 0;
+		max-width: 300px
+	}
+	ul.langitem li {
+		margin: 10px 0 0 0;
+		width: 100%;
+	}
+	ul.langitem li.image {
+		margin: 0;
+		text-align: center;
+		width: 100%;
+		height: 250px;
+		overflow: hidden;
+	}
+	ul.langitem li.descr {
+		color: #777;
+		height: 170px;
+		overflow: hidden;
+	}
+	ul.langitem li a {
+		color: #fdc073;
+		text-decoration: none;
+		font-size: 20px;
+	}
+	ul.langitem li a:hover {
+		color: #FDA83D;
+	}
+	div.button {
+		background: #3F4137;
+		max-width: 200px;
+		margin: 0 auto;
+		padding: 5px 20px 5px 20px;
+		border-radius: 10px;
+		font-size: 20px;
+	}
+	.table-content {
+		width: 100%;
+		min-height: 100%;
+		height: 100%;
+	}
+	.left-chapters {
+		margin: 0;
+		background: #eee;
+		border-right: 1px solid #ccc;
+		min-height: 100%;
+	}
+	.left-chapters ul {
+		width: 230px;
+		min-height: 100%;
+		margin: 0;
+		padding: 20px 10px 10px 20px;
+		list-style: none;
+		font-size: 20px;
+	}
+	.left-chapters ul li {
+		margin: 30px 0 0 0;
+		color: #999;
+	}
+	.left-chapters ul li.selected {color: #0059b2; }
+	.left-chapters ul li a {
+		color: #444;
+		text-decoration: none;
+	}
+	.left-chapters ul li a:hover { color: #CC0000; }
+	.left-chapters ul li.share {margin: 60px 0 0 0;}
+	.left-chapters ul li.share p {margin: 30px 0 30px 0;}
+	.left-chapters ul li.share a {
+		display: inline-block;
+		width: 40px;
+		height: 40px;
+		margin: 0 20px 0 0;
+	}
+	.left-chapters ul li.share a.share-yt {
+		width: 100%;
+		height: 30px;
+		background: url('../images/share_yt.png') no-repeat 0 0
+	}
+	.left-chapters ul li.share a.share-yt:hover {
+		width: 100%;
+		height: 30px;
+		background: url('../images/share_yt.png') no-repeat 0 -30px
+	}
+	.content {
+		padding: 40px 20px 20px 40px;
+		width: 100%;
+		box-sizing: border-box;
+	}
+	ul.breadcrumbs {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		font-size: 20px;
+		font-family: Sans-serif, Arial, Tahoma;
+	}
+	ul.breadcrumbs li {
+		display: inline-block;
+	}
+	ul.breadcrumbs li a {
+		color: #0059b2;
+		text-decoration: none;
+	}
+	ul.breadcrumbs li a:hover { color: #CC0000; }
+	ul.breadcrumbs li:after{
+		padding: 0 10px 0 10px;
+		content: "\2192";
+	}
+	ul.breadcrumbs li.last:after {content: "";}
+	ul.control {
+		margin: 0;
+		padding: 60px 0 0 0;
+		list-style: none;
+		font-family: Sans-serif, Arial, Tahoma;
+		font-size: 18px;
+		width: 100%;
+	}
+	ul.control li {	float: left; padding: 0 0 0 10px;}
+	ul.control li.first:before {content: "\2190"; padding: 0 10px 0 0;}
+	ul.control li.last {float: right; padding: 0 40px 0 0;}
+	ul.control li.last:after {content: "\2192"; padding: 0 0 0 10px;}
+	ul.control li a { color: #0059b2; text-decoration: none; }
+	ul.control li a:hover { color: #CC0000; }
+	ul.content-table {
+		margin: 0;
+		padding: 60px 0 0 30px;
+		list-style: none;
+		font-family: Sans-serif, Arial, Tahoma;
+		font-size: 28px;
+	}
+	ul.content-table li {
+		margin: 0 0 40px 0;
+	}
+	ul.content-table li a {
+		color: #BB5715;
+		text-decoration: none;
+	}
+	ul.content-table li a:hover {color: #F0711C;}
+	.content-text {
+		margin: 60px 0 0 30px;
+		color: #000;
+		font-size: 20px;
+		font-family: Yandex Sans Display Light;
+	}
+	.content-text h1 {font-size: 32px;}
+	ul.lang-list {
+		list-style: none;
+		margin: 0;
+		padding: 14px 0 0 0;
+		background: #3F4137;
+		width: 100%;
+		height: 50px;
+		border-top: 1px solid #959A82;
+		box-sizing: border-box;
+		font-size: 18px;
+		font-family: Sans-serif, Arial, Tahoma;
+	}
+	ul.lang-list li {
+		display: inline-block;
+		margin-left: 40px;
+	}
+	ul.lang-list li.selected {color: #fdc073; border-bottom: 1px solid #fdc073;}
+	ul.lang-list li a {
+		color: #eee;
+		text-decoration: none;
+	}
+	ul.lang-list li a:hover {color: #fdc073;}
+	.topic-subject .topic-line {
+		border-bottom: 1px solid #CC0000;
+		margin-top: -16px;
+	}
+	.topic-subject .topic-text {
+		display: inline-block;
+		font-size: 28px;
+		color: #777;
+		padding: 0 10px 0 10px;
+		margin-left: 30px;
+		background: #fff;
+		font-family: Sans-serif, Arial, Tahoma;
+	}
+	.list-topic {
+		margin: 40px 0 60px 0;
+		font-family: Sans-serif, Arial, Tahoma;
+	}
+	.list-topic p {
+		margin: 0;
+		font-size: 28px;
+	}
+	.list-topic ol {
+		columns: 2;
+		-webkit-columns: 2;
+		column-gap: 40px;
+	}
+	.list-topic ol li {
+		display: list-item;
+		margin: 10px 10px 0 0px;
+		padding: 0 0 0 10px;
+	}
+	.list-topic ol li a {
+		color: #0059b2;
+		text-decoration: none;
+	}
+	.list-topic ol li a:hover {color: #CC0000;}
+	.highlight {
+		max-width: 350px;
+		padding: 0 10px 0 10px;
+		margin: 0;
+		overflow: auto;
+		overflow-y: hidden;
+		background: #f0f0f0;
+	}
+	.highlight p { margin: 0; }
+	.highlight .block {
+		width: 100%;
+		margin: 0;
+	}
+	.highlight .block p { margin: 0; }
+	.quote {
+		background: url('../images/blockquote.png') no-repeat 0 10px;
+		padding: 5px 5px 5px 70px;
+		font-family: Sans-serif, Arial, Tahoma;
+		font-style: italic;
+	}
+	#footer {
+		box-sizing: border-box;
+		background: #3F4137;
+		padding: 5px;
+		color: #aaa;
+		font-size: 14px;
+		font-family: Verdana, Geneva, Arial, Helvetica;
+		text-align: left;
+		overflow: hidden;
+	}
+	#footer a {
+		text-decoration: underline;
+		color: #aaa;
+	}
+	.form-input {
+	    width: 300px;
+	    font-size: 16px;
+	}
+	.form-label {
+	    display: inline-block;
+	    min-width: 150px;
+	    vertical-align: top;
+	}
+	.form-error ul {
+	    list-style: none;
+	    padding: 0;
+	    color: #CC0000;
+	}
+	.form-button {
+	    min-width: 200px;
+	    font-size: 16px;
+	}
+	$ mkdir women/static/women/js
+	$ mkdir women/static/women/images
+	$ ls women/static/women/images
+	blockquote.png  btn_yt.png  logo.png  main.ico  share_yt.png  smallmenu.png
+	$ vim coolsite/settings.py
+	$ cat coolsite/settings.py
+	...
+	# Static files (CSS, JavaScript, Images)
+	# https://docs.djangoproject.com/en/4.2/howto/static-files/
+	STATIC_URL = '/static/'
+	STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+	STATICFILES_DIRS=[]
+	# Default primary key field type
+	...
+	$ vim women/templates/women/base.html
+	$ cat women/templates/women/base.html
+	{% load static %}
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<title>{{title}}</title>
+		<link type="text/css" href="{% static 'women/css/style.css' %}" rel="stylesheet" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<link rel="shortcut icon" href="{% static 'women/images/main.ico' %}" type="image/x-icon"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+	<body>
+	<table class="table-page" border=0 cellpadding="0" cellspacing="0">
+	<tr><td valign=top>
+	{% block mainmenu %}
+			<div class="header">
+				<ul id="mainmenu" class="mainmenu">
+				<li class="logo"><a href="#"><div class="logo"></div></a></li>
+	{% for m in menu %}
+		{% if not forloop.last %}
+				<li><a href="#">{{m.title}}</a></li>
+		{% else %}
+				<li class="last"><a href="#">{{m.title}}</a></li>
+		{% endif %}
+	{% endfor %}
+				</ul>
+				<div class="clear"></div>
+			</div>
+	{% endblock mainmenu %}
+	<table class="table-content" border=0 cellpadding="0" cellspacing="0">
+	<tr>
+	<!-- Sidebar слева -->
+		<td valign="top" class="left-chapters">
+		<ul id="leftchapters">
+			<li class="selected">Все категории</li>
+			<li><a href="#">Актрисы</a></li>
+			<li><a href="#">Певицы</a></li>
+			<li><a href="#">Спортсменки</a></li>
+			<li class="share">
+			<p>Наш канал</p>
+			<a class="share-yt" href="https://www.youtube.com/channel/UClJzWfGWuGJL2t-3dYKcHTA/playlists" target="_blank" rel="nofollow"></a>
+			</li>
+		</ul>
+	</td>
+	<!-- Конец Sidebar'а -->
+	<td valign="top" class="content">
+		<!-- Хлебные крошки -->
+		{% block breadcrumbs %}
+		{% endblock %}
+	<!-- Блок контента -->
+		<div class="content-text">
+	{% block content %}
+	{% endblock %}
+		</div>
+	<!-- Конец блока контента -->
+	</td></tr></table>
+	</td></tr>
+	<!-- Footer -->
+	<tr><td valign=top>
+		<div id="footer">
+			<p>&copy; 2021 Частичное или полное копирование информации с данного сайта для распространения на других ресурсах, в том числе и бумажных, строго запрещено.</p>
+		</div>
+	</td></tr></table>
+	<!-- Конец footer'а и страницы -->
+	</body>
+	</html>
+	$ vim women/templates/women/index.html
+	$ cat women/templates/women/index.html
+	{% extends 'women/base.html' %}
+	{% block content %}
+	<ul class="list-articles">
+		{% for p in posts %}
+				<li><h2>{{p.title}}</h2>
+		{% autoescape on %}
+		{{p.content|linebreaks|truncatewords:50}}
+		{% endautoescape %}
+				<div class="clear"></div>
+				<p class="link-read-post"><a href="#">Читать пост</a></p>
+				</li>
+		{% endfor %}
+	</ul>
+	{% endblock %}
+	$ python manage.py runserver
+	$ vim women/templates/women/index.html
+	$ cat women/templates/women/index.html
+	...
+		{% for p in posts %}
+				<li><h2>{{p.title}}</h2>
+		{% autoescape on %}
+		{{p.content|linebreaks|truncatewords:50}}
+		{% endautoescape %}
+				<div class="clear"></div>
+				<p class="link-read-post">
+					<!--<a href="#">-->
+					<!--<a href="{% url 'post' p.pk %}">-->
+					<a href="{{ p.get_absolute_url }}">
+						Читать пост
+					</a>
+				</p>
+				</li>
+		{% endfor %}
+	...
+	$ vim women/templates/women/base.html
+	$ cat women/templates/women/base.html
+	...
+	{% block mainmenu %}
+			<div class="header">
+				<ul id="mainmenu" class="mainmenu">
+				<li class="logo">
+					<!--<a href="#">-->
+					<a href="{% url 'home' %}">
+						<div class="logo"></div>
+					</a>
+				</li>
+	{% for m in menu %}
+		{% if not forloop.last %}
+				<li><a href="{% url m.url_name %}">{{m.title}}</a></li>
+		{% else %}
+				<li class="last"><a href="{% url m.url_name %}">{{m.title}}</a></li>
+		{% endif %}
+	{% endfor %}
+				</ul>
+				<div class="clear"></div>
+			</div>
+	{% endblock mainmenu %}
+	...
+	$ vim women/views.py
+	$ cat women/views.py
+	from django.http import HttpResponse, HttpResponseNotFound, Http404
+	from django.shortcuts import render, redirect
+	from .models import *
+	# Create your views here.
+	#def index(request): #HttpRequest
+	#	return HttpResponse("Страница приложения Women")
+	#menu=["О сайте", "Добавить статью", "Обратная связь", "Войти"]
+	menu=[{'title':"О сайте", 'url_name':'about'}, 
+		{'title':"Добавить статью", 'url_name':'add_page'},
+		{'title':"Обратная связь", 'url_name':'contact'},
+		{'title':"Войти", 'url_name':'login'}]
+	def index(request):
+		#return render(request, 'women/index.html', {'title':'Главная страница'})
+		posts=Women.objects.all()
+		context={'posts':posts, 
+			'menu':menu, 
+			'title':'Главная страница'}
+		return render(request, 'women/index.html', context=context)
+	def about(request):
+		return render(request, 'women/about.html', {'menu':menu, 'title':'О сайте'})
+	#def categories(request):
+		#return HttpResponse("<h1>Статьи по категориям</h1>")
+	#def categories(request, catid):
+		#print(request.GET) #http://127.0.0.1:8000/cats/1/?name=Gagarina&type=pop
+		#if(request.GET):
+			#print(request.GET) #http://127.0.0.1:8000/cats/1
+		#if(request.POST):
+			#print(request.POST) 
+		#return HttpResponse(f"<h1>Статьи по категориям</h1><p>{catid}</p>")
+	#def archive(request, year):
+		#if int(year)>2020:
+			#raise Http404() #http://127.0.0.1:8000/archive/2022/
+			#return redirect('/', )
+			#return redirect('home', permanent=True)
+		#return HttpResponse(f"<h1>Архив по годам</h1><p>{year}</p>") #http://127.0.0.1:8000/archive/2020/
+	def pageNotFound(request, exception):
+		return HttpResponseNotFound("<h1>Страница не найдена</h1>")
+	def addpage(request):
+		return HttpResponse("Добавление статьи")
+	def contact(request):
+		return HttpResponse("Обратная связь")
+	def login(request):
+		return HttpResponse("Авторизация")
+	def show_post(request, post_id):
+		return HttpResponse(f"Отображение статьи с id = {post_id}")
+	$ vim women/urls.py
+	$ cat women/urls.py
+	...
+	urlpatterns = [
+		#path('', index), #http://127.0.0.1:8000/women/
+		#path('home/', index, name='home'), #http://127.0.0.1:8000/
+		path('', index, name='home'), #http://127.0.0.1:8000/
+		#path('cats/', categories), #http://127.0.0.1:8000/women/cats/
+		#path('cats/', categories), #http://127.0.0.1:8000/cats/
+		#path('cats/<int:catid>/', categories), #http://127.0.0.1:8000/cats/1/
+		#re_path(r'^archive/(?P<year>[0-9]{4})/', archive), #http://127.0.0.1:8000/archive/2020/
+		path('about/', about, name='about'), #http://127.0.0.1:8000/
+		path('addpage/', addpage, name='add_page'),
+		path('contact/', contact, name='contact'),
+		path('login/', login, name='login'),
+		path('post/<int:post_id>/', show_post, name='post'),
+	]
+	$ vim women/models.py
+	$ cat women/models.py
+	from django.db import models
+	from django.urls import reverse
+	...
+		def get_absolute_url(self):
+			return reverse('post', kwargs={'post_id':self.pk})
+	$ python manage.py runserver
+	$ vim women/models.py
+	$ cat women/models.py
+	...
+	class Women(models.Model):
+		"""docstring for Women"""
+		title=models.CharField(max_length=255)
+		content=models.TextField(blank=True)
+		photo=models.ImageField(upload_to="photos/%Y/%m/%d/")
+		time_create=models.DateTimeField(auto_now_add=True)
+		time_update=models.DateTimeField(auto_now=True)
+		is_published=models.BooleanField(default=True)
+		cat=models.ForeignKey('Category', on_delete=models.PROTECT, null=True)
+		def __str__(self):
+			return self.title
+		def get_absolute_url(self):
+			return reverse('post', kwargs={'post_id':self.pk})
+	class Category(models.Model):
+		name=models.CharField(max_length=100, db_index=True)
+		def __str__(self):
+			return self.name	
+	$ python manage.py makemigrations
+	$ python manage.py migrate
+	$ sqlite3 db.sqlite3
+	sqlite> SELECT * FROM sqlite_master where type='table';
+	$ python manage.py shell
+	>>> from women.models import *
+	>>> Category.objects.create(name='Актрисы')
+	>>> Category.objects.create(name='Певицы')
+	>>> w_list=Women.objects.all()
+	>>> w_list.update(cat_id=1)
+	>>> exit()
+	$ sqlite3 db.sqlite3
+	sqlite> select * from women_women;
+	sqlite> select * from women_category;
+	$ python manage.py shell
+	>>> from women.models import *
+	>>> Women.title
+	>>> w1=Women(title='t1',content='c1',cat_id=1)
+	>>> type(w1.title)
+	>>> type(Women.title)
+	>>> type(w1.cat)
+	>>> w1.pk
+	>>> print(w1.id,w1.time_create,w1.time_update)
+	>>> from django.db import connection
+	>>> connection.queries
+	>>> exit()
+	$ python manage.py shell
+	>>> from women.models import *
+	>>> w1=Women(title='t1',content='c1',cat_id=1)
+	>>> from django.db import connection
+	>>> connection.queries
+	>>> w1.cat
+	>>> connection.queries
+	>>> w2=Women.objects.get(pk=2)
+	>>> connection.queries
+	>>> w2.title
+	>>> w2.cat
+	>>> connection.queries
+	>>> w2.cat.name
+	>>> exit()
+	$ vim women/models.py
+	$ cat women/models.py
+	from django.db import models
+	from django.urls import reverse
+	# Create your models here.
+	class Women(models.Model):
+		"""docstring for Women"""
+		title=models.CharField(max_length=255)
+		content=models.TextField(blank=True)
+		photo=models.ImageField(upload_to="photos/%Y/%m/%d/")
+		time_create=models.DateTimeField(auto_now_add=True)
+		time_update=models.DateTimeField(auto_now=True)
+		is_published=models.BooleanField(default=True)
+		cat=models.ForeignKey('Category', on_delete=models.PROTECT, null=True)
+		def __str__(self):
+			return self.title
+		def get_absolute_url(self):
+			return reverse('post', kwargs={'post_id':self.pk})
+	class Category(models.Model):
+		name=models.CharField(max_length=100, db_index=True)
+		def __str__(self):
+			return self.name
+		def get_absolute_url(self):
+			return reverse('category', kwargs={'cat_id':self.pk})
+	$ vim women/urls.py
+	$ cat women/urls.py
+	from django.urls import path, re_path
+	from .views import *
+	urlpatterns = [
+		#path('', index), #http://127.0.0.1:8000/women/
+		#path('home/', index, name='home'), #http://127.0.0.1:8000/
+		path('', index, name='home'), #http://127.0.0.1:8000/
+		#path('cats/', categories), #http://127.0.0.1:8000/women/cats/
+		#path('cats/', categories), #http://127.0.0.1:8000/cats/
+		#path('cats/<int:catid>/', categories), #http://127.0.0.1:8000/cats/1/
+		#re_path(r'^archive/(?P<year>[0-9]{4})/', archive), #http://127.0.0.1:8000/archive/2020/
+		path('about/', about, name='about'), #http://127.0.0.1:8000/
+		path('addpage/', addpage, name='add_page'),
+		path('contact/', contact, name='contact'),
+		path('login/', login, name='login'),
+		path('post/<int:post_id>/', show_post, name='post'),
+		path('category/<int:cat_id>/', show_category, name='category'),
+	]
+	$ vim women/views.py
+	$ cat women/views.py
+	from django.http import HttpResponse, HttpResponseNotFound, Http404
+	from django.shortcuts import render, redirect
+	from .models import *
+	# Create your views here.
+	#def index(request): #HttpRequest
+	#	return HttpResponse("Страница приложения Women")
+	#menu=["О сайте", "Добавить статью", "Обратная связь", "Войти"]
+	menu=[{'title':"О сайте", 'url_name':'about'}, 
+		{'title':"Добавить статью", 'url_name':'add_page'},
+		{'title':"Обратная связь", 'url_name':'contact'},
+		{'title':"Войти", 'url_name':'login'}]
+	def index(request):
+		#return render(request, 'women/index.html', {'title':'Главная страница'})
+		posts=Women.objects.all()
+		cats=Category.objects.all()
+		context={'posts':posts, 
+			'cats':cats,
+			'menu':menu, 
+			'title':'Главная страница',
+			'cat_selected':0}
+		return render(request, 'women/index.html', context=context)
+	def about(request):
+		return render(request, 'women/about.html', {'menu':menu, 'title':'О сайте'})
+	#def categories(request):
+		#return HttpResponse("<h1>Статьи по категориям</h1>")
+	#def categories(request, catid):
+		#print(request.GET) #http://127.0.0.1:8000/cats/1/?name=Gagarina&type=pop
+		#if(request.GET):
+			#print(request.GET) #http://127.0.0.1:8000/cats/1
+		#if(request.POST):
+			#print(request.POST) 
+		#return HttpResponse(f"<h1>Статьи по категориям</h1><p>{catid}</p>")
+	#def archive(request, year):
+		#if int(year)>2020:
+			#raise Http404() #http://127.0.0.1:8000/archive/2022/
+			#return redirect('/', )
+			#return redirect('home', permanent=True)
+		#return HttpResponse(f"<h1>Архив по годам</h1><p>{year}</p>") #http://127.0.0.1:8000/archive/2020/
+	def pageNotFound(request, exception):
+		return HttpResponseNotFound("<h1>Страница не найдена</h1>")
+	def addpage(request):
+		return HttpResponse("Добавление статьи")
+	def contact(request):
+		return HttpResponse("Обратная связь")
+	def login(request):
+		return HttpResponse("Авторизация")
+	def show_post(request, post_id):
+		return HttpResponse(f"Отображение статьи с id = {post_id}")
+	#def show_category(request, cat_id):
+		#return HttpResponse(f"Отображение категории с id = {cat_id}")
+	def show_category(request, cat_id):
+		posts=Women.objects.filter(cat_id=cat_id)
+		cats=Category.objects.all()
+		if len(posts)==0:
+			raise Http404()
+		context={'posts':posts,
+			'cats':cats,
+			'menu':menu,
+			'title':'Главная страница',
+			'cat_selected':cat_id,}
+		return render(request, 'women/index.html', context=context)
+	$ vim women/templates/women/base.html
+	$ cat women/templates/women/base.html
+	{% load static %}
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<title>{{title}}</title>
+		<link type="text/css" href="{% static 'women/css/style.css' %}" rel="stylesheet" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<link rel="shortcut icon" href="{% static 'women/images/main.ico' %}" type="image/x-icon"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+	<body>
+	<table class="table-page" border=0 cellpadding="0" cellspacing="0">
+	<tr><td valign=top>
+	{% block mainmenu %}
+			<div class="header">
+				<ul id="mainmenu" class="mainmenu">
+				<li class="logo">
+					<!--<a href="#">-->
+					<a href="{% url 'home' %}">
+						<div class="logo"></div>
+					</a>
+				</li>
+	{% for m in menu %}
+		{% if not forloop.last %}
+				<li><a href="{% url m.url_name %}">{{m.title}}</a></li>
+		{% else %}
+				<li class="last"><a href="{% url m.url_name %}">{{m.title}}</a></li>
+		{% endif %}
+	{% endfor %}
+				</ul>
+				<div class="clear"></div>
+			</div>
+	{% endblock mainmenu %}
+	<table class="table-content" border=0 cellpadding="0" cellspacing="0">
+	<tr>
+	<!-- Sidebar слева -->
+		<td valign="top" class="left-chapters">
+		<ul id="leftchapters">
+	{% if cat_selected == 0 %}
+			<li class="selected">Все категории</li>
+	{% else %}
+			<li><a href="{% url 'home' %}">Все категории</a></li>
+	{% endif %}
+	{% for c in cats %}
+		{% if c.pk == cat_selected %}
+			<li class="selected">{{c.name}}</li>
+		{% else %}
+			<li><a href="{{ c.get_absolute_url }}">{{c.name}}</a></li>
+		{% endif %}
+	{% endfor %}
+			<li class="share">
+			<p>Наш канал</p>
+			<a class="share-yt" href="https://www.youtube.com/channel/UClJzWfGWuGJL2t-3dYKcHTA/playlists" target="_blank" rel="nofollow"></a>
+			</li>
+		</ul>
+	</td>
+	<!-- Конец Sidebar'а -->
+	<td valign="top" class="content">
+		<!-- Хлебные крошки -->
+		{% block breadcrumbs %}
+		{% endblock %}
+	<!-- Блок контента -->
+		<div class="content-text">
+	{% block content %}
+	{% endblock %}
+		</div>
+	<!-- Конец блока контента -->
+	</td></tr></table>
+	</td></tr>
+	<!-- Footer -->
+	<tr><td valign=top>
+		<div id="footer">
+			<p>&copy; 2021 Частичное или полное копирование информации с данного сайта для распространения на других ресурсах, в том числе и бумажных, строго запрещено.</p>
+		</div>
+	</td></tr></table>
+	<!-- Конец footer'а и страницы -->
+	</body>
+	</html>
+	$ vim women/templates/women/index.html
+	$ cat women/templates/women/index.html
+	{% extends 'women/base.html' %}
+	{% block content %}
+	<ul class="list-articles">
+		{% for p in posts %}
+				<li>
+					<div class="article_panel">
+						<p class="first">Категория: {{p.cat}}</p>
+						<p class="last">Дата: {{p.time_update|date:"d-m-Y H:i:s"}}</p>
+					</div>
+					<h2>{{p.title}}</h2>
+		{% autoescape on %}
+		{{p.content|linebreaks|truncatewords:50}}
+		{% endautoescape %}
+					<div class="clear"></div>
+					<p class="link-read-post">
+						<!--<a href="#">-->
+						<!--<a href="{% url 'post' p.pk %}">-->
+						<a href="{{ p.get_absolute_url }}">
+							Читать пост
+						</a>
+					</p>
+				</li>
+		{% endfor %}
+	</ul>
+	{% endblock %}
+	$ python manage.py runserver
+	$ vim coolsite/settings.py
+	$ cat coolsite/settings.py
+	...
+	# Internationalization
+	# https://docs.djangoproject.com/en/4.2/topics/i18n/
+	#LANGUAGE_CODE = 'en-us'
+	LANGUAGE_CODE = 'ru'
+	TIME_ZONE = 'UTC'
+	USE_I18N = True
+	USE_TZ = True
+	...
+	$ python manage.py createsuperuser
+	$ vim women/admin.py
+	$ cat women/admin.py
+	from django.contrib import admin
+	from .models import *
+	# Register your models here.
+	class WomenAdmin(admin.ModelAdmin):
+	    list_display = ('id', 'title', 'time_create', 'photo', 'is_published')
+	    list_display_links = ('id', 'title')
+	    search_fields = ('title', 'content')
+	class CategoryAdmin(admin.ModelAdmin):
+	    list_display = ('id', 'name')
+	    list_display_links = ('id', 'name')
+	    search_fields = ('name',)
+	admin.site.register(Women, WomenAdmin)
+	admin.site.register(Category, CategoryAdmin)
+	$ vim women/models.py
+	$ cat women/models.py
+	from django.db import models
+	from django.urls import reverse
+	# Create your models here.
+	class Women(models.Model):
+		"""docstring for Women"""
+		title=models.CharField(max_length=255, verbose_name="Заголовок")
+		content=models.TextField(blank=True, verbose_name="Текст статьи")
+		photo=models.ImageField(upload_to="photos/%Y/%m/%d/", verbose_name="Фото")
+		time_create=models.DateTimeField(auto_now_add=True, verbose_name="Время создания")
+		time_update=models.DateTimeField(auto_now=True, verbose_name="Время изменения")
+		is_published=models.BooleanField(default=True, verbose_name="Публикация")
+		cat=models.ForeignKey('Category', on_delete=models.PROTECT, null=True, verbose_name="Категории")
+		def __str__(self):
+			return self.title
+		def get_absolute_url(self):
+			return reverse('post', kwargs={'post_id':self.pk})
+		class Meta:
+			verbose_name='Известные женщины'
+			verbose_name_plural='Известные женщины'
+			#ordering=['time_create','title']
+			ordering=['-time_create','title']
+	class Category(models.Model):
+		name=models.CharField(max_length=100, db_index=True, verbose_name="Категория")
+		def __str__(self):
+			return self.name
+		def get_absolute_url(self):
+			return reverse('category', kwargs={'cat_id':self.pk})
+		class Meta:
+			verbose_name='Категория'
+			verbose_name_plural='Категории'
+			ordering=['id']
+	$ vim women/apps.py
+	$ cat women/apps.py
+	from django.apps import AppConfig
+	class WomenConfig(AppConfig):
+	    default_auto_field = 'django.db.models.BigAutoField'
+	    name = 'women'
+	    verbose_name='Женщины мира'
+	$ python manage.py makemigrations
+	$ python manage.py migrate
+	$ vim women/templates/women/index.html
+	$ cat women/templates/women/index.html
+	{% extends 'women/base.html' %}
+	{% block content %}
+	<ul class="list-articles">
+		{% for p in posts %}
+				<li>
+					<div class="article_panel">
+						<p class="first">Категория: {{p.cat}}</p>
+						<p class="last">Дата: {{p.time_update|date:"d-m-Y H:i:s"}}</p>
+					</div>
+	{% if p.photo %}
+					<p><img class="img-article-left thumb" src="{{p.photo.url}}"></p>
+	{% endif %}
+					<h2>{{p.title}}</h2>
+		{% autoescape on %}
+		{{p.content|linebreaks|truncatewords:50}}
+		{% endautoescape %}
+					<div class="clear"></div>
+					<p class="link-read-post">
+						<!--<a href="#">-->
+						<!--<a href="{% url 'post' p.pk %}">-->
+						<a href="{{ p.get_absolute_url }}">
+							Читать пост
+						</a>
+					</p>
+				</li>
+		{% endfor %}
+	</ul>
+	{% endblock %}
+	$ vim women/admin.py
+	$ cat women/admin.py
+	from django.contrib import admin
+	from .models import *
+	# Register your models here.
+	class WomenAdmin(admin.ModelAdmin):
+	    list_display = ('id', 'title', 'time_create', 'photo', 'is_published')
+	    list_display_links = ('id', 'title')
+	    search_fields = ('title', 'content')
+	    list_editable = ('is_published',)
+	    list_filter = ('is_published', 'time_create')
+	class CategoryAdmin(admin.ModelAdmin):
+	    list_display = ('id', 'name')
+	    list_display_links = ('id', 'name')
+	    search_fields = ('name',)
+	admin.site.register(Women, WomenAdmin)
+	admin.site.register(Category, CategoryAdmin)
+	$ python manage.py runserver
+	$ vim women/views.py
+	$ cat women/views.py
+	...
+	def index(request):
+		#return render(request, 'women/index.html', {'title':'Главная страница'})
+		posts=Women.objects.all()
+		#cats=Category.objects.all()
+		context={'posts':posts, 
+			#'cats':cats,
+			'menu':menu, 
+			'title':'Главная страница',
+			'cat_selected':0}
+		return render(request, 'women/index.html', context=context)
+	...
+	def show_category(request, cat_id):
+		posts=Women.objects.filter(cat_id=cat_id)
+		#cats=Category.objects.all()
+		if len(posts)==0:
+			raise Http404()
+		context={'posts':posts,
+			#'cats':cats,
+			'menu':menu,
+			'title':'Главная страница',
+			'cat_selected':cat_id,}
+		return render(request, 'women/index.html', context=context)
+	$ mkdir women/templatetags
+	$ touch women/templatetags/__init__.py
+	$ touch women/templatetags/women_tags.py
+	$ vim women/templatetags/women_tags.py
+	$ cat women/templatetags/women_tags.py
+	from django import template
+	from women.models import *
+	register=template.Library()
+	@register.simple_tag(name='getcats')
+	def get_categories(filter=None):
+		#return Category.objects.all()
+		if not filter:
+			return Category.objects.all()
+		else:
+			return Category.objects.filter(pk=filter)
+	@register.inclusion_tag('women/list_categories.html')
+	#def show_categories():
+	def show_categories(sort=None, cat_selected=0):
+		#cats=Category.objects.all()
+		#return {"cats": cats}
+		if not sort:
+			cats = Category.objects.all()
+		else:
+			cats = Category.objects.order_by(sort)
+		return {"cats":cats, "cat_selected":cat_selected}
+	$ vim women/templates/women/base.html
+	$ cat women/templates/women/base.html
+	...
+	<!-- Sidebar слева -->
+		<td valign="top" class="left-chapters">
+			<ul id="leftchapters">
+	{% if cat_selected == 0 %}
+				<li class="selected">Все категории</li>
+	{% else %}
+				<li><a href="{% url 'home' %}">Все категории</a></li>
+	{% endif %}
+	{% show_categories cat_selected=cat_selected %}
+				<li class="share"><p>Наш канал</p><a class="share-yt" href="https://www.youtube.com/channel/UClJzWfGWuGJL2t-3dYKcHTA/playlists" target="_blank" rel="nofollow"></a></li>
+			</ul>
+		</td>
+	...
+	$ touch women/templates/women/list_categories.html
+	$ vim women/templates/women/list_categories.html
+	$ cat women/templates/women/list_categories.html
+	{% for c in cats %}
+		{% if c.pk == cat_selected %}
+			<li class="selected">{{c.name}}</li>
+		{% else %}
+			<li><a href="{{ c.get_absolute_url }}">{{c.name}}</a></li>
+		{% endif %}
+	{% endfor %}
+	$ python manage.py runserver
+	$ vim women/views.py
+	$ cat women/views.py
+	from django.http import HttpResponse, HttpResponseNotFound, Http404
+	from django.shortcuts import render, redirect, get_object_or_404
+	from .models import *
+	...
+	#def show_post(request, post_id):
+	def show_post(request, post_slug):
+		#return HttpResponse(f"Отображение статьи с id = {post_id}")
+		#post=get_object_or_404(Women, pk=post_id)
+		post=get_object_or_404(Women, slug=post_slug)
+		context={'post':post,
+			'menu':menu,
+			'title':post.title,
+			'cat_selected':post.cat_id,}
+		return render(request, 'women/post.html', context=context)
+	...
+	$ touch women/templates/women/post.html
+	$ vim women/templates/women/post.html
+	$ cat women/templates/women/post.html
+	{% extends 'women/base.html' %}
+	{% block content %}
+	<h1>{{post.title}}</h1>
+	{% if post.photo %}
+	<p><img class="img-article-left thumb" src="{{post.photo.url}}"></p>
+	{% endif %}
+	{{post.content|linebreaks}}
+	{% endblock %}
+	$ vim women/models.py
+	$ cat women/models.py
+	...
+	class Women(models.Model):
+		"""docstring for Women"""
+		title=models.CharField(max_length=255, verbose_name="Заголовок")
+		slug=models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="URL")
+		content=models.TextField(blank=True, verbose_name="Текст статьи")
+		photo=models.ImageField(upload_to="photos/%Y/%m/%d/", verbose_name="Фото")
+		time_create=models.DateTimeField(auto_now_add=True, verbose_name="Время создания")
+		time_update=models.DateTimeField(auto_now=True, verbose_name="Время изменения")
+		is_published=models.BooleanField(default=True, verbose_name="Публикация")
+		#cat=models.ForeignKey('Category', on_delete=models.PROTECT, null=True, verbose_name="Категории")
+		cat=models.ForeignKey('Category', on_delete=models.PROTECT, verbose_name="Категории")
+		def __str__(self):
+			return self.title
+		def get_absolute_url(self):
+			return reverse('post', kwargs={'post_slug':self.slug})
+		...
+	class Category(models.Model):
+		name=models.CharField(max_length=100, db_index=True, verbose_name="Категория")
+		slug=models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="URL")
+		...
+	$ vim women/admin.py
+	$ cat women/admin.py
+	...
+	class WomenAdmin(admin.ModelAdmin):
+	    list_display = ('id', 'title', 'time_create', 'photo', 'is_published')
+	    list_display_links = ('id', 'title')
+	    search_fields = ('title', 'content')
+	    list_editable = ('is_published',)
+	    list_filter = ('is_published', 'time_create')
+	    prepopulated_fields = {"slug": ("title",)}
+	class CategoryAdmin(admin.ModelAdmin):
+	    list_display = ('id', 'name')
+	    list_display_links = ('id', 'name')
+	    search_fields = ('name',)
+	    prepopulated_fields = {"slug": ("name",)}
+	...
+	$ vim women/urls.py
+	$ cat women/urls.py
+	...
+	urlpatterns = [
+		#path('', index), #http://127.0.0.1:8000/women/
+		#path('home/', index, name='home'), #http://127.0.0.1:8000/
+		path('', index, name='home'), #http://127.0.0.1:8000/
+		#path('cats/', categories), #http://127.0.0.1:8000/women/cats/
+		#path('cats/', categories), #http://127.0.0.1:8000/cats/
+		#path('cats/<int:catid>/', categories), #http://127.0.0.1:8000/cats/1/
+		#re_path(r'^archive/(?P<year>[0-9]{4})/', archive), #http://127.0.0.1:8000/archive/2020/
+		path('about/', about, name='about'), #http://127.0.0.1:8000/
+		path('addpage/', addpage, name='add_page'),
+		path('contact/', contact, name='contact'),
+		path('login/', login, name='login'),
+		#path('post/<int:post_id>/', show_post, name='post'),
+		path('post/<slug:post_slug>/', show_post, name='post'),
+		path('category/<int:cat_id>/', show_category, name='category'),
+	]
+	$ rm -rf women/migrations/000*.py
+	$ rm -rf db.sqlite3
+	$ python manage.py makemigrations
+	$ python manage.py migrate
+	$ python manage.py createsuperuser
+	$ python manage.py runserver
+	Decision:
+	$ vim women/views.py
+	$ cat women/views.py
+	from django.http import HttpResponse, HttpResponseNotFound, Http404
+	from django.shortcuts import render, redirect, get_object_or_404
+	from .forms import *
+	from .models import *
+	...
+		return HttpResponseNotFound("<h1>Страница не найдена</h1>")
+	def addpage(request):
+		#return HttpResponse("Добавление статьи")
+		#return render(request, 'women/addpage.html', {'menu':menu, 'title':'Добавление статьи'})
+		#form=AddPostForm()
+		if request.method=='POST':
+			form=AddPostForm(request.POST)
+			if form.is_valid():
+				#print(form.cleaned_data)
+				try:
+					Women.objects.create(**form.cleaned_data)
+					return redirect('home')
+				except:
+					form.add_error(None,'Ошибка добавления поста')
+		else:
+			form=AddPostForm()
+		return render(request, 'women/addpage.html', {'form':form,'menu':menu, 'title':'Добавление статьи'})
+	def contact(request):
+		...
+	$ touch women/templates/women/addpage.html
+	$ vim women/templates/women/addpage.html
+	$ cat women/templates/women/addpage.html
+	{% extends 'women/base.html' %}
+	{% block content %}
+	<h1>{{title}}</h1>
+	<form action="{% url 'add_page' %}" method="post">
+		{% csrf_token %}
+		<div class="form-error">{{ form.non_field_errors }}</div>
+		{% for f in form %}
+		<p><label class="form-label" for="{{ f.id_for_label }}">{{f.label}}:</label>{{ f }}</p>
+		<div class="form-error">{{ f.errors }}</div>
+		{% endfor %}
+		<button type="submit">Добавить</button>
+	</form>
+	{% endblock %}
+	$ touch women/forms.py
+	$ vim women/forms.py
+	$ cat women/forms.py
+	from django import forms
+	from .models import *
+	class AddPostForm(forms.Form):
+	    title=forms.CharField(max_length=255, label="Заголовок", widget=forms.TextInput(attrs={'class':'form-input'}))
+	    slug=forms.SlugField(max_length=255, label="URL")
+	    content=forms.CharField(widget=forms.Textarea(attrs={'cols':60, 'rows':10}), label="Контент")
+	    is_published=forms.BooleanField(label="Публикация", required=False, initial=True)
+	    cat=forms.ModelChoiceField(queryset=Category.objects.all(), label="Категория", empty_label="Категория не выбрана")
+	$ python manage.py runserver
+	Decision:
+	$ vim women/forms.py
+	$ cat women/forms.py
+	from django import forms
+	from django.core.exceptions import ValidationError
+	from .models import *
+	#class AddPostForm(forms.Form):
+	    #title=forms.CharField(max_length=255, label="Заголовок", widget=forms.TextInput(attrs={'class':'form-input'}))
+	    #slug=forms.SlugField(max_length=255, label="URL")
+	    #content=forms.CharField(widget=forms.Textarea(attrs={'cols':60, 'rows':10}), label="Контент")
+	    #is_published=forms.BooleanField(label="Публикация", required=False, initial=True)
+	    #cat=forms.ModelChoiceField(queryset=Category.objects.all(), label="Категория", empty_label="Категория не выбрана")
+	class AddPostForm(forms.ModelForm):
+	    def __init__(self, *args, **kwargs):
+	        super().__init__(*args, **kwargs)
+	        self.fields['cat'].empty_label="Категория не выбрана"
+	    class Meta:
+	        model=Women
+	        #fields='__all__'
+	        fields=['title', 'slug', 'content', 'photo', 'is_published', 'cat']
+	        widgets={
+	            'title':forms.TextInput(attrs={'class':'form-input'}),
+	            'content':forms.Textarea(attrs={'cols':60,'rows':10}),
+	        }
+	    def clean_title(self):
+	        title=self.cleaned_data['title']
+	        if len(title)>200:
+	            raise ValidationError('Длина превышает 200 символов')
+	        return title
+	$ vim women/views.py
+	$ cat women/views.py
+	...
+	def addpage(request):
+		#return HttpResponse("Добавление статьи")
+		#return render(request, 'women/addpage.html', {'menu':menu, 'title':'Добавление статьи'})
+		#form=AddPostForm()
+		if request.method=='POST':
+			#form=AddPostForm(request.POST)
+			form=AddPostForm(request.POST, request.FILES)
+			if form.is_valid():
+				#print(form.cleaned_data)
+				#try:
+					#Women.objects.create(**form.cleaned_data)
+				form.save()
+				return redirect('home')
+				#except:
+				#	form.add_error(None,'Ошибка добавления поста')
+		else:
+			form=AddPostForm()
+		return render(request, 'women/addpage.html', {'form':form,'menu':menu, 'title':'Добавление статьи'})
+	...
+	$ vim women/templates/women/addpage.html
+	$ cat women/templates/women/addpage.html
+	...
+	<h1>{{title}}</h1>
+	<form action="{% url 'add_page' %}" method="post" enctype="multipart/form-data">
+		{% csrf_token %}
+		...
+	$ python manage.py runserver
+	Decision:
+	$ vim women/views.py
+	$ cat women/views.py
+	from django.http import HttpResponse, HttpResponseNotFound, Http404
+	from django.shortcuts import render, redirect, get_object_or_404
+	from django.urls import reverse_lazy
+	from django.views.generic import ListView, DetailView, CreateView
+	from .forms import *
+	from .models import *
+	...
+	#def index(request):
+		#return render(request, 'women/index.html', {'title':'Главная страница'})
+		#posts=Women.objects.all()
+		#cats=Category.objects.all()
+		#context={'posts':posts, 
+			#'cats':cats,
+			#'menu':menu, 
+			#'title':'Главная страница',
+			#'cat_selected':0}
+		#return render(request, 'women/index.html', context=context)
+	class WomenHome(ListView):
+		model=Women
+		template_name='women/index.html'
+		context_object_name='posts'
+		#extra_context={'title':'Главная страница'}
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			context['menu']=menu
+			context['title']='Главная страница'
+			context['cat_selected']=0
+			return context
+		def get_queryset(self):
+			return Women.objects.filter(is_published=True)
+	...
+	#def addpage(request):
+		#return HttpResponse("Добавление статьи")
+		#return render(request, 'women/addpage.html', {'menu':menu, 'title':'Добавление статьи'})
+		#form=AddPostForm()
+		#if request.method=='POST':
+			#form=AddPostForm(request.POST)
+			#form=AddPostForm(request.POST, request.FILES)
+			#if form.is_valid():
+				#print(form.cleaned_data)
+				#try:
+					#Women.objects.create(**form.cleaned_data)
+				#form.save()
+				#return redirect('home')
+				#except:
+				#	form.add_error(None,'Ошибка добавления поста')
+		#else:
+			#form=AddPostForm()
+		#return render(request, 'women/addpage.html', {'form':form,'menu':menu, 'title':'Добавление статьи'})
+	class AddPage(CreateView):
+		form_class=AddPostForm
+		template_name='women/addpage.html'
+		success_url=reverse_lazy('home')
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			context['title']='Добав статьи'
+			context['menu']=menu
+			return context
+	...
+	#def show_post(request, post_slug):
+		#return HttpResponse(f"Отображение статьи с id = {post_id}")
+		#post=get_object_or_404(Women, pk=post_id)
+		#post=get_object_or_404(Women, slug=post_slug)
+		#context={'post':post,
+			#'menu':menu,
+			#'title':post.title,
+			#'cat_selected':post.cat_id,}
+		#return render(request, 'women/post.html', context=context)
+	class ShowPost(DetailView):
+		model=Women
+		template_name='women/post.html'
+		slug_url_kwarg='post_slug'
+		context_object_name='post'
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			context['title']=context['post']
+			context['menu']=menu
+			return context
+	...
+	#def show_category(request, cat_id):
+		#posts=Women.objects.filter(cat_id=cat_id)
+		#cats=Category.objects.all()
+		#if len(posts)==0:
+			#raise Http404()
+		#context={'posts':posts,
+			#'cats':cats,
+			#'menu':menu,
+			#'title':'Главная страница',
+			#'cat_selected':cat_id,}
+		#return render(request, 'women/index.html', context=context)
+	class WomenCategory(ListView):
+		model=Women
+		template_name='women/index.html'
+		context_object_name='posts'
+		allow_empty=False
+		def get_queryset(self):
+			return Women.objects.filter(cat__slug=self.kwargs['cat_slug'], is_published=True)
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			context['title']='Категория - ' + str(context['posts'][0].cat)
+			context['menu']=menu
+			context['cat_selected']=context['posts'][0].cat_id
+			return context
+	$ vim women/urls.py
+	$ cat women/urls.py
+	...
+	urlpatterns = [
+		#path('', index), #http://127.0.0.1:8000/women/
+		#path('home/', index, name='home'), #http://127.0.0.1:8000/
+		#path('', index, name='home'), #http://127.0.0.1:8000/
+		path('', WomenHome.as_view(), name='home'), #http://127.0.0.1:8000/
+		#path('cats/', categories), #http://127.0.0.1:8000/women/cats/
+		#path('cats/', categories), #http://127.0.0.1:8000/cats/
+		#path('cats/<int:catid>/', categories), #http://127.0.0.1:8000/cats/1/
+		#re_path(r'^archive/(?P<year>[0-9]{4})/', archive), #http://127.0.0.1:8000/archive/2020/
+		path('about/', about, name='about'), #http://127.0.0.1:8000/
+		#path('addpage/', addpage, name='add_page'),
+		path('addpage/', AddPage.as_view(), name='add_page'),
+		path('contact/', contact, name='contact'),
+		path('login/', login, name='login'),
+		#path('post/<int:post_id>/', show_post, name='post'),
+		#path('post/<slug:post_slug>/', show_post, name='post'),
+		path('post/<slug:post_slug>/', ShowPost.as_view(), name='post'),
+		#path('category/<int:cat_id>/', show_category, name='category'),
+		path('category/<slug:cat_slug>/', WomenCategory.as_view(), name='category'),
+	]
+	$ vim women/models.py
+	$ cat women/models.py
+	...
+		def get_absolute_url(self):
+			#return reverse('category', kwargs={'cat_id':self.pk})
+			return reverse('category', kwargs={'cat_slug':self.slug})
+	...
+	$ python manage.py runserver
+	Decision:
+	$ vim women/views.py
+	$ cat women/views.py
+	from django.http import HttpResponse, HttpResponseNotFound, Http404
+	from django.shortcuts import render, redirect, get_object_or_404
+	from django.urls import reverse_lazy
+	from django.views.generic import ListView, DetailView, CreateView
+	from django.contrib.auth.mixins import LoginRequiredMixin
+	#from django.contrib.auth.decorators import login_required
+	from .forms import *
+	from .models import *
+	from .utils import *
+	...
+	#menu=[{'title':"О сайте", 'url_name':'about'}, 
+		#{'title':"Добавить статью", 'url_name':'add_page'},
+		#{'title':"Обратная связь", 'url_name':'contact'},
+		#{'title':"Войти", 'url_name':'login'}]
+	...
+	#class WomenHome(ListView):
+	class WomenHome(DataMixin, ListView):
+		model=Women
+		template_name='women/index.html'
+		context_object_name='posts'
+		#extra_context={'title':'Главная страница'}
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			#context['menu']=menu
+			#context['title']='Главная страница'
+			#context['cat_selected']=0
+			c_def = self.get_user_context(title="Главная страница")
+			return dict(list(context.items())+list(c_def.items()))
+		def get_queryset(self):
+			return Women.objects.filter(is_published=True)
+	...
+	#@login_required
+	def about(request):
+		return render(request, 'women/about.html', {'menu':menu, 'title':'О сайте'})
+	...
+	#class AddPage(CreateView):
+	class AddPage(LoginRequiredMixin, DataMixin, CreateView):
+		form_class=AddPostForm
+		template_name='women/addpage.html'
+		success_url=reverse_lazy('home')
+		login_url = reverse_lazy('home')
+		raise_exception = True
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			c_def = self.get_user_context(title="Добавление статьи")
+			return dict(list(context.items())+list(c_def.items()))
+	...
+	class ShowPost(DataMixin, DetailView):
+		model=Women
+		template_name='women/post.html'
+		slug_url_kwarg='post_slug'
+		context_object_name='post'
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			c_def = self.get_user_context(title=context['post'])
+			return dict(list(context.items())+list(c_def.items()))
+	...
+	class WomenCategory(DataMixin, ListView):
+		model=Women
+		template_name='women/index.html'
+		context_object_name='posts'
+		allow_empty=False
+		def get_queryset(self):
+			return Women.objects.filter(cat__slug=self.kwargs['cat_slug'], is_published=True)
+		def get_context_data(self, *, objecft_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			c_def = self.get_user_context(title='Категория - ' + str(context['posts'][0].cat), cat_selected=context['posts'][0].cat_id)
+			return dict(list(context.items())+list(c_def.items()))
+	$ touch women/utils.py
+	$ vim women/utils.py
+	$ cat women/utils.py
+	from .models import *
+	from django.db.models import Count
+	menu=[{'title':"О сайте", 'url_name':'about'}, 
+		{'title':"Добавить статью", 'url_name':'add_page'},
+		{'title':"Обратная связь", 'url_name':'contact'},
+		{'title':"Войти", 'url_name':'login'}]
+	class DataMixin:
+		def get_user_context(self, **kwargs):
+			context = kwargs
+			#cats = Category.objects.all()
+			cats = Category.objects.annotate(Count('women'))
+			#context['menu']=menu
+			user_menu = menu.copy()
+			if not self.request.user.is_authenticated:
+				user_menu.pop(1)
+			context['menu']=user_menu
+			context['cats']=cats
+			if 'cat_selected' not in context:
+				context['cat_selected'] = 0
+			return context
+	$ vim women/templates/women/base.html
+	$ cat women/templates/women/base.html
+	...
+	{% if cat_selected == 0 %}
+				<li class="selected">Все категории</li>
+	{% else %}
+				<li><a href="{% url 'home' %}">Все категории</a></li>
+	{% endif %}
+	{% for c in cats %}
+	{% if c.women__count > 0 %}
+		{% if c.pk == cat_selected %}
+				<li class="selected">{{c.name}}</li>
+		{% else %}
+				<li class=""><a href="{{ c.get_absolute_url }}">{{c.name}}</a></li>
+		{% endif %}
+	{% endif %}
+	{% endfor %}
+				<li class="share"><p>Наш канал</p><a class="share-yt" href="https://www.youtube.com/channel/UClJzWfGWuGJL2t-3dYKcHTA/playlists" target="_blank" rel="nofollow"></a></li>
+	...
+	$ python manage.py runserver
+	Decision:
+	$ python manage.py shell
+	>>> from django.core.paginator import Paginator
+	>>> women=['Nicol Kidman', 'Марго Робби', '']
+	>>> women=['Nicol Kidman', 'Марго Робби', 'Анжелика Джоли']
+	>>> p= Paginator(women, 3)
+	>>> p.count
+	3
+	>>> p.num.pages
+	>>> p.num_pages
+	1
+	>>> p.page_range
+	range(1, 2)
+	>>> p1=p.page(1)
+	>>> p1.object_list
+	['Nicol Kidman', 'Марго Робби', 'Анжелика Джоли']
+	>>> p1.has_next()
+	>>> p1.has_previous()
+	>>> p1.has_other_pages()
+	>>> p1.next_page_number()
+	>>> p1.previous_page_number()
+	>>> quit()
+	$ vim women/views.py
+	$ cat women/views.py
+	from django.http import HttpResponse, HttpResponseNotFound, Http404
+	from django.shortcuts import render, redirect, get_object_or_404
+	from django.urls import reverse_lazy
+	from django.views.generic import ListView, DetailView, CreateView
+	from django.contrib.auth.mixins import LoginRequiredMixin
+	#from django.contrib.auth.decorators import login_required
+	from django.core.paginator import Paginator
+	from .forms import *
+	from .models import *
+	from .utils import *
+	...
+	class WomenHome(DataMixin, ListView):
+		#paginate_by = 2
+		model=Women
+		template_name='women/index.html'
+		context_object_name='posts'
+		#extra_context={'title':'Главная страница'}
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			#context['menu']=menu
+			#context['title']='Главная страница'
+			#context['cat_selected']=0
+			c_def = self.get_user_context(title="Главная страница")
+			return dict(list(context.items())+list(c_def.items()))
+		def get_queryset(self):
+			return Women.objects.filter(is_published=True)
+	#@login_required
+	def about(request):
+		#return render(request, 'women/about.html', {'menu':menu, 'title':'О сайте'})
+		contact_list=Women.objects.all()
+		paginator=Paginator(contact_list,2)
+		page_number=request.GET.get('page')
+		page_obj=paginator.get_page(page_number)
+		return render(request, 'women/about.html', {'page_obj':page_obj, 'menu':menu, 'title':'О сайте'})
+	...
+	class WomenCategory(DataMixin, ListView):
+		#paginate_by=2
+		model=Women
+	...
+	$ vim women/templates/women/about.html
+	$ cat women/templates/women/about.html
+	{% extends 'women/base.html' %}
+	{% block content %}
+	<h1>{{title}}</h1>
+	{% endblock %}
+	$ vim women/static/women/css/style.css
+	$ cat women/static/women/css/style.css
+	...
+	.form-button {
+		min-width: 200px;
+		font-size: 16px;
+	}
+	.list-pages {
+		text-align: center;
+		margin: 0 0 20px 0;
+	}
+	.list-pages ul {
+		margin: 20px 0 0 0;
+		padding: 0;
+		list-style: none;
+	}
+	.list-pages ul li {
+		display: inline-block;
+		margin: 0 20px 0 0;
+	}
+	.list-pages a {
+		color: #000;
+		font-size: 24px;
+		text-decoration: none;
+	}
+	.list-pages .page-num, .page-num-selected {
+		display: inline-block;
+		width: 60px;
+		height: 44px;
+		padding: 16px 0 0 0;
+		border: 1px solid #d0d0d0;
+		border-radius: 30px;
+	}
+	.list-pages .page-num:hover {
+		box-shadow: 3px 3px 1px #d0d0d0; 
+	}
+	.list-pages .page-num-selected {
+		border: none;
+		color: #000;
+		font-size: 20px;
+	}
+	.list-pages .page-num-selected:hover {
+		box-shadow: none; 
+	}
+	$ vim women/templates/women/base.html
+	$ cat women/templates/women/base.html
+	...
+	{% endblock %}
+			{% if page_obj.has_other_pages %}
+			<nav class="list-pages">
+				<ul>
+					{% if page_obj.has_previous %}
+					<li class="page-num"><a href="?page={{ page_obj.previous_page_number }}">&lt;</a></li>
+					{% endif %}
+					{% for p in paginator.page_range %}
+					{% if page_obj.number == p %}
+					<li class="page-num page-num-selected">{{ p }}</li>
+					{% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+					<li class="page-num"><a href="?page={{ p }}">{{ p }}</a></li>
+					{% endif %}
+					{% endfor %}
+					{% if page_obj.has_next %}
+					<li class="page-num"><a href="?page={{ page_obj.next_page_number }}">&gt;</a></li>
+					{% endif %}
+				</ul>
+			</nav>
+			{% endif %}
+		</div>
+	...
+	$ vim women/utils.py
+	$ cat women/utils.py
+	...
+	class DataMixin:
+		#paginate_by=30
+		paginate_by=2
+		def get_user_context(self, **kwargs):
+	...
+	$ vim women/models.py
+	$ cat women/models.py
+	...
+		class Meta:
+			verbose_name='Известные женщины'
+			verbose_name_plural='Известные женщины'
+			#ordering=['time_create','title']
+			#ordering=['-time_create','title']
+			ordering=['id']
+	class Category(models.Model):
+	...
+	$ python manage.py runserver
+	Decision:
+	$ vim women/templates/women/base.html
+	$ cat women/templates/women/base.html
+	...
+	{% block mainmenu %}
+			<div class="header">
+				<ul id="mainmenu" class="mainmenu">
+					<li class="logo"><a href="{% url 'home' %}"><div class="logo"></div></a></li>
+					{% for m in menu %}
+					<li><a href="{% url m.url_name %}">{{m.title}}</a></li>
+					{% endfor %}
+					<li class="last"><a href="{% url 'register' %}">Регистрация</a>|<a href="{% url 'login' %}">Войти</a></li>
+				</ul>
+				<div class="clear"></div>
+			</div>
+	{% endblock mainmenu %}
+	...
+	$ vim women/utils.py
+	$ cat women/utils.py
+	...
+	menu=[{'title':"О сайте", 'url_name':'about'}, 
+		{'title':"Добавить статью", 'url_name':'add_page'},
+		{'title':"Обратная связь", 'url_name':'contact'}
+		#{'title':"Войти", 'url_name':'login'}
+		]
+	...
+	$ vim women/urls.py
+	$ cat women/urls.py
+	...
+	[
+		path('category/<slug:cat_slug>/', WomenCategory.as_view(), name='category'),
+		#path('register/', login, name='register'),
+		path('register/', RegisterUser.as_view(), name='register'),
+	]
+	$ vim women/views.py
+	$ cat women/views.py
+	...
+	class RegisterUser(DataMixin, CreateView):
+		form_class=UserCreationForm
+		template_name='women/register.html'
+		success_url=reverse_lazy('login')
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			c_def=self.get_user_context(title="Регистрация")
+			return dict(list(context.items())+list(c_def.items()))
+	$ touch women/templates/women/register.html
+	$ vim women/templates/women/register.html
+	$ cat women/templates/women/register.html
+	{% extends 'women/base.html' %}
+	{% block content %}
+	<h1>{{title}}</h1>
+	<form method="post">
+		{% csrf_token %}
+		{% for f in form %}
+		<p><label class="form-label" for="{{ f.id_for_label }}">{{f.label}}:</label>{{ f }}</p>
+		<div class="form-error">{{ f.errors }}</div>
+		{% endfor %}
+		<button type="submit">Регистрация</button>
+	</form>
+	{% endblock %}
+	$ vim women/forms.py
+	$ cat women/forms.py
+	from django import forms
+	from django.core.exceptions import ValidationError
+	from django.contrib.auth.forms import UserCreationForm
+	from django.contrib.auth.models import User
+	from .models import *
+	...
+	class RegisterUserForm(UserCreationForm):
+		username=forms.CharField(label='Логин', widget=forms.TextInput(attrs={'class':'form-input'}))
+		email=forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class':'form-input'}))
+		password1=forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class':'form-input'}))
+		password2=forms.CharField(label='Повтор пароля', widget=forms.PasswordInput(attrs={'class':'form-input'}))
+		class Meta:
+			model=User
+			fields=('username','email','password1','password2')
+			#widgets={
+			#    'username':forms.TextInput(attrs={'class':'form-input'}),
+			#    'password1':forms.PasswordInput(attrs={'class':'form-input'}),
+			#    'password2':forms.PasswordInput(attrs={'class':'form-input'}),
+			#}
+	$ python manage.py runserver
+	Decision:
+	$ vim women/views.py
+	$ cat women/views.py
+	from typing import Any
+	from django.forms.models import BaseModelForm
+	from django.http import HttpResponse, HttpResponseNotFound, Http404
+	from django.shortcuts import render, redirect, get_object_or_404
+	from django.urls import reverse_lazy
+	from django.views.generic import ListView, DetailView, CreateView
+	from django.contrib.auth.mixins import LoginRequiredMixin
+	#from django.contrib.auth.decorators import login_required
+	from django.core.paginator import Paginator
+	#from django.contrib.auth.forms import UserCreationForm
+	from django.contrib.auth.views import LoginView
+	#from django.contrib.auth.forms import AuthenticationForm
+	from django.contrib.auth import logout, login
+	...
+	#def login(request):
+	#	return HttpResponse("Авторизация")
+	...
+			return dict(list(context.items())+list(c_def.items()))
+		def form_valid(self, form):
+			user=form.save()
+			login(self.request, user)
+			return redirect('home')
+	class LoginUser(DataMixin, LoginView):
+		form_class=AuthenticationForm
+		template_name='women/login.html'
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			c_def=self.get_user_context(title="Авторизация")
+			return dict(list(context.items())+list(c_def.items()))
+		def get_success_url(self):
+			return reverse_lazy('home')	
+	def logout_user(request):
+		logout(request)
+		return redirect('login')
+	$ vim women/forms.py
+	$ cat women/forms.py
+	from django import forms
+	from django.core.exceptions import ValidationError
+	from django.contrib.auth.forms import UserCreationForm
+	from django.contrib.auth.models import User
+	from django.contrib.auth.forms import AuthenticationForm
+	...
+	class LoginUserForm(AuthenticationForm):
+		username=forms.CharField(label='Логин', widget=forms.TextInput(attrs={'class':'form-input'}))
+		password=forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class':'form-input'}))
+	$ touch women/templates/women/login.html
+	$ vim women/templates/women/login.html
+	$ cat women/templates/women/login.html
+	{% extends 'women/base.html' %}
+	{% block content %}
+	<h1>{{title}}</h1>
+	<form method="post">
+		{% csrf_token %}
+		<div class="form-error">{{ form.non_field_errors }}</div>
+		{% for f in form %}
+		<p><label class="form-label" for="{{ f.id_for_label }}">{{f.label}}:</label>{{ f }}</p>
+		<div class="form-error">{{ f.errors }}</div>
+		{% endfor %}
+		<button type="submit">Войти</button>
+	</form>
+	{% endblock %}
+	$ vim women/urls.py
+	$ cat women/urls.py
+	...
+	urlpatterns = [
+		#path('', index), #http://127.0.0.1:8000/women/
+		#path('home/', index, name='home'), #http://127.0.0.1:8000/
+		#path('', index, name='home'), #http://127.0.0.1:8000/
+		path('', WomenHome.as_view(), name='home'), #http://127.0.0.1:8000/
+		#path('cats/', categories), #http://127.0.0.1:8000/women/cats/
+		#path('cats/', categories), #http://127.0.0.1:8000/cats/
+		#path('cats/<int:catid>/', categories), #http://127.0.0.1:8000/cats/1/
+		#re_path(r'^archive/(?P<year>[0-9]{4})/', archive), #http://127.0.0.1:8000/archive/2020/
+		path('about/', about, name='about'), #http://127.0.0.1:8000/
+		#path('addpage/', addpage, name='add_page'),
+		path('addpage/', AddPage.as_view(), name='add_page'),
+		path('contact/', contact, name='contact'),
+		#path('login/', login, name='login'),
+		#path('post/<int:post_id>/', show_post, name='post'),
+		#path('post/<slug:post_slug>/', show_post, name='post'),
+		path('post/<slug:post_slug>/', ShowPost.as_view(), name='post'),
+		#path('category/<int:cat_id>/', show_category, name='category'),
+		path('category/<slug:cat_slug>/', WomenCategory.as_view(), name='category'),
+		#path('register/', login, name='register'),
+		path('register/', RegisterUser.as_view(), name='register'),
+		path('login/', LoginUser.as_view(), name='login'),
+		path('logout/', logout_user, name='logout'),
+	]
+	$ vim coolsite/settings.py
+	$ cat coolsite/settings.py
+	...
+	MEDIA_URL = '/media/'
+	#LOGIN_REDIRECT_URL = '/'
+	$ vim women/templates/women/base.html
+	$ cat women/templates/women/base.html
+	...
+				<ul id="mainmenu" class="mainmenu">
+					<li class="logo"><a href="{% url 'home' %}"><div class="logo"></div></a></li>
+					{% for m in menu %}
+					<li><a href="{% url m.url_name %}">{{m.title}}</a></li>
+					{% endfor %}
+					{% if request.user.is_authenticated %}
+					<li class="last">{{user.username}} | <a href="{% url 'logout' %}">Выйти</a></li>
+					{% else %}
+					<li class="last"><a href="{% url 'register' %}">Регистрация</a>|<a href="{% url 'login' %}">Войти</a></li>
+					{% endif %}
+				</ul>
+	...
+	$ python manage.py runserver
+	Decision:
+	$ pip install django-debug-toolbar
+	$ vim coolsite/settings.py
+	$ cat coolsite/settings.py
+	...
+	INSTALLED_APPS = [
+		'django.contrib.admin',
+		'django.contrib.auth',
+		'django.contrib.contenttypes',
+		'django.contrib.sessions',
+		'django.contrib.messages',
+		'django.contrib.staticfiles',
+		'debug_toolbar',
+		'women.apps.WomenConfig'
+	]
+	MIDDLEWARE = [
+		'django.middleware.security.SecurityMiddleware',
+		'django.contrib.sessions.middleware.SessionMiddleware',
+		'django.middleware.common.CommonMiddleware',
+		'django.middleware.csrf.CsrfViewMiddleware',
+		'django.contrib.auth.middleware.AuthenticationMiddleware',
+		'django.contrib.messages.middleware.MessageMiddleware',
+		'django.middleware.clickjacking.XFrameOptionsMiddleware',
+		'debug_toolbar.middleware.DebugToolbarMiddleware',
+	]
+	...
+	INTERNAL_IPS=[
+		'127.0.0.1',
+	]
+	$ vim coolsite/urls.py
+	$ cat coolsite/urls.py
+	...
+	if settings.DEBUG:
+		import debug_toolbar
+		urlpatterns = [
+			path('__debug__/', include(debug_toolbar.urls)),
+		] + urlpatterns
+		urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+	handler404 = pageNotFound
+	$ vim women/views.py
+	$ cat women/views.py
+	...
+		def get_queryset(self):
+			return Women.objects.filter(is_published=True).select_related('cat')
+	#@login_required
+	...
+	class WomenCategory(DataMixin, ListView):
+		#paginate_by=2
+		model=Women
+		template_name='women/index.html'
+		context_object_name='posts'
+		allow_empty=False
+		def get_queryset(self):
+			return Women.objects.filter(cat__slug=self.kwargs['cat_slug'], is_published=True).select_related('cat')
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context=super().get_context_data(**kwargs)
+			c = Category.objects.get(slug=self.kwargs['cat_slug'])
+			#c_def = self.get_user_context(title='Категория - ' + str(context['posts'][0].cat), cat_selected=context['posts'][0].cat_id)
+			c_def = self.get_user_context(title='Категория - ' + str(c.name), cat_selected=c.pk)
+			return dict(list(context.items())+list(c_def.items()))
+	...
+	$ python manage.py runserver
+	Decision:
+	$ mkdir coolsite_cache
+	$ vim coolsite/settings.py
+	$ cat coolsite/settings.py
+	...
+	CACHES = {
+		'default':{
+			'BACKEND':'django.core.cache.backends.filebased.FileBasedCache',
+			'LOCATION':os.path.join(BASE_DIR, 'coolsite_cache'),
+		}
+	}
+	$ vim women/urls.py
+	$ cat women/urls.py
+	from django.urls import path, re_path
+	from .views import *
+	from django.views.decorators.cache import cache_page
+	...
+		path('', WomenHome.as_view(), name='home'), #http://127.0.0.1:8000/
+		#path('', cache_page(60)(WomenHome.as_view()), name='home'),
+	...
+	$ vim women/utils.py
+	$ cat women/utils.py
+	from .models import *
+	from django.db.models import Count
+	from django.core.cache import cache
+	...
+			context = kwargs
+			#cats = Category.objects.all()
+			#cats = Category.objects.annotate(Count('women'))
+			#context['menu']=menu
+			cats = cache.get('cats')
+			if not cats:
+				cats = Category.objects.annotate(Count('women'))
+				cache.set('cats', cats, 60)
+			user_menu = menu.copy()
+	...
+	$ python manage.py runserver
+	Decision:
+	$ pip install django-simple-captcha
+	$ vim women/views.py
+	$ cat women/views.py
+	...
+	from django.views.generic import ListView, DetailView, CreateView, FormView
+	...
+	class ContactFormView(DataMixin, FormView):
+		form_class = ContactForm
+		template_name = 'women/contact.html'
+		success_url = reverse_lazy('home')
+		def get_context_data(self, *, object_list=None, **kwargs):
+			context = super().get_context_data(**kwargs)
+			c_def = self.get_user_context(title="Обратная связь")
+			return dict(list(context.items()) + list(c_def.items()))
+		def form_valid(self, form):
+			print(form.cleaned_data)
+			return redirect('home')
+	$ vim women/forms.py
+	$ cat women/forms.py
+	...
+	from django.contrib.auth.forms import AuthenticationForm
+	from captcha.fields import CaptchaField
+	...
+	class ContactForm(forms.Form):
+		name = forms.CharField(label='Имя', max_length=255)
+		email = forms.EmailField(label='Email')
+		content = forms.CharField(widget=forms.Textarea(attrs={'cols': 60, 'rows': 10}))
+		capatcha = CaptchaField()
+	$ vim women/urls.py
+	$ cat women/urls.py
+	from django.urls import path, re_path
+	from .views import *
+	from django.views.decorators.cache import cache_page
+	...
+		#path('contact/', contact, name='contact'),
+		path('contact/', ContactFormView.as_view(), name='contact'),
+	...
+	$ touch women/templates/women/contact.html
+	$ vim women/templates/women/contact.html
+	$ cat women/templates/women/contact.html
+	{% extends 'women/base.html' %}
+	{% block content %}
+	<h1>{{title}}</h1>
+	<form method="post">
+		{% csrf_token %}
+		<div class="form-error">{{ form.non_field_errors }}</div>
+		{% for f in form %}
+		<p><label class="form-label" for="{{ f.id_for_label }}">{{f.label}}:</label>{{ f }}</p>
+		<div class="form-error">{{ f.errors }}</div>
+		{% endfor %}
+		<button type="submit">Отправить</button>
+	</form>
+	{% endblock %}
+	$ vim coolsite/settings.py
+	$ cat coolsite/settings.py
+	...
+	INSTALLED_APPS = [
+		'django.contrib.admin',
+		'django.contrib.auth',
+		'django.contrib.contenttypes',
+		'django.contrib.sessions',
+		'django.contrib.messages',
+		'django.contrib.staticfiles',
+		'debug_toolbar',
+		'captcha',
+		'women.apps.WomenConfig'
+	]
+	...
+	$ vim coolsite/urls.py
+	$ cat coolsite/urls.py
+	...
+		path('captcha/', include('captcha.urls')),
+	]
+	...
+	$ python manage.py migrate
+	$ python manage.py runserver
+	Decision:
+	$ mkdir templates
+	$ mkdir templates/admin
+	$ touch templates/admin/base_site.html
+	$ vim templates/admin/base_site.html
+	$ cat templates/admin/base_site.html
+	{% extends "admin/base.html" %}
+	{% load static %}
+	{% block extrastyle %}
+	<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+	{% endblock %}
+	{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+	{% block branding %}
+	<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+	{% if user.is_anonymous %}
+		{% include "admin/color_theme_toggle.html" %}
+	{% endif %}
+	{% endblock %}
+	{% block nav-global %}{% endblock %}
+	$ mkdir women/static/css
+	$ touch women/static/css/admin.css
+	$ vim women/static/css/admin.css
+	$ cat women/static/css/admin.css
+	#header, .module caption  {
+		background: #5e3a00;
+	}
+	$ vim women/admin.py
+	$ cat women/admin.py
+	from django.contrib import admin
+	from .models import *
+	from django.utils.safestring import mark_safe
+	...
+	class WomenAdmin(admin.ModelAdmin):
+		#list_display = ('id', 'title', 'time_create', 'photo', 'is_published')
+		list_display = ('id', 'title', 'time_create', 'get_html_photo', 'is_published')
+		list_display_links = ('id', 'title')
+		search_fields = ('title', 'content')
+		list_editable = ('is_published',)
+		list_filter = ('is_published', 'time_create')
+		prepopulated_fields = {"slug": ("title",)}
+		fields = ('title', 'slug', 'cat', 'content', 'photo', 'get_html_photo', 'is_published', 'time_create', 'time_update')
+		readonly_fields = ('time_create', 'time_update', 'get_html_photo')
+		save_on_top = True
+		def get_html_photo(self, object):
+			if object.photo:
+				return mark_safe(f"<img src='{object.photo.url}' width=50>")
+		get_html_photo.short_description="Миниатюра"
+	...
+	admin.site.site_title='Админ-панель сайта о женщинах'
+	admin.site.site_header='Админ-панель сайта о женщинах 2'
+	$ vim coolsite/settings.py
+	$ cat coolsite/settings.py
+	...
+	TEMPLATES = [
+		{
+			'BACKEND': 'django.template.backends.django.DjangoTemplates',
+			'DIRS': [os.path.join(BASE_DIR, 'templates')],
+			'APP_DIRS': True,
+			'OPTIONS': {
+				'context_processors': [
+					'django.template.context_processors.debug',
+					'django.template.context_processors.request',
+					'django.contrib.auth.context_processors.auth',
+					'django.contrib.messages.context_processors.messages',
+				],
+			},
+		},
+	]
+	...
+	$ python manage.py runserver
+	Decision:
+	$ deactivate
+	Source:
+	1. https://docs.python.org/3/tutorial/venv.html
+	2. https://translated.turbopages.org/proxy_u/en-ru.ru.6b298518-64cb356b-c3e4f7d2-74722d776562/https/stackoverflow.com/questions/5334882/how-to-get-list-of-all-the-tables-in-sqlite-programmatically
+	3. https://django-debug-toolbar.readthedocs.io/en/latest/
+	4. https://pypi.org/project/django-recaptcha/#installation
+
+Task:
+Необходимо собрать с помощью bootstrap 5 и запустить новую страницу по макету 
+https://www.figma.com/file/csU67B0SQVZO1AkwvMZa3D/Тестовое-задание-N2?type=design&node-id=1-1012&mode=design&t=wz2qpqpXo6RochwT-0
+- сборку проекта осуществить с помощью python 3.9, Django 4.1 и MySQL
+- проект разместить в git репозитории
+- для сборки клиентской части страницы необходимо использовать bootstrap 5
+- для запуска слайдера необходимо использовать slick slider http://kenwheeler.github.io/slick/ (см. Slider Syncing)
+- по клику на большую фотографию на слайдере фотки должны открываться на весь экран и листаться галереей
+- необходимо чтобы slider заполнялся через админку django. Необходимо настроить визуально понятный admin.py, чтобы выводилась картинка и название в списке записей элементов слайдера.
+- для картинок модели слайдера необходимо использовать пакет django-filer и через него грузить картинки в слайдер
+- записи слайдера в админке должны сортироваться при помощи drag&drop, для этого необходимо использовать пакет django-admin-sortable2
+- все зависимости для запуска проекта расположить в файле req.pip в корне проекта.
+Тестовое задание проверяет поверхностно основные навыки кандидата необходимые для текущей вакансии:
+- умение работать с bootstrap 5;
+- базовые знания HTML, CSS, JavaScript;
+- умение запустить и собрать новый проект на Django, с подключением дополнительных пакетов;
+- базовые навыки работы с GIT;
+- базовые навыки работы с Figma.
+Decision:
+tuser@kvm-ubuntu:~$ mkdir Python-SpaceAgency
+tuser@kvm-ubuntu:~$ cd Python-SpaceAgency/
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt update
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt upgrade -y
+E: dpkg was interrupted, you must manually run 'sudo dpkg --configure -a' to correct the problem. 
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo dpkg --configure -a
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt upgrade -y
+Task:
+Check Mysql
+Decision:
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ systemctl status mysql
+● mysql.service - MySQL Community Server
+     Loaded: loaded (/lib/systemd/system/mysql.service; enabled; vendor preset: enabled)
+     Active: active (running) since Thu 2023-11-16 20:58:56 CST; 29min ago
+    Process: 622 ExecStartPre=/usr/share/mysql/mysql-systemd-start pre (code=exited, status=0/SUCCESS)
+   Main PID: 814 (mysqld)
+     Status: "Server is operational"
+      Tasks: 37 (limit: 2261)
+     Memory: 382.8M
+        CPU: 21.760s
+     CGroup: /system.slice/mysql.service
+             └─814 /usr/sbin/mysqld
+Nov 16 20:57:38 kvm-ubuntu systemd[1]: Starting MySQL Community Server...
+Nov 16 20:58:56 kvm-ubuntu systemd[1]: Started MySQL Community Server.
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ mysql -u tuser -p
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| performance_schema |
+| tbase              |
++--------------------+
+3 rows in set (0.00 sec)
+Task:
+Install Figma
+Decision:
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ wget https://github.com/Figma-Linux/figma-linux/releases/download/v0.11.0/figma-linux_0.11.0_linux_amd64.deb
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo dpkg -i figma-linux_0.11.0_linux_amd64.deb
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ figma-linux &
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ google-chrome https://www.figma.com/file/csU67B0SQVZO1AkwvMZa3D/%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D0%BE%D0%B5-%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-N2?type=design&node-id=1-1012&mode=design &
+Task:
+Figma to Bootstrap 5
+Decision:
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ mkdir bootstrap
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ cd bootstrap/
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ wget https://github.com/twbs/bootstrap/releases/download/v5.3.2/bootstrap-5.3.2-dist.zip
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ unzip bootstrap-5.3.2-dist.zip
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ mkdir space/static/space/css
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ mkdir js
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ mkdir space/static/space/image
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ cp bootstrap-5.3.2-dist/css/bootstrap.min.css space/static/space/css/
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ cp bootstrap-5.3.2-dist/js/bootstrap.min.js js/
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ touch index.html
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ touch space/static/space/css/style.css
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ wget https://github.com/kenwheeler/slick/archive/v1.8.1.zip
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ unzip v1.8.1.zip 
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ ls slick-1.8.1/slick
+ajax-loader.gif  config.rb  fonts  slick.css  slick.js  slick.less  slick.min.js  slick.scss  slick-theme.css  slick-theme.less  slick-theme.scss
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ cp slick-1.8.1/slick/slick.min.js js/
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ cp slick-1.8.1/slick/slick.css space/static/space/css/
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ cp slick-1.8.1/slick/slick-theme.css space/static/space/css/
+
+Task:
+Install python 3.9
+Decision:
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ cd ..
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ python3 -V
+Python 3.10.12
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt install software-properties-common
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo add-apt-repository ppa:deadsnakes/ppa
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt install python3.9
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ python3.9 -m venv venv
+Error: Command '['/home/tuser/Projects/Python-SpaceAgency/venv/bin/python3.9', '-Im', 'ensurepip', '--upgrade', '--default-pip']' returned non-zero exit status 1.
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt install python3.9-venv
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ python3.9 -m venv venv
+tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ source venv/bin/activate
+(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ python3 -V
+Python 3.9.18
+Task:
+requirements.txt — это список внешних зависимостей
+Decision:
+(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ vim req.pip
+(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ cat req.pip
+Django==4.1.13
+django-filter
+django-admin-sortable2
+django-debug-toolbar
+django-simple-captcha
+mysqlclient
+(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ pip install -r req.pip
+...
+  Getting requirements to build wheel ... error
+  error: subprocess-exited-with-error
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [24 lines of output]
+      /bin/sh: 1: pkg-config: not found
+      /bin/sh: 1: pkg-config: not found
+      Trying pkg-config --exists mysqlclient
+      Command 'pkg-config --exists mysqlclient' returned non-zero exit status 127.
+      Trying pkg-config --exists mariadb
+      Command 'pkg-config --exists mariadb' returned non-zero exit status 127.
+      Traceback (most recent call last):
+        File "/home/tuser/Projects/Python-SpaceAgency/venv/lib/python3.9/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 353, in <module>
+          main()
+        File "/home/tuser/Projects/Python-SpaceAgency/venv/lib/python3.9/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 335, in main
+          json_out['return_val'] = hook(**hook_input['kwargs'])
+        File "/home/tuser/Projects/Python-SpaceAgency/venv/lib/python3.9/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 118, in get_requires_for_build_wheel
+          return hook(config_settings)
+        File "/tmp/pip-build-env-7j30p2fh/overlay/lib/python3.9/site-packages/setuptools/build_meta.py", line 355, in get_requires_for_build_wheel
+          return self._get_build_requires(config_settings, requirements=['wheel'])
+        File "/tmp/pip-build-env-7j30p2fh/overlay/lib/python3.9/site-packages/setuptools/build_meta.py", line 325, in _get_build_requires
+          self.run_setup()
+        File "/tmp/pip-build-env-7j30p2fh/overlay/lib/python3.9/site-packages/setuptools/build_meta.py", line 341, in run_setup
+          exec(code, locals())
+        File "<string>", line 154, in <module>
+        File "<string>", line 48, in get_config_posix
+        File "<string>", line 27, in find_package_name
+      Exception: Can not find valid pkg-config name.
+      Specify MYSQLCLIENT_CFLAGS and MYSQLCLIENT_LDFLAGS env vars manually
+      [end of output]
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+error: subprocess-exited-with-error
+× Getting requirements to build wheel did not run successfully.
+│ exit code: 1
+╰─> See above for output.
+note: This error originates from a subprocess, and is likely not a problem with pip.
+(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt-get install pkg-config build-essential libmysqlclient-dev
+(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ pip install -r req.pip
+...
+Building wheels for collected packages: mysqlclient
+  Building wheel for mysqlclient (pyproject.toml) ... error
+  error: subprocess-exited-with-error
+  × Building wheel for mysqlclient (pyproject.toml) did not run successfully.
+  │ exit code: 1
+  ╰─> [45 lines of output]
+      Trying pkg-config --exists mysqlclient
+      # Options for building extention module:
+        extra_compile_args: ['-I/usr/include/mysql', '-std=c99']
+        extra_link_args: ['-lmysqlclient']
+        define_macros: [('version_info', (2, 2, 0, 'final', 0)), ('__version__', '2.2.0')]
+      running bdist_wheel
+      running build
+      running build_py
+      creating build
+      creating build/lib.linux-x86_64-cpython-39
+      creating build/lib.linux-x86_64-cpython-39/MySQLdb
+      copying src/MySQLdb/_exceptions.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
+      copying src/MySQLdb/__init__.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
+      copying src/MySQLdb/connections.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
+      copying src/MySQLdb/cursors.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
+      copying src/MySQLdb/converters.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
+      copying src/MySQLdb/times.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
+      copying src/MySQLdb/release.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
+      creating build/lib.linux-x86_64-cpython-39/MySQLdb/constants
+      copying src/MySQLdb/constants/CLIENT.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
+      copying src/MySQLdb/constants/ER.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
+      copying src/MySQLdb/constants/FIELD_TYPE.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
+      copying src/MySQLdb/constants/__init__.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
+      copying src/MySQLdb/constants/FLAG.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
+      copying src/MySQLdb/constants/CR.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
+      running egg_info
+      writing src/mysqlclient.egg-info/PKG-INFO
+      writing dependency_links to src/mysqlclient.egg-info/dependency_links.txt
+      writing top-level names to src/mysqlclient.egg-info/top_level.txt
+      reading manifest file 'src/mysqlclient.egg-info/SOURCES.txt'
+      reading manifest template 'MANIFEST.in'
+      adding license file 'LICENSE'
+      writing manifest file 'src/mysqlclient.egg-info/SOURCES.txt'
+      copying src/MySQLdb/_mysql.c -> build/lib.linux-x86_64-cpython-39/MySQLdb
+      running build_ext
+      building 'MySQLdb._mysql' extension
+      creating build/temp.linux-x86_64-cpython-39
+      creating build/temp.linux-x86_64-cpython-39/src
+      creating build/temp.linux-x86_64-cpython-39/src/MySQLdb
+      x86_64-linux-gnu-gcc -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -fPIC "-Dversion_info=(2, 2, 0, 'final', 0)" -D__version__=2.2.0 -I/home/tuser/Projects/Python-SpaceAgency/venv/include -I/usr/include/python3.9 -c src/MySQLdb/_mysql.c -o build/temp.linux-x86_64-cpython-39/src/MySQLdb/_mysql.o -I/usr/include/mysql -std=c99
+      src/MySQLdb/_mysql.c:46:10: fatal error: Python.h: No such file or directory
+         46 | #include "Python.h"
+            |          ^~~~~~~~~~
+      compilation terminated.
+      error: command '/usr/bin/x86_64-linux-gnu-gcc' failed with exit code 1
+      [end of output]
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+  ERROR: Failed building wheel for mysqlclient
+Failed to build mysqlclient
+ERROR: Could not build wheels for mysqlclient, which is required to install pyproject.toml-based projects
+(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt-get install python3.9-dev
+(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ pip install -r req.pip
+
+Task:
+Развернуть django проект
+Decision:
+(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ django-admin startproject spaceagency
+(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ cd spaceagency/
+(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/spaceagency$ python manage.py startapp space
+(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/spaceagency$ python manage.py migrate
+(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/spaceagency$ mysql -u tuser -p
+mysql> use tbase;
+mysql> show tables;
++----------------------------+
+| Tables_in_tbase            |
++----------------------------+
+| auth_group                 |
+| auth_group_permissions     |
+| auth_permission            |
+| auth_user                  |
+| auth_user_groups           |
+| auth_user_user_permissions |
+| captcha_captchastore       |
+| django_admin_log           |
+| django_content_type        |
+| django_migrations          |
+| django_session             |
+| ttable1                    |
+| ttable2                    |
++----------------------------+
+13 rows in set (0.01 sec)
+(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/spaceagency$ python manage.py runserver
+(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/spaceagency$ google-chrome http://127.0.0.1:8000/ &
+
+
+
+Source:
+https://itslinuxfoss.com/install-python-3-9-ubuntu-22-04/
+https://pypi.org/project/Django/4.1.13/#history
+https://sky.pro/media/udalenie-vseh-paketov-ustanovlennyh-cherez-pip/
+https://semakin.dev/2020/04/requirements_txt/?ysclid=lp2q25vn81790283417
+https://unixcop.com/install-figma-ubuntu-different-methods/
+https://github.com/Figma-Linux/figma-linux/releases/tag/v0.11.0
+https://www.youtube.com/watch?v=7EKg_IgTztU&t=160s
+https://www.youtube.com/playlist?list=PLgT76xw3dCIWO5WnLzhbrmwO6t85G68_b
+https://getbootstrap.com/docs/5.3/getting-started/download/
+http://kenwheeler.github.io/slick/
+https://pythonpip.ru/django/kak-podklyuchit-mysql-k-django-za-5-shagov?ysclid=lp2re296g690922035
+https://www.8host.com/blog/kak-xranit-izobrazheniya-v-mysql-s-pomoshhyu-blob/?ysclid=lp4zs7pdrh496783742
+https://stackoverflow.com/questions/51117503/python-3-7-failed-building-wheel-for-mysql-python
+https://stackoverflow.com/questions/76875507/can-not-install-apache-airflow-providers-mysql-pkg-config-error
+https://www.youtube.com/playlist?list=PLxjLT04EBKpN_8aiP0PzKUZYnNYANUekx
+https://github.com/luketamang/Dynamic-image-slider-in-django/blob/master/core/models.py
+
 
 Добавил виртуальные машины, настроил виртуальные сети, распределил нагрузку между компонентами своей облачной системы и настроил автоматическое масштабирование веб-сервиса при неравномерной нагрузке
   Task:

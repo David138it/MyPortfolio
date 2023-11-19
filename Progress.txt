@@ -4,6 +4,23 @@ Feedback: david138it@gmail.com; telegram - @david138it; http://www.linkedin.com/
 	Task:
 	Для защиты дипломного проекта по теме "Банковское хранилище данных с функцией обнаружения мошенничества" при работе с транзакционными банковскими данными с помощью Python и SQL реализовал собственное хранилище данных - DWH, процесс сбора, очистки, трансформации и хранения данных, систему автоматического поиска мошеннических операций (AntiFraud-система)
 	Task:
+	Docker установка
+	Decision:
+sudo apt update
+sudo apt install apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"| sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+apt-cache policy docker-ce
+sudo apt install docker-ce
+systemctl status docker
+sudo docker run hello-world
+sudo usermod -aG docker tuser
+docker run hello-world
+curl -SL https://github.com/docker/compose/releases/download/v2.6.0/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+chmod +x ~/.docker/cli-plugins/docker-compose
+docker compose version
+	Task:
 	Разработать ETL процесс, получающий ежедневную выгрузку данных (предоставляется за 3 дня), загружающий ее в хранилище данных и ежедневно строящий отчет.
 	Ежедневно некие информационные системы выгружают три следующих файла:
 	1. Список транзакций за текущий день. Формат – CSV.
@@ -54,7 +71,9 @@ Feedback: david138it@gmail.com; telegram - @david138it; http://www.linkedin.com/
 	7. py_scripts - Каталог, необязательный. Если вы включаете в main.py какие-то python скрипты, вынесенные в отдельные файлы – помещайте их сюда.
 	Decision:
 	По следующим признакам получилось выявить мошеннические транзакции: выполнение операции с просроченным или заблокированным паспортом, выполнение операции с недействительным контрактом, выполнение операций в разных городах в течение одного часа
-	
+	Source:
+	https://dzen.ru/a/Ypr65Wh4jmLimA3o
+
 Разработка скриптов на Bash и Python для автоматизации работы
 	Task:
 	Разработал скрипты на языках Bash и Python для автоматизации работы в компьютерных классах и аудиториях
@@ -1949,6 +1968,89 @@ Feedback: david138it@gmail.com; telegram - @david138it; http://www.linkedin.com/
 	linux images/REDOS/images/pxeboot/vmlinuz ip=dhcp kernel vmlinuz inst.repo=http://IpAddr1/images/REDOS/ inst.vnc inst.vncpassword=tpassword
 	initrd images/REDOS/images/pxeboot/initrd.img
 	}
+Task:
+После того как в виртуальной машине Centos настроил Docker контейнер и презагрузил сам физический сервер с Centos, произошла бесконечная загрузка и как когда стрелками нажимал, появилась следующая ошибка в момент загрузки сервера:
+Dependency failed for /var
+Dependency failed for D-Bus System Message Bus
+staring file system check on dev/disk/by-uuid/UUID1
+failed to start file system check on dev/disk/UUID1
+See 'systemctl status "systemd-fsck@dev-disk-by\\xzduuid-UUID1"'
+Decision:
+Для решения данной проблемы нужнозагрузиться с LiveCd (Ubuntu) и запустить Fsck для проверки и восстановления файловой системы
+$ ls /dev/disk/by-uuid/UUID1
+/dev/disk/by-uuid/UUID1
+$ systemctl status "systemd-fsck@dev-disk-by\\UUID1.service" > test.txt
+$ cat test.txt 
+○ systemd-fsck@dev-disk-by\xZduuid-8f07e18e\xZd9d1a\xZd4dab\xZd8904\xZda86e0c2058b4.service
+     Loaded: bad-setting (Reason: Unit systemd-fsck@dev-disk-by\xZduuid-8f07e18e\xZd9d1a\xZd4dab\xZd8904\xZda86e0c2058b4.service has a bad unit file setting.)
+     Active: inactive (dead)
+       Docs: man:systemd-fsck@.service(8)
+Nov 15 12:50:19 ubuntu systemd[1]: systemd-fsck@dev-disk-by\xZduuid-8f07e18e\xZd9d1a\xZd4dab\xZd8904\xZda86e0c2058b4.service: Unit configuration has fatal error, unit will not be started.
+Nov 15 12:52:01 ubuntu systemd[1]: /lib/systemd/system/systemd-fsck@.service:11: Failed to resolve unit specifiers in 'File System Check on %f', ignoring: Invalid argument
+Nov 15 12:52:01 ubuntu systemd[1]: /lib/systemd/system/systemd-fsck@.service:23: Failed to resolve unit specifiers in %f: Invalid argument
+Nov 15 12:52:01 ubuntu systemd[1]: systemd-fsck@dev-disk-by\xZduuid-8f07e18e\xZd9d1a\xZd4dab\xZd8904\xZda86e0c2058b4.service: Unit configuration has fatal error, unit will not be started.
+Nov 15 12:52:30 ubuntu systemd[1]: /lib/systemd/system/systemd-fsck@.service:11: Failed to resolve unit specifiers in 'File System Check on %f', ignoring: Invalid argument
+Nov 15 12:52:30 ubuntu systemd[1]: /lib/systemd/system/systemd-fsck@.service:23: Failed to resolve unit specifiers in %f: Invalid argument
+Nov 15 12:52:30 ubuntu systemd[1]: systemd-fsck@dev-disk-by\xZduuid-8f07e18e\xZd9d1a\xZd4dab\xZd8904\xZda86e0c2058b4.service: Unit configuration has fatal error, unit will not be started.
+Nov 15 12:53:50 ubuntu systemd[1]: /lib/systemd/system/systemd-fsck@.service:11: Failed to resolve unit specifiers in 'File System Check on %f', ignoring: Invalid argument
+Nov 15 12:53:50 ubuntu systemd[1]: /lib/systemd/system/systemd-fsck@.service:23: Failed to resolve unit specifiers in %f: Invalid argument
+Nov 15 12:53:50 ubuntu systemd[1]: systemd-fsck@dev-disk-by\xZduuid-8f07e18e\xZd9d1a\xZd4dab\xZd8904\xZda86e0c2058b4.service: Unit configuration has fatal error, unit will not be started.
+$ df -h
+...
+/dev/sdb1            916G  339G  531G  39% /media/ubuntu/UUID1
+...
+$ sudo parted /dev/sdb1 'print'
+Model: Unknown (unknown)
+Disk /dev/sdb1: 1000GB
+Sector size (logical/physical): 512B/4096B
+Partition Table: loop
+Disk Flags: 
+Number  Start  End     Size    File system  Flags
+ 1      0.00B  1000GB  1000GB  ext4
+$ sudo umount /dev/sdb1
+$ sudo fsck /dev/sdb1
+fsck from util-linux 2.37.2
+e2fsck 1.46.5 (30-Dec-2021)
+/dev/sdb1 contains a file system with errors, check forced.
+Pass 1: Checking inodes, blocks, and sizes
+Inode 40895771 extent tree (at level 2) could be narrower.  Optimize<y>? yes
+...
+Inode 41156677 extent tree (at level 2) could be narrower.  Optimize<y>? yes
+Inodes that were part of a corrupted orphan linked list found.  Fix<y>? yes
+Inode 56623165 was part of the orphaned inode list.  FIXED.
+...
+Inode 56623196 was part of the orphaned inode list.  FIXED.
+Pass 1E: Optimizing extent trees
+Pass 2: Checking directory structure
+Pass 3: Checking directory connectivity
+Pass 4: Checking reference counts
+Pass 5: Checking group summary information
+Block bitmap differences:  -(4172736--4172783) -(7917568--7917588) -(22880252--22881251) -(22910443--22912073) -(164069760--164069882) -(164070454--164070541)
+Fix<y>? yes
+Free blocks count wrong for group #127 (2152, counted=2200).
+...
+Fix<y>? yes
+Free inodes count wrong (61050243, counted=61050252).
+Fix<y>? yes
+/dev/sdb1: ***** FILE SYSTEM WAS MODIFIED *****
+/dev/sdb1: 4724/61054976 files (4.8% non-contiguous), 92947008/244190390 blocks
+$ sudo fsck -N /dev/sdb1
+fsck from util-linux 2.37.2
+[/usr/sbin/fsck.ext4 (1) -- /dev/sdb1] fsck.ext4 /dev/sdb1 
+$ sudo fsck -y /dev/sdb1
+fsck from util-linux 2.37.2
+e2fsck 1.46.5 (30-Dec-2021)
+/dev/sdb1: clean, 4724/61054976 files, 92947008/244190390 blocks
+$ sudo fsck -f /dev/sdb1
+fsck from util-linux 2.37.2
+e2fsck 1.46.5 (30-Dec-2021)
+Pass 1: Checking inodes, blocks, and sizes
+Pass 2: Checking directory structure
+Pass 3: Checking directory connectivity
+Pass 4: Checking reference counts
+Pass 5: Checking group summary information
+/dev/sdb1: 4724/61054976 files (4.8% non-contiguous), 92947008/244190390 blocks
+$ sudo reboot
 	Source:
 	https://redos.red-soft.ru/base/other-soft/other-other/consultant/?sphrase_id=53349
 	https://wtuseri.astralinuthost.ru/pages/viewpage.action?pageId=61574227
@@ -1958,6 +2060,7 @@ Feedback: david138it@gmail.com; telegram - @david138it; http://www.linkedin.com/
 	https://losst.ru/zapis-diskov-v-ubuntu
 	https://losst.ru/luchshie-analogi-paint-dlya-linux
 	https://computingforgeeks.com/how-to-install-anydesk-on-centos-rhel-8/
+	https://wiki.merionet.ru/articles/rukovodstvo-po-komande-fsck-dlya-proverki-i-vosstanovleniya-fajlovoj-sistemy/
 
 Разработка программ, которые анализируют, обрабатывают и сортируют код на сайте организации
 	Task:
