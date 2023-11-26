@@ -9089,30 +9089,71 @@ Sql
   Do you want to continue? (y/n): n
 
 Windows vs Linux
-  Task:
-  Установить Centos рядом с Windows
-  Decision:
-  Скачиваем iso-файл с официального сайта Centos - Запускаем Rufus - Выбираем скаченный ISO файл дистрибутива и схему раздела (Если на старые компьютеры, то нужно выбрать MBR и целевую систему Bios, Файловую систему — Fat32, а размер кластера — 4068 байт, а если же компьютеры по новее и поддерживают Uefi, тогда выбираем в схеме раздела GPT и целевую систему Uefi)
-  2. После успешной установки, загрузимся с флешки - в биосе настроиваем приоритет загрузчика, чтоб первая запускалась загрузочная флешка 
-  3. Перейдём к установке операционной системы - выбираем Install - выбрать размер разделов - поменяем систему разметки LVM на Standart Portition - нажимаем на click here to create them autmaticaly - установщик автоматически разделит диск - уменьшить размер корневого раздела / и раздел /home - Меняю у них размеры - Done - интернет настроить в Network & Host Name - Ethernet переключаем тумблер - Done - software Slection - minmal install- Done - запуск
-  Task:
-  После установки Linux на Windows, Windows показывает неправильное время
-  Decision:
-  Win+R ->regedit -> HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\TimeZoneInfor-tation -> Щелкаем правой кнопкой мыши в правой части окна -> новый параметр DWORD(32) -> имя — RealTimeIsUniversal -> щелкаем по новому параметру два раза -> значение 1 -> Перезагружаемся
-  Task:
-  Для воспроизведения видео вам может потребоваться установить необходимые видеокодеки
-  Decision:
-  $ sudo dnf update -y
-  $ sudo dnf config-manager --set-enabled crb
-  $ sudo dnf install -y epel-release epel-next-release
-  $ dnf repolist
-  $ sudo dnf install -y https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-9.noarch.rpm
-  $ sudo dnf install -y https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-9.noarch.rpm
-  $ sudo dnf install -y ffmpeg ffmpeg-devel
-  $ ffmpeg -version
-  Source:
-  https://setiwik.ru/kak-vklyuchit-repozitoriy-epel-v-centos-9-stream/
-  https://setiwik.ru/kak-ustanovit-ffmpeg-na-centos-9-stream/?ysclid=lkordttfyw687770645
+	Task:
+	поставить вторую операционную систему Windows 7. Первая стояла Windows server 2003.
+	Decision:
+	делим диск через флешку - добавим 2 том - ставим туда 7ку Через флешку - Перезагружаемся
+	Task:
+	видим, что 7ка не поставилась, но в меню загрузчика есть
+	Decision:
+	нужно поменять режим в биос (sata) - Теперь запуск через режим asci или sata
+	Task:
+	устанавить винду 8 на жесткий диск через Acronis, Booti-ce Rus, WinNTSetup. После обновлю до винды 10
+	Decision:
+	У меня уже есть загрузочная флешка с нужными программами Acronis, Booti-ce Rus, WinNTSetup (ссылка на загрузочные образы — https://usbtor.ru/viewtopi-c.php?t=1728 ) и ISO образ с виндой 8.1.  - запуститься с загрузочной флешки в Boot Menu через bios. -  Откроем выбор дополнительных программ -Акронис в меню Hdd ++ - Acronis - Acronis Disk Director - Очистим диск - Инициализировать - Создать том - Выбираем размер создаваемого тома - Выбираем тип тома: Основной: активный - Если нужен второй том, тогда после создания основного тома создаем еще один том и выбираем логический тип тома. Но мне не нужен второй том, поэтому я пропускаю данную функцию - Завершить и применить ожидающие операции - Перезагрузимся - также с флешки и откроем 78setup -тут же нажмем Windows NT Setup - правильно выбрать диск, на который будет установлен загрузчик, в моем случае, это новый том Q - отформатируем его - Еще мы видим, что МБР горит желтым - 78setup - Booti-ce Rus - Physi-cal disk - правильный диск назначения (в моем случае это том Q) - в управлении MBR ставим галочку на Windows NT - Инсталяция/конфигурация - выбираем Windows NT 6.x MBR - 78setup - WIndows NT Setup -путь к установочным файлам Windows - прописываем тот путь где находится сам файл с Wim образом windows. - диск на который будет установлена ОС - выбираем нужный диск. В моем случае диск Q.- Установка. - перезапускаемся - установка винды 8.1 -Настраиваем часовой пояс - Придумываем имя компа - Имя пользователя, если нужно пароли - Ждем завершение настроек -
+	Task:
+	бесконечно долго проходил процесс завершения настроек. ( может даже два три дня процесс этот проходить)
+	Decision:
+	выключить и включить ПК главное сразу не включать Пускай хотя бы минут 10 прогрузится завершение настроек, а после уже можно выключить и включить самостоятельно. - После включения рекомендую установить дополнительные драйвера (не обязательно). 
+	Task:
+	Когда запускаем ubuntu в windows:
+	Installing, this may take a few minutes...
+	WslRegisterDistribution failed with error: 0x8007019e
+	The Windows Subsystem for Linux optional component is not enabled. Please enable it and try again.
+	See https://aka.ms/wslinstall for details.
+	Press any key to continue...
+	Decision:
+	Пуск-панель управления-программы и компоненты-включение и отключение компонентов- +подсистема windows для linux
+	Task:
+	Необходимо отключить автоматическое обновления ОС. Предложите на ваш взгляд способы решения задачи. Решение необходимо сделать с использованием cmd | powershell. 
+	Task:
+	В Windows 8.1 не найдено обновлений, хоть и последний раз обновлялся 2 года назад.
+	Decision:
+	гугл -> update puble windows 8.1 64 bit -> скачиваем winFuture8.1x64...exe -> обновляемся.
+    Task:
+    Установить Visualstudio в Linux
+    Decision:
+    $ sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+    $ sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
+    $ dnf check-update
+    $ sudo dnf install code -y
+    $ code
+    Source:
+    https://code.visualstudio.com/docs/setup/linux
+    Task:
+    Установить Centos рядом с Windows
+    Decision:
+    Скачиваем iso-файл с официального сайта Centos - Запускаем Rufus - Выбираем скаченный ISO файл дистрибутива и схему раздела (Если на старые компьютеры, то нужно выбрать MBR и целевую систему Bios, Файловую систему — Fat32, а размер кластера — 4068 байт, а если же компьютеры по новее и поддерживают Uefi, тогда выбираем в схеме раздела GPT и целевую систему Uefi)
+    2. После успешной установки, загрузимся с флешки - в биосе настроиваем приоритет загрузчика, чтоб первая запускалась загрузочная флешка 
+    3. Перейдём к установке операционной системы - выбираем Install - выбрать размер разделов - поменяем систему разметки LVM на Standart Portition - нажимаем на click here to create them autmaticaly - установщик автоматически разделит диск - уменьшить размер корневого раздела / и раздел /home - Меняю у них размеры - Done - интернет настроить в Network & Host Name - Ethernet переключаем тумблер - Done - software Slection - minmal install- Done - запуск
+    Task:
+    После установки Linux на Windows, Windows показывает неправильное время
+    Decision:
+    Win+R ->regedit -> HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\TimeZoneInfor-tation -> Щелкаем правой кнопкой мыши в правой части окна -> новый параметр DWORD(32) -> имя — RealTimeIsUniversal -> щелкаем по новому параметру два раза -> значение 1 -> Перезагружаемся
+    Task:
+    Для воспроизведения видео вам может потребоваться установить необходимые видеокодеки
+    Decision:
+    $ sudo dnf update -y
+    $ sudo dnf config-manager --set-enabled crb
+    $ sudo dnf install -y epel-release epel-next-release
+    $ dnf repolist
+    $ sudo dnf install -y https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-9.noarch.rpm
+    $ sudo dnf install -y https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-9.noarch.rpm
+    $ sudo dnf install -y ffmpeg ffmpeg-devel
+    $ ffmpeg -version
+    Source:
+    https://setiwik.ru/kak-vklyuchit-repozitoriy-epel-v-centos-9-stream/
+    https://setiwik.ru/kak-ustanovit-ffmpeg-na-centos-9-stream/?ysclid=lkordttfyw687770645
 
 1c
     Task:
@@ -11552,7 +11593,8 @@ C/C++
     https://prognote.ru/articles/how-to-install-qt-5-on-linux-ubuntu
 
 Django
-Разработка сайта
+    Task:
+    Разработка сайта
 	Task:
 	Для улучшения своего сайта, в котором публиковал все решенные мной интересные задачи, разработал еще один проект с разработкой сайта, в котором применялись следующие инструменты и библиотеки: python, django, pillow, html, css, sqlite3. Также поменял домен в timeweb.
 	Decision:
@@ -13953,266 +13995,264 @@ Django
 	2. https://translated.turbopages.org/proxy_u/en-ru.ru.6b298518-64cb356b-c3e4f7d2-74722d776562/https/stackoverflow.com/questions/5334882/how-to-get-list-of-all-the-tables-in-sqlite-programmatically
 	3. https://django-debug-toolbar.readthedocs.io/en/latest/
 	4. https://pypi.org/project/django-recaptcha/#installation
+    Task:
+    Необходимо собрать с помощью bootstrap 5 и запустить новую страницу по макету 
+    https://www.figma.com/file/csU67B0SQVZO1AkwvMZa3D/Тестовое-задание-N2?type=design&node-id=1-1012&mode=design&t=wz2qpqpXo6RochwT-0
+    - сборку проекта осуществить с помощью python 3.9, Django 4.1 и MySQL
+    - проект разместить в git репозитории
+    - для сборки клиентской части страницы необходимо использовать bootstrap 5
+    - для запуска слайдера необходимо использовать slick slider http://kenwheeler.github.io/slick/ (см. Slider Syncing)
+    - по клику на большую фотографию на слайдере фотки должны открываться на весь экран и листаться галереей
+    - необходимо чтобы slider заполнялся через админку django. Необходимо настроить визуально понятный admin.py, чтобы выводилась картинка и название в списке записей элементов слайдера.
+    - для картинок модели слайдера необходимо использовать пакет django-filer и через него грузить картинки в слайдер
+    - записи слайдера в админке должны сортироваться при помощи drag&drop, для этого необходимо использовать пакет django-admin-sortable2
+    - все зависимости для запуска проекта расположить в файле req.pip в корне проекта.
+    Тестовое задание проверяет поверхностно основные навыки кандидата необходимые для текущей вакансии:
+    - умение работать с bootstrap 5;
+    - базовые знания HTML, CSS, JavaScript;
+    - умение запустить и собрать новый проект на Django, с подключением дополнительных пакетов;
+    - базовые навыки работы с GIT;
+    - базовые навыки работы с Figma.
+    Decision:
+    $ mkdir Python-SpaceAgency
+    $ cd Python-SpaceAgency/
+    $ sudo apt update
+    $ sudo apt upgrade -y
+    E: dpkg was interrupted, you must manually run 'sudo dpkg --configure -a' to correct the problem. 
+    $ sudo dpkg --configure -a
+    $ sudo apt upgrade -y
+    Task:
+    Check Mysql
+    Decision:
+    $ systemctl status mysql
+    ● mysql.service - MySQL Community Server
+        Loaded: loaded (/lib/systemd/system/mysql.service; enabled; vendor preset: enabled)
+        Active: active (running) since Thu 2023-11-16 20:58:56 CST; 29min ago
+        Process: 622 ExecStartPre=/usr/share/mysql/mysql-systemd-start pre (code=exited, status=0/SUCCESS)
+    Main PID: 814 (mysqld)
+        Status: "Server is operational"
+        Tasks: 37 (limit: 2261)
+        Memory: 382.8M
+            CPU: 21.760s
+        CGroup: /system.slice/mysql.service
+                └─814 /usr/sbin/mysqld
+    Nov 16 20:57:38 thost systemd[1]: Starting MySQL Community Server...
+    Nov 16 20:58:56 thost systemd[1]: Started MySQL Community Server.
+    $ mysql -u tuser -p
+    mysql> show databases;
+    +--------------------+
+    | Database           |
+    +--------------------+
+    | information_schema |
+    | performance_schema |
+    | tbase              |
+    +--------------------+
+    3 rows in set (0.00 sec)
+    Task:
+    Install Figma
+    Decision:
+    $ wget https://github.com/Figma-Linux/figma-linux/releases/download/v0.11.0/figma-linux_0.11.0_linux_amd64.deb
+    $ sudo dpkg -i figma-linux_0.11.0_linux_amd64.deb
+    $ figma-linux &
+    $ google-chrome https://www.figma.com/file/csU67B0SQVZO1AkwvMZa3D/%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D0%BE%D0%B5-%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-N2?type=design&node-id=1-1012&mode=design &
+    Task:
+    Figma to Bootstrap 5
+    Decision:
+    $ mkdir bootstrap
+    $ cd bootstrap/
+    $ wget https://github.com/twbs/bootstrap/releases/download/v5.3.2/bootstrap-5.3.2-dist.zip
+    $ unzip bootstrap-5.3.2-dist.zip
+    $ mkdir space/static/space/css
+    $ mkdir js
+    $ mkdir space/static/space/image
+    $ cp bootstrap-5.3.2-dist/css/bootstrap.min.css space/static/space/css/
+    $ cp bootstrap-5.3.2-dist/js/bootstrap.min.js js/
+    $ touch index.html
+    $ touch space/static/space/css/style.css
+    $ wget https://github.com/kenwheeler/slick/archive/v1.8.1.zip
+    $ unzip v1.8.1.zip 
+    $ ls slick-1.8.1/slick
+    ajax-loader.gif  config.rb  fonts  slick.css  slick.js  slick.less  slick.min.js  slick.scss  slick-theme.css  slick-theme.less  slick-theme.scss
+    $ cp slick-1.8.1/slick/slick.min.js js/
+    $ cp slick-1.8.1/slick/slick.css space/static/space/css/
+    $ cp slick-1.8.1/slick/slick-theme.css space/static/space/css/
+    Task:
+    Install python 3.9
+    Decision:
+    $ cd ..
+    $ python3 -V
+    Python 3.10.12
+    $ sudo apt install software-properties-common
+    $ sudo add-apt-repository ppa:deadsnakes/ppa
+    $ sudo apt install python3.9
+    $ python3.9 -m venv venv
+    Error: Command '['/home/tuser/Projects/Python-SpaceAgency/venv/bin/python3.9', '-Im', 'ensurepip', '--upgrade', '--default-pip']' returned non-zero exit status 1.
+    $ sudo apt install python3.9-venv
+    $ python3.9 -m venv venv
+    $ source venv/bin/activate
+    (venv) $ python3 -V
+    Python 3.9.18
+    Task:
+    requirements.txt — это список внешних зависимостей
+    Decision:
+    (venv) $ vim req.pip
+    (venv) $ cat req.pip
+    Django==4.1.13
+    django-filter
+    django-admin-sortable2
+    django-debug-toolbar
+    django-simple-captcha
+    mysqlclient
+    (venv) $ pip install -r req.pip
+    ...
+    Getting requirements to build wheel ... error
+    error: subprocess-exited-with-error
+    × Getting requirements to build wheel did not run successfully.
+    │ exit code: 1
+    ╰─> [24 lines of output]
+        /bin/sh: 1: pkg-config: not found
+        /bin/sh: 1: pkg-config: not found
+        Trying pkg-config --exists mysqlclient
+        Command 'pkg-config --exists mysqlclient' returned non-zero exit status 127.
+        Trying pkg-config --exists mariadb
+        Command 'pkg-config --exists mariadb' returned non-zero exit status 127.
+        Traceback (most recent call last):
+            File "/home/tuser/Projects/Python-SpaceAgency/venv/lib/python3.9/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 353, in <module>
+            main()
+            File "/home/tuser/Projects/Python-SpaceAgency/venv/lib/python3.9/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 335, in main
+            json_out['return_val'] = hook(**hook_input['kwargs'])
+            File "/home/tuser/Projects/Python-SpaceAgency/venv/lib/python3.9/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 118, in get_requires_for_build_wheel
+            return hook(config_settings)
+            File "/tmp/pip-build-env-7j30p2fh/overlay/lib/python3.9/site-packages/setuptools/build_meta.py", line 355, in get_requires_for_build_wheel
+            return self._get_build_requires(config_settings, requirements=['wheel'])
+            File "/tmp/pip-build-env-7j30p2fh/overlay/lib/python3.9/site-packages/setuptools/build_meta.py", line 325, in _get_build_requires
+            self.run_setup()
+            File "/tmp/pip-build-env-7j30p2fh/overlay/lib/python3.9/site-packages/setuptools/build_meta.py", line 341, in run_setup
+            exec(code, locals())
+            File "<string>", line 154, in <module>
+            File "<string>", line 48, in get_config_posix
+            File "<string>", line 27, in find_package_name
+        Exception: Can not find valid pkg-config name.
+        Specify MYSQLCLIENT_CFLAGS and MYSQLCLIENT_LDFLAGS env vars manually
+        [end of output]
+    note: This error originates from a subprocess, and is likely not a problem with pip.
+    error: subprocess-exited-with-error
+    × Getting requirements to build wheel did not run successfully.
+    │ exit code: 1
+    ╰─> See above for output.
+    note: This error originates from a subprocess, and is likely not a problem with pip.
+    (venv) $ sudo apt-get install pkg-config build-essential libmysqlclient-dev
+    (venv) $ pip install -r req.pip
+    ...
+    Building wheels for collected packages: mysqlclient
+    Building wheel for mysqlclient (pyproject.toml) ... error
+    error: subprocess-exited-with-error
+    × Building wheel for mysqlclient (pyproject.toml) did not run successfully.
+    │ exit code: 1
+    ╰─> [45 lines of output]
+        Trying pkg-config --exists mysqlclient
+        # Options for building extention module:
+            extra_compile_args: ['-I/usr/include/mysql', '-std=c99']
+            extra_link_args: ['-lmysqlclient']
+            define_macros: [('version_info', (2, 2, 0, 'final', 0)), ('__version__', '2.2.0')]
+        running bdist_wheel
+        running build
+        running build_py
+        creating build
+        creating build/lib.linux-x86_64-cpython-39
+        creating build/lib.linux-x86_64-cpython-39/MySQLdb
+        copying src/MySQLdb/_exceptions.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
+        copying src/MySQLdb/__init__.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
+        copying src/MySQLdb/connections.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
+        copying src/MySQLdb/cursors.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
+        copying src/MySQLdb/converters.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
+        copying src/MySQLdb/times.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
+        copying src/MySQLdb/release.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
+        creating build/lib.linux-x86_64-cpython-39/MySQLdb/constants
+        copying src/MySQLdb/constants/CLIENT.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
+        copying src/MySQLdb/constants/ER.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
+        copying src/MySQLdb/constants/FIELD_TYPE.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
+        copying src/MySQLdb/constants/__init__.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
+        copying src/MySQLdb/constants/FLAG.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
+        copying src/MySQLdb/constants/CR.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
+        running egg_info
+        writing src/mysqlclient.egg-info/PKG-INFO
+        writing dependency_links to src/mysqlclient.egg-info/dependency_links.txt
+        writing top-level names to src/mysqlclient.egg-info/top_level.txt
+        reading manifest file 'src/mysqlclient.egg-info/SOURCES.txt'
+        reading manifest template 'MANIFEST.in'
+        adding license file 'LICENSE'
+        writing manifest file 'src/mysqlclient.egg-info/SOURCES.txt'
+        copying src/MySQLdb/_mysql.c -> build/lib.linux-x86_64-cpython-39/MySQLdb
+        running build_ext
+        building 'MySQLdb._mysql' extension
+        creating build/temp.linux-x86_64-cpython-39
+        creating build/temp.linux-x86_64-cpython-39/src
+        creating build/temp.linux-x86_64-cpython-39/src/MySQLdb
+        x86_64-linux-gnu-gcc -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -fPIC "-Dversion_info=(2, 2, 0, 'final', 0)" -D__version__=2.2.0 -I/home/tuser/Projects/Python-SpaceAgency/venv/include -I/usr/include/python3.9 -c src/MySQLdb/_mysql.c -o build/temp.linux-x86_64-cpython-39/src/MySQLdb/_mysql.o -I/usr/include/mysql -std=c99
+        src/MySQLdb/_mysql.c:46:10: fatal error: Python.h: No such file or directory
+            46 | #include "Python.h"
+                |          ^~~~~~~~~~
+        compilation terminated.
+        error: command '/usr/bin/x86_64-linux-gnu-gcc' failed with exit code 1
+        [end of output]
+    note: This error originates from a subprocess, and is likely not a problem with pip.
+    ERROR: Failed building wheel for mysqlclient
+    Failed to build mysqlclient
+    ERROR: Could not build wheels for mysqlclient, which is required to install pyproject.toml-based projects
+    (venv) $ sudo apt-get install python3.9-dev
+    (venv) $ pip install -r req.pip
+    Task:
+    Развернуть django проект
+    Decision:
+    (venv) $ django-admin startproject spaceagency
+    (venv) $ cd spaceagency/
+    (venv) $ python manage.py startapp space
+    (venv) $ python manage.py migrate
+    (venv) $ mysql -u tuser -p
+    mysql> use tbase;
+    mysql> show tables;
+    +----------------------------+
+    | Tables_in_tbase            |
+    +----------------------------+
+    | auth_group                 |
+    | auth_group_permissions     |
+    | auth_permission            |
+    | auth_user                  |
+    | auth_user_groups           |
+    | auth_user_user_permissions |
+    | captcha_captchastore       |
+    | django_admin_log           |
+    | django_content_type        |
+    | django_migrations          |
+    | django_session             |
+    | ttable1                    |
+    | ttable2                    |
+    +----------------------------+
+    13 rows in set (0.01 sec)
+    (venv) $ python manage.py runserver
+    (venv) $ google-chrome http://127.0.0.1:8000/ &
+    (не запускается проект)
+    Source:
+    https://itslinuxfoss.com/install-python-3-9-ubuntu-22-04/
+    https://pypi.org/project/Django/4.1.13/#history
+    https://sky.pro/media/udalenie-vseh-paketov-ustanovlennyh-cherez-pip/
+    https://semakin.dev/2020/04/requirements_txt/?ysclid=lp2q25vn81790283417
+    https://unixcop.com/install-figma-ubuntu-different-methods/
+    https://github.com/Figma-Linux/figma-linux/releases/tag/v0.11.0
+    https://www.youtube.com/watch?v=7EKg_IgTztU&t=160s
+    https://www.youtube.com/playlist?list=PLgT76xw3dCIWO5WnLzhbrmwO6t85G68_b
+    https://getbootstrap.com/docs/5.3/getting-started/download/
+    http://kenwheeler.github.io/slick/
+    https://pythonpip.ru/django/kak-podklyuchit-mysql-k-django-za-5-shagov?ysclid=lp2re296g690922035
+    https://www.8host.com/blog/kak-xranit-izobrazheniya-v-mysql-s-pomoshhyu-blob/?ysclid=lp4zs7pdrh496783742
+    https://stackoverflow.com/questions/51117503/python-3-7-failed-building-wheel-for-mysql-python
+    https://stackoverflow.com/questions/76875507/can-not-install-apache-airflow-providers-mysql-pkg-config-error
+    https://www.youtube.com/playlist?list=PLxjLT04EBKpN_8aiP0PzKUZYnNYANUekx
+    https://github.com/luketamang/Dynamic-image-slider-in-django/blob/master/core/models.py
 
-Task:
-Необходимо собрать с помощью bootstrap 5 и запустить новую страницу по макету 
-https://www.figma.com/file/csU67B0SQVZO1AkwvMZa3D/Тестовое-задание-N2?type=design&node-id=1-1012&mode=design&t=wz2qpqpXo6RochwT-0
-- сборку проекта осуществить с помощью python 3.9, Django 4.1 и MySQL
-- проект разместить в git репозитории
-- для сборки клиентской части страницы необходимо использовать bootstrap 5
-- для запуска слайдера необходимо использовать slick slider http://kenwheeler.github.io/slick/ (см. Slider Syncing)
-- по клику на большую фотографию на слайдере фотки должны открываться на весь экран и листаться галереей
-- необходимо чтобы slider заполнялся через админку django. Необходимо настроить визуально понятный admin.py, чтобы выводилась картинка и название в списке записей элементов слайдера.
-- для картинок модели слайдера необходимо использовать пакет django-filer и через него грузить картинки в слайдер
-- записи слайдера в админке должны сортироваться при помощи drag&drop, для этого необходимо использовать пакет django-admin-sortable2
-- все зависимости для запуска проекта расположить в файле req.pip в корне проекта.
-Тестовое задание проверяет поверхностно основные навыки кандидата необходимые для текущей вакансии:
-- умение работать с bootstrap 5;
-- базовые знания HTML, CSS, JavaScript;
-- умение запустить и собрать новый проект на Django, с подключением дополнительных пакетов;
-- базовые навыки работы с GIT;
-- базовые навыки работы с Figma.
-Decision:
-tuser@kvm-ubuntu:~$ mkdir Python-SpaceAgency
-tuser@kvm-ubuntu:~$ cd Python-SpaceAgency/
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt update
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt upgrade -y
-E: dpkg was interrupted, you must manually run 'sudo dpkg --configure -a' to correct the problem. 
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo dpkg --configure -a
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt upgrade -y
-Task:
-Check Mysql
-Decision:
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ systemctl status mysql
-● mysql.service - MySQL Community Server
-     Loaded: loaded (/lib/systemd/system/mysql.service; enabled; vendor preset: enabled)
-     Active: active (running) since Thu 2023-11-16 20:58:56 CST; 29min ago
-    Process: 622 ExecStartPre=/usr/share/mysql/mysql-systemd-start pre (code=exited, status=0/SUCCESS)
-   Main PID: 814 (mysqld)
-     Status: "Server is operational"
-      Tasks: 37 (limit: 2261)
-     Memory: 382.8M
-        CPU: 21.760s
-     CGroup: /system.slice/mysql.service
-             └─814 /usr/sbin/mysqld
-Nov 16 20:57:38 kvm-ubuntu systemd[1]: Starting MySQL Community Server...
-Nov 16 20:58:56 kvm-ubuntu systemd[1]: Started MySQL Community Server.
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ mysql -u tuser -p
-mysql> show databases;
-+--------------------+
-| Database           |
-+--------------------+
-| information_schema |
-| performance_schema |
-| tbase              |
-+--------------------+
-3 rows in set (0.00 sec)
-Task:
-Install Figma
-Decision:
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ wget https://github.com/Figma-Linux/figma-linux/releases/download/v0.11.0/figma-linux_0.11.0_linux_amd64.deb
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo dpkg -i figma-linux_0.11.0_linux_amd64.deb
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ figma-linux &
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ google-chrome https://www.figma.com/file/csU67B0SQVZO1AkwvMZa3D/%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D0%BE%D0%B5-%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-N2?type=design&node-id=1-1012&mode=design &
-Task:
-Figma to Bootstrap 5
-Decision:
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ mkdir bootstrap
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ cd bootstrap/
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ wget https://github.com/twbs/bootstrap/releases/download/v5.3.2/bootstrap-5.3.2-dist.zip
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ unzip bootstrap-5.3.2-dist.zip
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ mkdir space/static/space/css
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ mkdir js
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ mkdir space/static/space/image
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ cp bootstrap-5.3.2-dist/css/bootstrap.min.css space/static/space/css/
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ cp bootstrap-5.3.2-dist/js/bootstrap.min.js js/
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ touch index.html
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ touch space/static/space/css/style.css
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ wget https://github.com/kenwheeler/slick/archive/v1.8.1.zip
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ unzip v1.8.1.zip 
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ ls slick-1.8.1/slick
-ajax-loader.gif  config.rb  fonts  slick.css  slick.js  slick.less  slick.min.js  slick.scss  slick-theme.css  slick-theme.less  slick-theme.scss
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ cp slick-1.8.1/slick/slick.min.js js/
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ cp slick-1.8.1/slick/slick.css space/static/space/css/
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ cp slick-1.8.1/slick/slick-theme.css space/static/space/css/
+English
 
-Task:
-Install python 3.9
-Decision:
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/bootstrap$ cd ..
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ python3 -V
-Python 3.10.12
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt install software-properties-common
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo add-apt-repository ppa:deadsnakes/ppa
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt install python3.9
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ python3.9 -m venv venv
-Error: Command '['/home/tuser/Projects/Python-SpaceAgency/venv/bin/python3.9', '-Im', 'ensurepip', '--upgrade', '--default-pip']' returned non-zero exit status 1.
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt install python3.9-venv
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ python3.9 -m venv venv
-tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ source venv/bin/activate
-(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ python3 -V
-Python 3.9.18
-Task:
-requirements.txt — это список внешних зависимостей
-Decision:
-(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ vim req.pip
-(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ cat req.pip
-Django==4.1.13
-django-filter
-django-admin-sortable2
-django-debug-toolbar
-django-simple-captcha
-mysqlclient
-(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ pip install -r req.pip
-...
-  Getting requirements to build wheel ... error
-  error: subprocess-exited-with-error
-  × Getting requirements to build wheel did not run successfully.
-  │ exit code: 1
-  ╰─> [24 lines of output]
-      /bin/sh: 1: pkg-config: not found
-      /bin/sh: 1: pkg-config: not found
-      Trying pkg-config --exists mysqlclient
-      Command 'pkg-config --exists mysqlclient' returned non-zero exit status 127.
-      Trying pkg-config --exists mariadb
-      Command 'pkg-config --exists mariadb' returned non-zero exit status 127.
-      Traceback (most recent call last):
-        File "/home/tuser/Projects/Python-SpaceAgency/venv/lib/python3.9/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 353, in <module>
-          main()
-        File "/home/tuser/Projects/Python-SpaceAgency/venv/lib/python3.9/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 335, in main
-          json_out['return_val'] = hook(**hook_input['kwargs'])
-        File "/home/tuser/Projects/Python-SpaceAgency/venv/lib/python3.9/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 118, in get_requires_for_build_wheel
-          return hook(config_settings)
-        File "/tmp/pip-build-env-7j30p2fh/overlay/lib/python3.9/site-packages/setuptools/build_meta.py", line 355, in get_requires_for_build_wheel
-          return self._get_build_requires(config_settings, requirements=['wheel'])
-        File "/tmp/pip-build-env-7j30p2fh/overlay/lib/python3.9/site-packages/setuptools/build_meta.py", line 325, in _get_build_requires
-          self.run_setup()
-        File "/tmp/pip-build-env-7j30p2fh/overlay/lib/python3.9/site-packages/setuptools/build_meta.py", line 341, in run_setup
-          exec(code, locals())
-        File "<string>", line 154, in <module>
-        File "<string>", line 48, in get_config_posix
-        File "<string>", line 27, in find_package_name
-      Exception: Can not find valid pkg-config name.
-      Specify MYSQLCLIENT_CFLAGS and MYSQLCLIENT_LDFLAGS env vars manually
-      [end of output]
-  note: This error originates from a subprocess, and is likely not a problem with pip.
-error: subprocess-exited-with-error
-× Getting requirements to build wheel did not run successfully.
-│ exit code: 1
-╰─> See above for output.
-note: This error originates from a subprocess, and is likely not a problem with pip.
-(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt-get install pkg-config build-essential libmysqlclient-dev
-(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ pip install -r req.pip
-...
-Building wheels for collected packages: mysqlclient
-  Building wheel for mysqlclient (pyproject.toml) ... error
-  error: subprocess-exited-with-error
-  × Building wheel for mysqlclient (pyproject.toml) did not run successfully.
-  │ exit code: 1
-  ╰─> [45 lines of output]
-      Trying pkg-config --exists mysqlclient
-      # Options for building extention module:
-        extra_compile_args: ['-I/usr/include/mysql', '-std=c99']
-        extra_link_args: ['-lmysqlclient']
-        define_macros: [('version_info', (2, 2, 0, 'final', 0)), ('__version__', '2.2.0')]
-      running bdist_wheel
-      running build
-      running build_py
-      creating build
-      creating build/lib.linux-x86_64-cpython-39
-      creating build/lib.linux-x86_64-cpython-39/MySQLdb
-      copying src/MySQLdb/_exceptions.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
-      copying src/MySQLdb/__init__.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
-      copying src/MySQLdb/connections.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
-      copying src/MySQLdb/cursors.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
-      copying src/MySQLdb/converters.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
-      copying src/MySQLdb/times.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
-      copying src/MySQLdb/release.py -> build/lib.linux-x86_64-cpython-39/MySQLdb
-      creating build/lib.linux-x86_64-cpython-39/MySQLdb/constants
-      copying src/MySQLdb/constants/CLIENT.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
-      copying src/MySQLdb/constants/ER.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
-      copying src/MySQLdb/constants/FIELD_TYPE.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
-      copying src/MySQLdb/constants/__init__.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
-      copying src/MySQLdb/constants/FLAG.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
-      copying src/MySQLdb/constants/CR.py -> build/lib.linux-x86_64-cpython-39/MySQLdb/constants
-      running egg_info
-      writing src/mysqlclient.egg-info/PKG-INFO
-      writing dependency_links to src/mysqlclient.egg-info/dependency_links.txt
-      writing top-level names to src/mysqlclient.egg-info/top_level.txt
-      reading manifest file 'src/mysqlclient.egg-info/SOURCES.txt'
-      reading manifest template 'MANIFEST.in'
-      adding license file 'LICENSE'
-      writing manifest file 'src/mysqlclient.egg-info/SOURCES.txt'
-      copying src/MySQLdb/_mysql.c -> build/lib.linux-x86_64-cpython-39/MySQLdb
-      running build_ext
-      building 'MySQLdb._mysql' extension
-      creating build/temp.linux-x86_64-cpython-39
-      creating build/temp.linux-x86_64-cpython-39/src
-      creating build/temp.linux-x86_64-cpython-39/src/MySQLdb
-      x86_64-linux-gnu-gcc -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -g -fwrapv -O2 -fPIC "-Dversion_info=(2, 2, 0, 'final', 0)" -D__version__=2.2.0 -I/home/tuser/Projects/Python-SpaceAgency/venv/include -I/usr/include/python3.9 -c src/MySQLdb/_mysql.c -o build/temp.linux-x86_64-cpython-39/src/MySQLdb/_mysql.o -I/usr/include/mysql -std=c99
-      src/MySQLdb/_mysql.c:46:10: fatal error: Python.h: No such file or directory
-         46 | #include "Python.h"
-            |          ^~~~~~~~~~
-      compilation terminated.
-      error: command '/usr/bin/x86_64-linux-gnu-gcc' failed with exit code 1
-      [end of output]
-  note: This error originates from a subprocess, and is likely not a problem with pip.
-  ERROR: Failed building wheel for mysqlclient
-Failed to build mysqlclient
-ERROR: Could not build wheels for mysqlclient, which is required to install pyproject.toml-based projects
-(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ sudo apt-get install python3.9-dev
-(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ pip install -r req.pip
-
-Task:
-Развернуть django проект
-Decision:
-(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ django-admin startproject spaceagency
-(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency$ cd spaceagency/
-(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/spaceagency$ python manage.py startapp space
-(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/spaceagency$ python manage.py migrate
-(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/spaceagency$ mysql -u tuser -p
-mysql> use tbase;
-mysql> show tables;
-+----------------------------+
-| Tables_in_tbase            |
-+----------------------------+
-| auth_group                 |
-| auth_group_permissions     |
-| auth_permission            |
-| auth_user                  |
-| auth_user_groups           |
-| auth_user_user_permissions |
-| captcha_captchastore       |
-| django_admin_log           |
-| django_content_type        |
-| django_migrations          |
-| django_session             |
-| ttable1                    |
-| ttable2                    |
-+----------------------------+
-13 rows in set (0.01 sec)
-(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/spaceagency$ python manage.py runserver
-(venv) tuser@kvm-ubuntu:~/Projects/Python-SpaceAgency/spaceagency$ google-chrome http://127.0.0.1:8000/ &
-
-
-
-Source:
-https://itslinuxfoss.com/install-python-3-9-ubuntu-22-04/
-https://pypi.org/project/Django/4.1.13/#history
-https://sky.pro/media/udalenie-vseh-paketov-ustanovlennyh-cherez-pip/
-https://semakin.dev/2020/04/requirements_txt/?ysclid=lp2q25vn81790283417
-https://unixcop.com/install-figma-ubuntu-different-methods/
-https://github.com/Figma-Linux/figma-linux/releases/tag/v0.11.0
-https://www.youtube.com/watch?v=7EKg_IgTztU&t=160s
-https://www.youtube.com/playlist?list=PLgT76xw3dCIWO5WnLzhbrmwO6t85G68_b
-https://getbootstrap.com/docs/5.3/getting-started/download/
-http://kenwheeler.github.io/slick/
-https://pythonpip.ru/django/kak-podklyuchit-mysql-k-django-za-5-shagov?ysclid=lp2re296g690922035
-https://www.8host.com/blog/kak-xranit-izobrazheniya-v-mysql-s-pomoshhyu-blob/?ysclid=lp4zs7pdrh496783742
-https://stackoverflow.com/questions/51117503/python-3-7-failed-building-wheel-for-mysql-python
-https://stackoverflow.com/questions/76875507/can-not-install-apache-airflow-providers-mysql-pkg-config-error
-https://www.youtube.com/playlist?list=PLxjLT04EBKpN_8aiP0PzKUZYnNYANUekx
-https://github.com/luketamang/Dynamic-image-slider-in-django/blob/master/core/models.py
 
 
 Добавил виртуальные машины, настроил виртуальные сети, распределил нагрузку между компонентами своей облачной системы и настроил автоматическое масштабирование веб-сервиса при неравномерной нагрузке
