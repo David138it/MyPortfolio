@@ -52,6 +52,10 @@ Feedback: david138it@gmail.com; telegram - @david138it; http://www.linkedin.com/
 	$ sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list && apt update'
 	$ sudo apt install pgadmin4
 	$ sudo /usr/pgadmin4/bin/setup-web.sh
+	$ docker ps -a
+	CONTAINER ID   IMAGE                          COMMAND                  CREATED        STATUS                        PORTS                                       NAMES
+	YOUR-ID   YOUR-DB/postgres                 "docker-entrypoint.s…"   45 hours ago   Exited (255) 37 seconds ago   0.0.0.0:5432->5432/tcp, :::5432->5432/tcp   postg
+	$ docker start postg
 	$ google-chrome http://YOUR-IP/pgadmin4 &
 	Task:
 	Stop, remove postgres container
@@ -83,12 +87,12 @@ Feedback: david138it@gmail.com; telegram - @david138it; http://www.linkedin.com/
 	3. Совершение операций в разных городах в течение одного часа.
 	4. Попытка подбора суммы. В течение 20 минут проходит более 3х операций соследующим шаблоном – каждая последующая меньше предыдущей, при этом отклонены все кроме последней. Последняя операция (успешная) в такой цепочке считается мошеннической.
 	При именовании таблиц необходимо придерживаться следующих правил (для автоматизации проверки):
-	1. DE13MA.<CODE>_STG_<TABLE_NAME> - Таблицы для размещения стейджинговых таблиц (первоначальная загрузка), промежуточное выделение инкремента, если требуется. Временные таблицы, если такие потребуются в расчете, можно также складывать с таким именованием. Имя таблиц можете выбирать произвольное, но смысловое.
-	2. DE13MA.<CODE>_DWH_FACT_<TABLE_NAME> - Таблицы фактов, загруженных в хранилище. В качестве фактов выступают сами транзакции и «черный список» паспортов. Имя таблиц – как в ER диаграмме.
-	3. DE13MA.<CODE>_DWH_DIM_<TABLE_NAME> - Таблицы измерений, хранящиеся в формате SCD1. Имя таблиц – как в ER диаграмме.
-	4. DE13MA.<CODE>_DWH_DIM_<TABLE_NAME>_HIST - Таблицы измерений, хранящиеся в SCD2 формате (только для тех, кто выполняет усложненное задание). Имя таблиц – как в ER диаграмме.
-	5. DE13MA.<CODE>_REP_FRAUD - Таблица с отчетом.
-	6. DE13MA.<CODE>_META_<TABLE_NAME> - Таблицы для хранения метаданных. Имя таблиц можете выбирать произвольное, но
+	1. YOUR-USERNAME.<CODE>_STG_<TABLE_NAME> - Таблицы для размещения стейджинговых таблиц (первоначальная загрузка), промежуточное выделение инкремента, если требуется. Временные таблицы, если такие потребуются в расчете, можно также складывать с таким именованием. Имя таблиц можете выбирать произвольное, но смысловое.
+	2. YOUR-USERNAME.<CODE>_DWH_FACT_<TABLE_NAME> - Таблицы фактов, загруженных в хранилище. В качестве фактов выступают сами транзакции и «черный список» паспортов. Имя таблиц – как в ER диаграмме.
+	3. YOUR-USERNAME.<CODE>_DWH_DIM_<TABLE_NAME> - Таблицы измерений, хранящиеся в формате SCD1. Имя таблиц – как в ER диаграмме.
+	4. YOUR-USERNAME.<CODE>_DWH_DIM_<TABLE_NAME>_HIST - Таблицы измерений, хранящиеся в SCD2 формате (только для тех, кто выполняет усложненное задание). Имя таблиц – как в ER диаграмме.
+	5. YOUR-USERNAME.<CODE>_REP_FRAUD - Таблица с отчетом.
+	6. YOUR-USERNAME.<CODE>_META_<TABLE_NAME> - Таблицы для хранения метаданных. Имя таблиц можете выбирать произвольное, но
 	смысловое.
 	7. <CODE> - 4 буквы вашего персонального кода.
 	Выгружаемые файлы именуются согласно следующему шаблону:
@@ -111,6 +115,7 @@ Feedback: david138it@gmail.com; telegram - @david138it; http://www.linkedin.com/
 	Decision:
 	$ mkdir archive
 	$ touch main.py
+	$ chmod +x main.py
 	$ touch main.ddl
 	$ touch main.cron
 	$ cat snippet_pg.py
@@ -151,6 +156,650 @@ Feedback: david138it@gmail.com; telegram - @david138it; http://www.linkedin.com/
 	# Закрываем соединение
 	cursor.close()
 	conn.close()
+	$ /SCD1_incremental_full_script.sql 
+	----------------------------------------------------------------------------
+	-- Подготока данных
+
+	create table YOUR-USERNAME.XXXX_source( 
+			id integer,
+			val varchar(50),
+			update_dt timestamp(0)
+	);
+	insert into YOUR-USERNAME.XXXX_source ( id, val, update_dt ) values ( 1, 'A', now() );
+	insert into YOUR-USERNAME.XXXX_source ( id, val, update_dt ) values ( 2, 'B', now() );
+	insert into YOUR-USERNAME.XXXX_source ( id, val, update_dt ) values ( 3, 'C', now() );
+	update YOUR-USERNAME.XXXX_source set val = 'X', update_dt = now() where id = 3;
+	delete from YOUR-USERNAME.XXXX_source where id = 3;
+	create table YOUR-USERNAME.XXXX_stg( 
+			id integer,
+			val varchar(50),
+			update_dt timestamp(0)
+	);
+	create table YOUR-USERNAME.XXXX_target (
+			id integer,
+			val varchar(50),
+			create_dt timestamp(0),
+			update_dt timestamp(0)
+	);
+	create table YOUR-USERNAME.XXXX_meta(
+		schema_name varchar(30),
+		table_name varchar(30),
+		max_update_dt timestamp(0)
+	);
+	insert into YOUR-USERNAME.XXXX_meta( schema_name, table_name, max_update_dt )
+	values( 'YOUR-USERNAME','XXXX_SOURCE', to_timestamp('1900-01-01','YYYY-MM-DD') );
+	create table YOUR-USERNAME.XXXX_stg_del( 
+			id integer
+	);
+	----------------------------------------------------------------------------
+	-- Инкрементальная загрузка
+	-- 1. Очистка стейджинговых таблиц
+	delete from YOUR-USERNAME.XXXX_stg;
+	delete from YOUR-USERNAME.XXXX_stg_del;
+	-- 2. Захват данных из источника (измененных с момента последней загрузки) в стейджинг
+	insert into YOUR-USERNAME.XXXX_stg( id, val, update_dt )
+	select id, val, update_dt from YOUR-USERNAME.XXXX_source
+	where update_dt > ( select max_update_dt from YOUR-USERNAME.XXXX_meta where schema_name='YOUR-USERNAME' and table_name='XXXX_SOURCE' );
+	-- 3. Захват в стейджинг ключей из источника полным срезом для вычисления удалений.
+	insert into YOUR-USERNAME.XXXX_stg_del( id )
+	select id from YOUR-USERNAME.XXXX_source;
+	-- 4. Загрузка в приемник "вставок" на источнике (формат SCD1).
+	insert into YOUR-USERNAME.XXXX_target( id, val, create_dt, update_dt )
+	select 
+			stg.id, 
+			stg.val, 
+			stg.update_dt, 
+			null 
+	from YOUR-USERNAME.XXXX_stg stg
+	left join YOUR-USERNAME.XXXX_target trg
+	on stg.id = trg.id
+	where trg.id is null;
+	-- 5. Обновление в приемнике "обновлений" на источнике (формат SCD1).
+	update YOUR-USERNAME.XXXX_target
+	set 
+			val = tmp.val,
+			update_dt = tmp.update_dt
+	from (
+			select 
+					stg.id, 
+					stg.val, 
+					stg.update_dt, 
+					null 
+			from YOUR-USERNAME.XXXX_stg stg
+					inner join YOUR-USERNAME.XXXX_target trg on stg.id = trg.id
+			where stg.val <> trg.val 
+					or ( stg.val is null and trg.val is not null ) or ( stg.val is not null and trg.val is null )
+	) tmp
+	where XXXX_target.id = tmp.id; 
+	-- 6. Удаление в приемнике удаленных в источнике записей (формат SCD1).
+	delete from YOUR-USERNAME.XXXX_target
+	where id in (
+			select trg.id
+			from YOUR-USERNAME.XXXX_target trg
+			left join YOUR-USERNAME.XXXX_stg_del stg
+			on stg.id = trg.id
+			where stg.id is null
+	);
+	-- 7. Обновление метаданных.
+	update YOUR-USERNAME.XXXX_meta
+	set max_update_dt = coalesce( (select max( update_dt ) from YOUR-USERNAME.XXXX_stg ), ( select max_update_dt from YOUR-USERNAME.XXXX_meta where schema_name='YOUR-USERNAME' and table_name='XXXX_SOURCE' ) )
+	where schema_name='YOUR-USERNAME' and table_name = 'XXXX_SOURCE';
+	-- 8. Фиксация транзакции.
+	commit;
+	SCD1_incremental_full_script.sql
+	SCD1_incremental_full_script.sql. На экране
+	$ wget https://drive.google.com/file/d/13WSK0C1Z36hhsopebgEv2bGLAoxEsLUp/view?usp=drive_web&authuser=0
+	$ unzip data.zip
+	Task:
+	Создадите таблицы в базе
+	Decision:
+	$ vim main.ddl
+	$ cat main.ddl
+	#!/usr/bin/python3
+	----------------------------------
+	create table YOUR-USERNAME.XXXX_stg_transactions(
+		trans_id varchar(15),
+		trans_date timestamp(0),
+		--amt decimal(10,2),
+		amt numeric(10,2),    
+		card_num varchar(20),
+		oper_type varchar(10),
+		oper_result varchar(10),
+		terminal varchar(10),
+		create_dt timestamp(0), 
+		update_dt timestamp(0));
+	create table YOUR-USERNAME.XXXX_dwh_fact_transactions(
+		trans_id varchar(15),
+		trans_date timestamp(0),
+		--amt numeric(10,2),
+		amt decimal(10,2),
+		card_num varchar(20),
+		oper_type varchar(10),
+		oper_result varchar(10),
+		terminal varchar(10),
+		create_dt timestamp(0), 
+		update_dt timestamp(0));
+	----------------------------------
+	create table YOUR-USERNAME.XXXX_stg_terminals(
+		terminal_id varchar(10),
+		terminal_type varchar(10),
+		terminal_city varchar(30),
+		terminal_address varchar(70),
+		create_dt timestamp(0), 
+		update_dt timestamp(0));
+	create table YOUR-USERNAME.XXXX_dwh_dim_terminals(
+		terminal_id varchar(10),
+		terminal_type varchar(10),
+		terminal_city varchar(30),
+		terminal_address varchar(70),
+		create_dt timestamp(0),
+		update_dt timestamp(0),
+		effective_from timestamp(0),
+		effective_to timestamp(0),
+		deleted_flg char(1));
+	create table YOUR-USERNAME.XXXX_stg_del_terminals(
+		terminal_id varchar(10));
+	----------------------------------
+	create table YOUR-USERNAME.XXXX_stg_blacklist(
+		passport_num varchar(15),
+		--entry_dt date
+		entry_dt timestamp(0),
+		create_dt timestamp(0), 
+		update_dt timestamp(0));
+	create table YOUR-USERNAME.XXXX_dwh_fact_passport_blacklist(
+		passport_num varchar(30),
+		--entry_dt date
+		--date timestamp(0)
+		entry_dt timestamp(0),
+		create_dt timestamp(0), 
+		update_dt timestamp(0));
+	----------------------------------
+	create table YOUR-USERNAME.XXXX_stg_cards(
+		card_num varchar(20),
+		account_num varchar(20),
+		create_dt timestamp(0),
+		update_dt timestamp(0));
+	create table YOUR-USERNAME.XXXX_dwh_dim_cards(
+		card_num varchar(20),
+		account_num varchar(20),
+		--create_dt date,
+		--update_dt date
+		create_dt timestamp(0), 
+		update_dt timestamp(0),
+		effective_from timestamp(0),
+		effective_to timestamp(0),
+		deleted_flg char(1));
+	create table YOUR-USERNAME.XXXX_stg_del_cards(
+		card_num varchar(20));
+	----------------------------------
+	create table YOUR-USERNAME.XXXX_stg_accounts(
+		account_num varchar(20),
+		--valid_to date,
+		valid_to timestamp(0), 
+		client varchar(10),
+		create_dt timestamp(0),
+		update_dt timestamp(0));
+	create table YOUR-USERNAME.XXXX_dwh_dim_accounts(
+		account_num varchar(20),
+		--valid_to date,
+		valid_to timestamp(0), 
+		client varchar(10),
+		--create_dt date,
+		--update_dt date
+		create_dt timestamp(0), 
+		update_dt timestamp(0),
+		effective_from timestamp(0),
+		effective_to timestamp(0),
+		deleted_flg char(1)); 
+	create table YOUR-USERNAME.XXXX_stg_del_accounts(
+		account_num varchar(20));
+	----------------------------------
+	create table YOUR-USERNAME.XXXX_stg_clients(
+		client_id varchar(10),
+		last_name varchar(20),
+		first_name varchar(20),
+		patronymic varchar(20),
+		--date_of_birth date,
+		date_of_birth timestamp(0), 
+		passport_num varchar(15),
+		--passport_valid_to date,
+		passport_valid_to timestamp(0),
+		phone varchar(16),
+		create_dt timestamp(0),
+		update_dt timestamp(0));
+	create table YOUR-USERNAME.XXXX_dwh_dim_clients(
+		client_id varchar(10),
+		last_name varchar(20),
+		first_name varchar(20),
+		patronymic varchar(20),
+		--date_of_birth date,
+		date_of_birth timestamp(0),
+		passport_num varchar(15),
+		--passport_valid_to date,
+		passport_valid_to timestamp(0),
+		phone varchar(16),
+		--create_dt date,
+		--update_dt date
+		create_dt timestamp(0), 
+		update_dt timestamp(0),
+		effective_from timestamp(0),
+		effective_to timestamp(0),
+		deleted_flg char(1));
+	create table YOUR-USERNAME.XXXX_stg_del_clients(
+		client_id varchar(10));
+	----------------------------------
+	create table YOUR-USERNAME.XXXX_rep_fraud(
+		event_dt timestamp(0), 
+		passport varchar(20), 
+		fio varchar(50),
+		phone varchar(16), 
+		event_type varchar(120), 
+		--report_dt date
+		report_dt timestamp(0));
+	----------------------------------
+	create table YOUR-USERNAME.XXXX_meta(
+		schema_name varchar(30),
+		table_name varchar(30),
+		max_update_dt timestamp(0));
+	----------------------------------
+	Task:
+	Алгоритм для файла main.py: Подключитесь к двум базам, Очистите весь стейджинг. Загрузите файлы transactions_01032021.txt, terminals_01032021.xlsx, passport_blacklist_01032021.xlsx в стейджинг. Загрузите таблицы clients, accounts, cards в стейджинг. Используйте следующий подход: Выполните запрос к базе 1, Сохраните полученный результат в DataFrame, Загрузите DataFrame в базу 2. Загрузите данные из стейджинга в целевую таблицу xxxx_dwh_dim_terminals, xxxx_dwh_dim_cards, xxxx_dwh_dim_accounts, xxxx_dwh_dim_clients. Загрузите данные из стейджинга в целевую таблицу xxxx_dwh_fact_passport_blacklist, xxxx_dwh_fact_transactions.. Фактовые таблицы данные перекладываются «простым инсертом», то есть необходимо выполнить один INSERT INTO ... SELECT .... Напишите скрипт, соединяющий нужные таблицы для поиска операций, совершенных при недействующем договоре. Отладьте ваш скрипт для одной даты PgAdmin, он должен выдавать результат. Результат выполнения скрипта загружайте в таблицу xxxx_rep_fraud. Незабывайте сформировать поле report_dt. Зафиксируйте изменения. Отключитесь от баз. Переименуйте обработанные файлы и перенесите их в другой каталог. отладить его работоспособность навсех трех днях загрузки.
+	Decision:
+	$ vim main.py
+	$ cat main.py
+	#!/usr/bin/python3
+	import pandas as pd
+	import psycopg2
+	import os
+	###################Подключение к базам
+	#conn_YOUR-DB1 = psycopg2.connect(database = "YOUR-DB",host = "YOUR-IP",user = "YOUR-USERNAME",password = "YOUR-PASSWORD",port = "5432")
+	conn_YOUR-DB1 = psycopg2.connect(database = "YOUR-DB1",host = "YOUR-HOST",user = "YOUR-USERNAME1",password = "YOUR-PASSWORD1",port = "5432")
+	conn_YOUR-DB2 = psycopg2.connect(database = "bank",host = "YOUR-HOST",user = "YOUR-USERNAME2",password = "YOUR-PASSWORD2",port = "5432")
+	conn_YOUR-DB1.autocommit = False
+	conn_YOUR-DB2.autocommit = False
+	cursor_YOUR-DB1 = conn_YOUR-DB1.cursor()
+	cursor_YOUR-DB2 = conn_YOUR-DB2.cursor()
+	######################################
+	###################Очистка стейджинговых таблиц
+	cursor_YOUR-DB1.execute("""DELETE FROM YOUR-USERNAME1.XXXX_stg_transactions;""")
+	###################Загрузка данных в стейджинг
+	#df = pd.read_csv(f'/home/YOUR-USERNAME1/XXXX/project/data/transactions_01032021.txt', sep=';', decimal=',', header=0, index_col=None)
+	dirpath = "/home/YOUR-USERNAME1/XXXX/project"
+	project_files = os.listdir(dirpath)
+	for transactions in project_files:
+			if transactions.endswith('.txt'):
+					df = pd.read_csv(transactions, sep=";")
+					datenow_w_txt = transactions.rsplit('_')[1]
+					datenow_str = datenow_w_txt.split('.')[0]
+	df['amount'] = df['amount'].map(lambda z: z.strip().replace(',', '.')).astype('float')
+	df['create_dt'] = datenow_str
+	df['update_dt'] = datenow_str
+	###################
+	cursor_YOUR-DB1.executemany("""
+					INSERT INTO YOUR-USERNAME1.XXXX_stg_transactions(trans_id, trans_date, amt, card_num, oper_type, oper_result, terminal , create_dt, update_dt) 
+					VALUES(%s, %s , %s , %s , %s , %s , %s, to_timestamp(%s,'DDMMYYYY'), to_timestamp(%s,'DDMMYYYY'))
+			""", df.values.tolist())
+	###################Загрузка данных в целевые таблицы фактов
+	cursor_YOUR-DB1.execute("""
+					INSERT INTO YOUR-USERNAME1.XXXX_dwh_fact_transactions (trans_id,trans_date,card_num,oper_type,amt,oper_result,terminal,create_dt,update_dt)
+					SELECT stg.trans_id,stg.trans_date,stg.card_num,stg.oper_type,stg.amt,stg.oper_result,stg.terminal,stg.create_dt,stg.update_dt 
+					FROM YOUR-USERNAME1.XXXX_stg_transactions as stg;
+			""")
+	###################
+	######################################
+	###################Очистка стейджинговых таблиц
+	cursor_YOUR-DB1.execute("""DELETE FROM YOUR-USERNAME1.XXXX_stg_terminals;""")
+	###################Загрузка данных в стейджинг
+	#df = pd.read_excel(f'/home/YOUR-USERNAME1/XXXX/project/data/terminals_01032021.xlsx', sheet_name='terminals', header=0, index_col=None)
+	for terminals in project_files:
+			if terminals.startswith('terminals'):
+					df = pd.read_excel(terminals, sheet_name='terminals', header=0, index_col=None )
+					datenow_w_txt = terminals.rsplit('_')[1]
+					datenow_str = datenow_w_txt.split('.')[0]
+	df['create_dt'] = datenow_str
+	df['update_dt'] = datenow_str
+	#df.insert(4, 'update_dt','2021-03-01')
+	###################
+	cursor_YOUR-DB1.executemany("""
+					INSERT INTO YOUR-USERNAME1.XXXX_stg_terminals(terminal_id,terminal_type,terminal_city,terminal_address,create_dt,update_dt)
+					VALUES(%s,%s,%s,%s,to_timestamp(%s,'DDMMYYYY'),to_timestamp(%s,'DDMMYYYY'));
+			""", df.values.tolist())
+	###################Загрузка данных в целевые таблицы измерений
+	cursor_YOUR-DB1.execute("""
+					INSERT INTO YOUR-USERNAME1.XXXX_dwh_dim_terminals (terminal_id,terminal_type,terminal_city,terminal_address,create_dt,update_dt)
+					SELECT stg.terminal_id, stg.terminal_type, stg.terminal_city, stg.terminal_address, stg.update_dt,to_timestamp('9999-12-31', 'YYYY-MM-DD') 
+					from YOUR-USERNAME1.XXXX_stg_terminals as stg  
+					left join YOUR-USERNAME1.XXXX_dwh_dim_terminals as trg
+					on stg.terminal_id = trg.terminal_id 
+					where trg.terminal_id is null;
+			""")
+	###################
+	######################################
+	###################Очистка стейджинговых таблиц
+	cursor_YOUR-DB1.execute("""DELETE FROM YOUR-USERNAME1.XXXX_stg_blacklist;""")
+	###################Загрузка данных в стейджинг
+	#df = pd.read_excel(f'/home/YOUR-USERNAME1/XXXX/project/data/passport_blacklist_01032021.xlsx', sheet_name='blacklist', header=0, index_col=None)
+	for blacklist in project_files:
+			if blacklist.startswith('passport_blacklist'):
+					df = pd.read_excel(blacklist, sheet_name='blacklist', header=0, index_col=None )
+					datenow_w_ext = blacklist.rsplit('blacklist_')[1]
+					datenow_str = datenow_w_ext.split('.')[0]
+	df['create_dt'] = datenow_str
+	df['update_dt'] = datenow_str
+	###################
+	cursor_YOUR-DB1.executemany("""
+					INSERT INTO YOUR-USERNAME1.XXXX_stg_blacklist(entry_dt,passport_num,create_dt,update_dt)
+					VALUES(%s, %s,to_timestamp(%s,'DDMMYYYY'),to_timestamp(%s,'DDMMYYYY'));
+			""", df.values.tolist())
+	###################Загрузка данных в целевые таблицы фактов
+	cursor_YOUR-DB1.execute("""
+					INSERT INTO YOUR-USERNAME1.XXXX_dwh_fact_passport_blacklist 
+					SELECT stg.passport_num,stg.entry_dt,stg.create_dt,stg.update_dt
+					from YOUR-USERNAME1.XXXX_stg_blacklist as stg 
+					left join YOUR-USERNAME1.XXXX_dwh_fact_passport_blacklist as trg 
+					on stg.passport_num = trg.passport_num 
+					where trg.passport_num is null;
+			""")
+	######################################
+	###################Очистка стейджинговых таблиц
+	cursor_YOUR-DB1.execute("""DELETE FROM YOUR-USERNAME1.XXXX_stg_cards;""")
+	###################Загрузка данных в стейджинг
+	cursor_YOUR-DB2.execute("""
+					--SELECT regexp_replace(card_num, '\s+$', '') as card_num,account,create_dt,update_dt 
+					SELECT card_num,account,create_dt,update_dt 
+					FROM info.cards
+			""")
+	records = cursor_YOUR-DB2.fetchall()
+	#for row in records:
+	#    print(row)
+	names = [ x[0] for x in cursor_YOUR-DB2.description ]
+	df = pd.DataFrame( records, columns = names )
+	cursor_YOUR-DB1.executemany("""
+					INSERT INTO YOUR-USERNAME1.XXXX_stg_cards(card_num,account_num,create_dt,update_dt) 
+					VALUES(%s,%s,%s,%s)
+			""", df.values.tolist())
+	###################Загрузка данных в целевые таблицы измерений
+	cursor_YOUR-DB1.execute("""
+					INSERT INTO YOUR-USERNAME1.XXXX_dwh_dim_cards (card_num,account_num,create_dt,update_dt)
+					SELECT stg.card_num, stg.account_num, stg.create_dt, to_timestamp('9999-12-31', 'YYYY-MM-DD')
+					from YOUR-USERNAME1.XXXX_stg_cards as stg 
+					left join YOUR-USERNAME1.XXXX_dwh_dim_cards as trg 
+					on stg.card_num = trg.card_num 
+					where trg.card_num is null;
+			""")
+	###################
+	######################################
+	###################Очистка стейджинговых таблиц
+	cursor_YOUR-DB1.execute("""DELETE FROM YOUR-USERNAME1.XXXX_stg_accounts;""")
+	###################Загрузка данных в стейджинг
+	cursor_YOUR-DB2.execute("""
+					SELECT account,valid_to,client,create_dt,update_dt 
+					FROM info.accounts
+			""")
+	records = cursor_YOUR-DB2.fetchall()
+	#for row in records:
+	#        print(row)
+	names = [ x[0] for x in cursor_YOUR-DB2.description ]
+	df = pd.DataFrame( records, columns = names )
+	cursor_YOUR-DB1.executemany("""
+					INSERT INTO YOUR-USERNAME1.XXXX_stg_accounts(account_num,valid_to,client,create_dt,update_dt)
+					VALUES( %s, %s, %s, %s, %s)
+			""", df.values.tolist())
+	###################Загрузка данных в целевые таблицы измерений
+	cursor_YOUR-DB1.execute("""
+					INSERT INTO YOUR-USERNAME1.XXXX_dwh_dim_accounts(account_num,valid_to,client,create_dt,update_dt) 
+					SELECT stg.account_num,stg.valid_to,stg.client,stg.create_dt,to_timestamp('9999-12-31', 'YYYY-MM-DD')
+							from YOUR-USERNAME1.XXXX_stg_accounts as stg 
+					left join YOUR-USERNAME1.XXXX_dwh_dim_accounts as trg
+					on stg.account_num = trg.account_num 
+					where trg.account_num is null;
+			""")
+	###################
+	######################################
+	###################Очистка стейджинговых таблиц
+	cursor_YOUR-DB1.execute("""DELETE FROM YOUR-USERNAME1.XXXX_stg_clients;""")
+	###################Загрузка данных в стейджинг
+	cursor_YOUR-DB2.execute("""
+					SELECT client_id,last_name,first_name,patronymic,date_of_birth,passport_num,passport_valid_to,phone,create_dt,update_dt
+					FROM info.clients; 
+			""")
+	records = cursor_YOUR-DB2.fetchall()
+	#for row in records:
+	#        print(row)
+	names = [ x[0] for x in cursor_YOUR-DB2.description ]
+	df = pd.DataFrame(records, columns = names) 
+	cursor_YOUR-DB1.executemany(""" 
+					INSERT INTO YOUR-USERNAME1.XXXX_stg_clients(client_id,last_name,first_name,patronymic,date_of_birth,passport_num,passport_valid_to,phone,create_dt,update_dt)
+					VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
+			""", df.values.tolist()) 
+	###################Загрузка данных в целевые таблицы измерений
+	cursor_YOUR-DB1.execute("""
+					INSERT INTO YOUR-USERNAME1.XXXX_dwh_dim_clients(client_id,last_name,first_name,patronymic,date_of_birth,passport_num,passport_valid_to,phone,create_dt,update_dt)
+					SELECT stg.client_id,stg.last_name,stg.first_name,stg.patronymic,stg.date_of_birth,stg.passport_num,stg.passport_valid_to,stg.phone,stg.create_dt,now()
+					from YOUR-USERNAME1.XXXX_stg_clients as stg
+					left join YOUR-USERNAME1.XXXX_dwh_dim_clients as trg
+					on stg.client_id = trg.client_id 
+					where trg.client_id is null;
+			""")
+	###################
+	######################################
+	###################Выявление мошеннических операций и построение отчёта
+	cursor_YOUR-DB1.execute("""
+					INSERT INTO YOUR-USERNAME1.XXXX_rep_fraud 
+					select 
+							min(t2.trans_date) as trans_date, 
+							tgddcl.passport_num as passport_num, 
+							(tgddcl.last_name || ' ' || tgddcl.first_name || ' ' || tgddcl.patronymic ) as fio, 
+							tgddcl.phone as phone, 
+							'1' as event_type,
+							now() as report_dt
+					from (
+							select *
+							from (
+									with current_dt as ( 
+											select trans_date 
+											from YOUR-USERNAME1.XXXX_stg_transactions) 
+									select  tgdft.*, tgddca.account_num 
+									from YOUR-USERNAME1.XXXX_dwh_fact_transactions as tgdft 
+									left join YOUR-USERNAME1.XXXX_dwh_dim_cards as tgddca
+									on trim(tgdft.card_num) = trim(tgddca.card_num ) 
+									where tgdft.oper_result = 'SUCCESS' 
+											and tgdft.trans_date in (
+													select trans_date 
+													from current_dt)) as t 
+							left join YOUR-USERNAME1.XXXX_dwh_dim_accounts as gdda 
+							on t.account_num = gdda.account_num ) as t2 
+					left join YOUR-USERNAME1.XXXX_dwh_dim_clients as tgddcl 
+					on t2.client = tgddcl.client_id 
+					where (tgddcl.passport_valid_to < t2.trans_date 
+							or tgddcl.passport_num in (
+									select passport_num
+									from YOUR-USERNAME1.XXXX_dwh_fact_passport_blacklist))  
+					group by tgddcl.passport_num, (tgddcl.last_name || ' ' || tgddcl.first_name || ' ' || tgddcl.patronymic ), tgddcl.phone;
+			""")
+	###################Совершение операции при недействующем договоре.
+	cursor_YOUR-DB1.execute("""
+					INSERT INTO YOUR-USERNAME1.XXXX_rep_fraud
+					select 
+							t2.trans_date as trans_date, 
+							gddcl.passport_num as passport_num, 
+							(gddcl.last_name || ' ' || gddcl.first_name || ' ' || gddcl.patronymic ) as fio, 
+							gddcl.phone as phone, 
+							'2' as event_type,
+							now() as report_dt
+					from (
+							select min(t.trans_date) trans_date, t.account_num, gdda.client
+							from (
+									with current_dt as ( 
+											select trans_date 
+											from YOUR-USERNAME1.XXXX_stg_transactions) 
+									select gdft.trans_date, gdft.card_num, gddca.account_num
+									from YOUR-USERNAME1.XXXX_dwh_fact_transactions as gdft 
+									left join YOUR-USERNAME1.XXXX_dwh_dim_cards as gddca
+									on trim(gdft.card_num) = trim(gddca.card_num ) 
+									where gdft.oper_result = 'SUCCESS'
+											and gdft.trans_date in (
+													select trans_date 
+													from current_dt)) as t 
+							left join YOUR-USERNAME1.XXXX_dwh_dim_accounts as gdda 
+							on t.account_num = gdda.account_num 
+							where t.trans_date > gdda.valid_to
+							group by t.account_num, gdda.client ) as t2 
+					left join YOUR-USERNAME1.XXXX_dwh_dim_clients as gddcl 
+					on t2.client = gddcl.client_id;
+			""")
+	###################Совершение операций в разных городах в течение одного часа
+	cursor_YOUR-DB1.execute("""
+					INSERT INTO YOUR-USERNAME1.XXXX_rep_fraud
+					select
+							t3.trans_date,
+							t3.passport_num,
+							(t3.last_name || ' ' || t3.first_name || ' ' || t3.patronymic ) as fio,
+							t3.phone ,
+							'3' as event_type,
+							now() as report_dt
+					from (
+							select trans_date, trg2.*
+							from (
+									select * from (
+											select * from (
+													with lds as  (
+															select
+																	trans_date,
+																	terminal_city,
+																	card_num,
+																	lag(terminal_city) over (
+																			partition by gdftr.card_num
+																			order by gdftr.trans_date) as lag_c,
+																	lag(trans_date) over (
+																			partition by card_num
+																			order by gdftr.trans_date) as lag_t,
+																	lead(terminal_city) over (
+																			partition by gdftr.card_num
+																			order by gdftr.trans_date) as lead_c ,
+																	lead(trans_date) over (
+																			partition by card_num
+																			order by gdftr.trans_date) as lead_t
+															from YOUR-USERNAME1.XXXX_dwh_fact_transactions as gdftr
+															left join YOUR-USERNAME1.XXXX_dwh_dim_terminals as gddt
+															on gdftr.terminal = gddt.terminal_id
+															where gdftr.oper_result = 'SUCCESS'),
+													current_dt as (
+															select trans_date
+															from YOUR-USERNAME1.XXXX_stg_transactions )
+													select
+															min(trans_date) as trans_date,
+															card_num
+													from lds
+													where lag_c <> terminal_city
+															and (trans_date-lag_t) < '01:00:00'
+															and trans_date  in (
+																	select trans_date
+																	from current_dt)
+													group by card_num) as trg
+											left join YOUR-USERNAME1.XXXX_dwh_dim_cards as trg3
+											on trim(trg.card_num) = trim(trg3.card_num )) as t
+									left join YOUR-USERNAME1.XXXX_dwh_dim_accounts as trg4
+									on t.account_num = trg4.account_num ) as t2
+							left join YOUR-USERNAME1.XXXX_dwh_dim_clients as trg2
+							on t2.client = trg2.client_id ) as t3;
+			""")
+	###################Попытка подбора суммы
+	cursor_YOUR-DB1.execute("""
+					INSERT INTO YOUR-USERNAME1.XXXX_rep_fraud 
+					select 
+							t3.trans_date, 
+							t3.passport_num , 
+							(t3.last_name || ' ' || t3.first_name || ' ' || t3.patronymic ) as fio, 
+							t3.phone , 
+							'4' as event_type,
+							now() as report_dt
+					from (
+							select 
+									trans_date, 
+									gddcl.*
+							from  (
+									select * from (
+											select * from(
+													with rj as (
+															select 
+																	*,
+																	lag(amt) over (
+																			partition by gdft.card_num 
+																			order by gdft.trans_date) as lag_a,
+																	lag(amt,2) over (
+																			partition by gdft.card_num 
+																			order by gdft.trans_date) as lag_a2,
+																	lag(amt,3) over (
+																			partition by gdft.card_num 
+																			order by gdft.trans_date) as lag_a3,
+																	lag(oper_result) over (
+																			partition by gdft.card_num 
+																			order by gdft.trans_date) as lag_r,
+																	lag(oper_result,2) over (
+																			partition by gdft.card_num 
+																			order by gdft.trans_date) as lag_r2,
+																	lag(oper_result,3) over (
+																			partition by gdft.card_num 
+																			order by gdft.trans_date) as lag_r3,
+																	lag(trans_date,3) over (
+																			partition by gdft.card_num 
+																			order by gdft.trans_date) as min_t
+															from YOUR-USERNAME1.XXXX_dwh_fact_transactions gdft),
+													current_dt as ( 
+															select trans_date 
+															from YOUR-USERNAME1.XXXX_stg_transactions )
+													select * 
+													from rj
+													where oper_result = 'SUCCESS' 
+															and lag_r = 'REJECT' 
+															and lag_a > amt 
+															and lag_r2 = 'REJECT' 
+															and lag_a2 > lag_a
+															and lag_r3 = 'REJECT' 
+															and lag_a3 > lag_a2
+															and (trans_date - min_t) <= '00:20:00'
+															and trans_date  in (
+																	select trans_date 
+																	from current_dt)) as trg
+											left join YOUR-USERNAME1.XXXX_dwh_dim_cards as gddca
+											on trim(trg.card_num) = trim(gddca.card_num )) as t 
+									left join YOUR-USERNAME1.XXXX_dwh_dim_accounts as gdda 
+									on t.account_num = gdda.account_num ) as t2 
+							left join YOUR-USERNAME1.XXXX_dwh_dim_clients as gddcl 
+							on t2.client = gddcl.client_id ) as t3;
+			""")
+	######################################
+	conn_YOUR-DB2.commit()
+	conn_YOUR-DB1.commit()
+	######################################Запись файлов в архив
+	os.rename('/home/YOUR-USERNAME1/XXXX/project/terminals_01032021.xlsx', '/home/YOUR-USERNAME1/XXXX/project/archive/terminals_01032021.xlsx.backup')
+	os.rename('/home/YOUR-USERNAME1/XXXX/project/transactions_01032021.txt', '/home/YOUR-USERNAME1/XXXX/project/archive/transactions_01032021.txt.backup')
+	os.rename('/home/YOUR-USERNAME1/XXXX/project/passport_blacklist_01032021.xlsx', '/home/YOUR-USERNAME1/XXXX/project/archive/passport_blacklist_01032021.xlsx.backup')
+	os.rename('/home/YOUR-USERNAME1/XXXX/project/terminals_02032021.xlsx', '/home/YOUR-USERNAME1/XXXX/project/archive/terminals_02032021.xlsx.backup')
+	os.rename('/home/YOUR-USERNAME1/XXXX/project/transactions_02032021.txt', '/home/YOUR-USERNAME1/XXXX/project/archive/transactions_02032021.txt.backup')
+	os.rename('/home/YOUR-USERNAME1/XXXX/project/passport_blacklist_02032021.xlsx', '/home/YOUR-USERNAME1/XXXX/project/archive/passport_blacklist_02032021.xlsx.backup')
+	os.rename('/home/YOUR-USERNAME1/XXXX/project/terminals_03032021.xlsx', '/home/YOUR-USERNAME1/XXXX/project/archive/terminals_03032021.xlsx.backup')
+	os.rename('/home/YOUR-USERNAME1/XXXX/project/transactions_03032021.txt', '/home/YOUR-USERNAME1/XXXX/project/archive/transactions_03032021.txt.backup')
+	os.rename('/home/YOUR-USERNAME1/XXXX/project/passport_blacklist_03032021.xlsx', '/home/YOUR-USERNAME1/XXXX/project/archive/passport_blacklist_03032021.xlsx.backup')
+	######################################
+	cursor_YOUR-DB2.close();
+	cursor_YOUR-DB1.close();
+	$ sudo apt install python3.10-venv
+	$ python3.10 -m venv venv
+	$ source venv/bin/activate
+	$ pip install pandas
+	$ python3 main.py
+	$ ls archive/
+	passport_blacklist_01032021.xlsx.backup  terminals_01032021.xlsx.backup  transactions_01032021.txt.backup
+	$ sudo psql -U YOUR-USERNAME
+	YOUR-USERNAME=# select * from YOUR-USERNAME.XXXX_rep_fraud;
+	Task:
+	Заполните файл main.cron расписанием и командой исполнения вашего скрипта. Расписание установите так, как считаете нужным чтобы ваши данные заполнились корректно.
+	Decision:
+	$ vim main.cron 
+	$ cat main.cron 
+	0 0 * * * /home/david/project/main.py
 	Decision:
 	По следующим признакам получилось выявить мошеннические транзакции: выполнение операции с просроченным или заблокированным паспортом, выполнение операции с недействительным контрактом, выполнение операций в разных городах в течение одного часа
 	Source:
@@ -968,7 +1617,6 @@ Feedback: david138it@gmail.com; telegram - @david138it; http://www.linkedin.com/
 	# vim /etc/net/ifaces/tethernet1/options
 	# ls /etc/net/ifaces/
 	default  tethernet  lo  unknown  tethernet1
-	# vim /etc/net/ifaces/tethernet1/options
 	# vim /etc/net/ifaces/tethernet1/options
 	# cat /etc/net/ifaces/tethernet1/options
 	BOOTPROTO=static
