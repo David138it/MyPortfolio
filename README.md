@@ -3,7 +3,7 @@
     <ul>
         <li>
             <strong>Давид Константинович:</strong> 31 год; Иркутск; 
-            <strong>Навыки:</strong> Html, Css, Timeweb, Linux, Qemu-kvm, Lamp, Mysql, Postgresql, Windows, Powershell, Rinex, Одночастотные приемники СРНС, C++, Virtualbox, DHCP-протокол, DNS, Ssh, Iptables, Nmap, Tcpdump, Ftp, Squid, Rkhunter, Crontab, Python, Wordpress, Bash, Hyper-v, Pxe, Kickstart, Firebird, Pgadmin4, Etl-процессы, Ddl;
+            <strong>Навыки:</strong> Html, Css, Timeweb, Linux, Qemu-kvm, Lamp, Mysql, Postgresql, Windows, Powershell, Rinex, Одночастотные приемники СРНС, C++, Virtualbox, DHCP-протокол, DNS, Ssh, Iptables, Nmap, Tcpdump, Ftp, Squid, Rkhunter, Crontab, Python, Wordpress, Bash, Hyper-v, Pxe, Kickstart, Firebird, Pgadmin4, Etl-процессы, Ddl, Dwh, AntiFraud;
             <strong>Feedback:</strong> david138it@gmail.com; telegram - @david138it; http://www.linkedin.com/in/david-gabuniya-3bb954237; https://github.com/David138it;
         </li>
         <li>
