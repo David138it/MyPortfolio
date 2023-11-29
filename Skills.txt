@@ -9089,56 +9089,70 @@ Sql
   Do you want to continue? (y/n): n
 
 Windows vs Linux
-  Task:
-  суфд флешка просит форматнуть
-  Decision:
-  CMD, chkdisk F:/r=> на всяк случ скопир в диск Д (flash seettd), идем в бухг, вставл флешку, пуск, криптопроксп, сервис, обхор, сначала верхн, потом нижн, смотрим, чтоб не было такого (отсут, недоступ) у нас было: ключ под ... не доступен, ок, прогу, установить связь ведерации, ок, порт суфд 
-  Task:
-  Не работает ПОРТАЛ из-за такой ошибки: 
-  Часы спешат. Не удалось установить защищенное соединение с доменом ecs.sudrf.ru из-за неверных настроек системных часов и календаря
-  NET.ERR_CERT_DATE_INVALID
-  Decision:
-  Изменить время на сервере контроллера домена или заменить батарейку в сервере
-  Task:
-  ОС не загружается. Предложите на ваш взгляд способы решения проблемы, которые могут вернуть работоспособное состояние.
-  Task:
-  При перезагрузке ОС сбиваются настройки ориентации экрана. Предложите на ваш взгляд способы решения проблемы.
-  Task:
-  Сделать резервное копирование диска через Acronis
-  Decision:
-  Для начала нам нужнa программа Stop SMS Uni Boot — Загрузочные образы CD & USB . Сборки имеют достаточное количество программ для работы с разделами HDD, восстановления системы, создания настроенного образа системы и для решения других проблем.
-  Установить образ на флешку можно через Rufus - Запускаемся через флешку - Тут в меню нужно выбрать HDD++ - Acronis - True image premium - Далее выбираем резервное копирование - диски - Выбираем нужный диск - Выбираем путь в обзоре, куда мы хотим сохранить копию диска - В следующем шаге параметра выбираем метод резервного копирования с режимом полное резервное копирование. По умолчанию стоит «инкрементное». Можно оставить этот метод. Но я выберу «полное». - Можно приступить, после чего пойдет загрузка.
-	Task:
-	поставить вторую операционную систему Windows 7. Первая стояла Windows server 2003.
-	Decision:
-	делим диск через флешку - добавим 2 том - ставим туда 7ку Через флешку - Перезагружаемся
-	Task:
-	видим, что 7ка не поставилась, но в меню загрузчика есть
-	Decision:
-	нужно поменять режим в биос (sata) - Теперь запуск через режим asci или sata
-	Task:
-	устанавить винду 8 на жесткий диск через Acronis, Booti-ce Rus, WinNTSetup. После обновлю до винды 10
-	Decision:
-	У меня уже есть загрузочная флешка с нужными программами Acronis, Booti-ce Rus, WinNTSetup (ссылка на загрузочные образы — https://usbtor.ru/viewtopi-c.php?t=1728 ) и ISO образ с виндой 8.1.  - запуститься с загрузочной флешки в Boot Menu через bios. -  Откроем выбор дополнительных программ -Акронис в меню Hdd ++ - Acronis - Acronis Disk Director - Очистим диск - Инициализировать - Создать том - Выбираем размер создаваемого тома - Выбираем тип тома: Основной: активный - Если нужен второй том, тогда после создания основного тома создаем еще один том и выбираем логический тип тома. Но мне не нужен второй том, поэтому я пропускаю данную функцию - Завершить и применить ожидающие операции - Перезагрузимся - также с флешки и откроем 78setup -тут же нажмем Windows NT Setup - правильно выбрать диск, на который будет установлен загрузчик, в моем случае, это новый том Q - отформатируем его - Еще мы видим, что МБР горит желтым - 78setup - Booti-ce Rus - Physi-cal disk - правильный диск назначения (в моем случае это том Q) - в управлении MBR ставим галочку на Windows NT - Инсталяция/конфигурация - выбираем Windows NT 6.x MBR - 78setup - WIndows NT Setup -путь к установочным файлам Windows - прописываем тот путь где находится сам файл с Wim образом windows. - диск на который будет установлена ОС - выбираем нужный диск. В моем случае диск Q.- Установка. - перезапускаемся - установка винды 8.1 -Настраиваем часовой пояс - Придумываем имя компа - Имя пользователя, если нужно пароли - Ждем завершение настроек -
-	Task:
-	бесконечно долго проходил процесс завершения настроек. ( может даже два три дня процесс этот проходить)
-	Decision:
-	выключить и включить ПК главное сразу не включать Пускай хотя бы минут 10 прогрузится завершение настроек, а после уже можно выключить и включить самостоятельно. - После включения рекомендую установить дополнительные драйвера (не обязательно). 
-	Task:
-	Когда запускаем ubuntu в windows:
-	Installing, this may take a few minutes...
-	WslRegisterDistribution failed with error: 0x8007019e
-	The Windows Subsystem for Linux optional component is not enabled. Please enable it and try again.
-	See https://aka.ms/wslinstall for details.
-	Press any key to continue...
-	Decision:
-	Пуск-панель управления-программы и компоненты-включение и отключение компонентов- +подсистема windows для linux
-	Task:
-	Необходимо отключить автоматическое обновления ОС. Предложите на ваш взгляд способы решения задачи. Решение необходимо сделать с использованием cmd | powershell. 
-	Task:
-	В Windows 8.1 не найдено обновлений, хоть и последний раз обновлялся 2 года назад.
-	Decision:
-	гугл -> update puble windows 8.1 64 bit -> скачиваем winFuture8.1x64...exe -> обновляемся.
+    Task:
+    Adding the Ubuntu using wsl
+    Decision:
+    C:\Users\dd>powershell "start-process powershell -verb runas"
+    PS C:\Windows\system32> wsl --list --online
+    PS C:\Windows\system32> wsl --install -d Ubuntu-20.04
+    PS C:\Windows\system32> Restart-Computer
+    Task:
+    WslRegisterDistribution failed with error: 0x8007019e
+    The Windows Subsystem for Linux optional component is not enabled. Please enable it and try again.
+    See https://aka.ms/wslinstall for details.
+    Press any key to continue...
+    Decision:
+    панель управление -> Включение или отключение компонентов Windows -> Подсистема Windows для Linux + -> Ok -> reboot -> Пуск -> Ubuntu 20.04
+    Task:
+    суфд флешка просит форматнуть
+    Decision:
+    CMD, chkdisk F:/r=> на всяк случ скопир в диск Д (flash seettd), идем в бухг, вставл флешку, пуск, криптопроксп, сервис, обхор, сначала верхн, потом нижн, смотрим, чтоб не было такого (отсут, недоступ) у нас было: ключ под ... не доступен, ок, прогу, установить связь ведерации, ок, порт суфд 
+    Task:
+    Не работает ПОРТАЛ из-за такой ошибки: 
+    Часы спешат. Не удалось установить защищенное соединение с доменом ecs.sudrf.ru из-за неверных настроек системных часов и календаря
+    NET.ERR_CERT_DATE_INVALID
+    Decision:
+    Изменить время на сервере контроллера домена или заменить батарейку в сервере
+    Task:
+    ОС не загружается. Предложите на ваш взгляд способы решения проблемы, которые могут вернуть работоспособное состояние.
+    Task:
+    При перезагрузке ОС сбиваются настройки ориентации экрана. Предложите на ваш взгляд способы решения проблемы.
+    Task:
+    Сделать резервное копирование диска через Acronis
+    Decision:
+    Для начала нам нужнa программа Stop SMS Uni Boot — Загрузочные образы CD & USB . Сборки имеют достаточное количество программ для работы с разделами HDD, восстановления системы, создания настроенного образа системы и для решения других проблем.
+    Установить образ на флешку можно через Rufus - Запускаемся через флешку - Тут в меню нужно выбрать HDD++ - Acronis - True image premium - Далее выбираем резервное копирование - диски - Выбираем нужный диск - Выбираем путь в обзоре, куда мы хотим сохранить копию диска - В следующем шаге параметра выбираем метод резервного копирования с режимом полное резервное копирование. По умолчанию стоит «инкрементное». Можно оставить этот метод. Но я выберу «полное». - Можно приступить, после чего пойдет загрузка.
+  	Task:
+  	поставить вторую операционную систему Windows 7. Первая стояла Windows server 2003.
+  	Decision:
+  	делим диск через флешку - добавим 2 том - ставим туда 7ку Через флешку - Перезагружаемся
+  	Task:
+  	видим, что 7ка не поставилась, но в меню загрузчика есть
+  	Decision:
+  	нужно поменять режим в биос (sata) - Теперь запуск через режим asci или sata
+  	Task:
+  	устанавить винду 8 на жесткий диск через Acronis, Booti-ce Rus, WinNTSetup. После обновлю до винды 10
+  	Decision:
+  	У меня уже есть загрузочная флешка с нужными программами Acronis, Booti-ce Rus, WinNTSetup (ссылка на загрузочные образы — https://usbtor.ru/viewtopi-c.php?t=1728 ) и ISO образ с виндой 8.1.  - запуститься с загрузочной флешки в Boot Menu через bios. -  Откроем выбор дополнительных программ -Акронис в меню Hdd ++ - Acronis - Acronis Disk Director - Очистим диск - Инициализировать - Создать том - Выбираем размер создаваемого тома - Выбираем тип тома: Основной: активный - Если нужен второй том, тогда после создания основного тома создаем еще один том и выбираем логический тип тома. Но мне не нужен второй том, поэтому я пропускаю данную функцию - Завершить и применить ожидающие операции - Перезагрузимся - также с флешки и откроем 78setup -тут же нажмем Windows NT Setup - правильно выбрать диск, на который будет установлен загрузчик, в моем случае, это новый том Q - отформатируем его - Еще мы видим, что МБР горит желтым - 78setup - Booti-ce Rus - Physi-cal disk - правильный диск назначения (в моем случае это том Q) - в управлении MBR ставим галочку на Windows NT - Инсталяция/конфигурация - выбираем Windows NT 6.x MBR - 78setup - WIndows NT Setup -путь к установочным файлам Windows - прописываем тот путь где находится сам файл с Wim образом windows. - диск на который будет установлена ОС - выбираем нужный диск. В моем случае диск Q.- Установка. - перезапускаемся - установка винды 8.1 -Настраиваем часовой пояс - Придумываем имя компа - Имя пользователя, если нужно пароли - Ждем завершение настроек -
+  	Task:
+  	бесконечно долго проходил процесс завершения настроек. ( может даже два три дня процесс этот проходить)
+  	Decision:
+  	выключить и включить ПК главное сразу не включать Пускай хотя бы минут 10 прогрузится завершение настроек, а после уже можно выключить и включить самостоятельно. - После включения рекомендую установить дополнительные драйвера (не обязательно). 
+  	Task:
+  	Когда запускаем ubuntu в windows:
+  	Installing, this may take a few minutes...
+  	WslRegisterDistribution failed with error: 0x8007019e
+  	The Windows Subsystem for Linux optional component is not enabled. Please enable it and try again.
+  	See https://aka.ms/wslinstall for details.
+  	Press any key to continue...
+  	Decision:
+  	Пуск-панель управления-программы и компоненты-включение и отключение компонентов- +подсистема windows для linux
+  	Task:
+  	Необходимо отключить автоматическое обновления ОС. Предложите на ваш взгляд способы решения задачи. Решение необходимо сделать с использованием cmd | powershell. 
+  	Task:
+  	В Windows 8.1 не найдено обновлений, хоть и последний раз обновлялся 2 года назад.
+  	Decision:
+  	гугл -> update puble windows 8.1 64 bit -> скачиваем winFuture8.1x64...exe -> обновляемся.
     Task:
     Установить Visualstudio в Linux
     Decision:
@@ -9173,6 +9187,7 @@ Windows vs Linux
     Source:
     https://setiwik.ru/kak-vklyuchit-repozitoriy-epel-v-centos-9-stream/
     https://setiwik.ru/kak-ustanovit-ffmpeg-na-centos-9-stream/?ysclid=lkordttfyw687770645
+    https://docs.microsoft.com/ru-ru/windows/wsl/
 
 1c
     Task:
@@ -18113,6 +18128,326 @@ Mechanics
     https://ru.wikipedia.org/wiki/%D0%97%D0%B0%D0%BA%D0%BE%D0%BD_%D0%A5%D0%B0%D0%B1%D0%B1%D0%BB%D0%B0
     https://ru.wikipedia.org/wiki/%D0%A0%D0%B0%D1%81%D1%88%D0%B8%D1%80%D0%B5%D0%BD%D0%B8%D0%B5_%D0%92%D1%81%D0%B5%D0%BB%D0%B5%D0%BD%D0%BD%D0%BE%D0%B9
 
+Docker
+  Task:
+  Building your own Apache image
+  Decision:
+  $ mkdir Apache
+  $ cd Apache/
+  $ vim Dockerfile
+  $ cat Dockerfile
+  FROM ubuntu:20.04
+  MAINTAINER YOUR-USERNAME <YOUR-MAIL>
+  ENV TZ=Asia/Irkutsk
+  RUN apt-get -y update
+  RUN apt-get install -y apache2 && apt-get clean
+  COPY ./test.html /var/www/html
+  EXPOSE 80
+  CMD apache2ctl -D FOREGROUND
+  $ docker build -t dd/apache:v1 .
+  ...
+  Configuring tzdata
+  ------------------
+  Please select the geographic area in which you live. Subsequent configuration
+  questions will narrow this down by presenting a list of cities, representing
+  the time zones in which they are located.
+    1. Africa      4. Australia  7. Atlantic  10. Pacific  13. Etc
+    2. America     5. Arctic     8. Europe    11. SystemV
+    3. Antarctica  6. Asia       9. Indian    12. US
+  Geographic area:
+  $ vim Dockerfile
+  $ cat Dockerfile
+  FROM ubuntu:20.04
+  MAINTAINER YOUR-USERNAME <YOUR-MAIL>
+  ENV TZ=Asia/Irkutsk
+  RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+  RUN apt-get -y update
+  RUN apt-get install -y apache2 && apt-get clean
+  COPY ./test.html /var/www/html
+  EXPOSE 80
+  CMD apache2ctl -D FOREGROUND
+  $ docker build -t dd/apache:v1 .
+  ...
+  Step 7/9 : COPY ./test.html /var/www/html
+  COPY failed: file not found in build context or excluded by .dockerignore: stat test.html: file does not exist
+  $ vim Dockerfile
+  $ cat Dockerfile
+  FROM ubuntu:20.04
+  MAINTAINER YOUR-USERNAME <YOUR-MAIL>
+  ENV TZ=Asia/Irkutsk
+  RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+  RUN apt-get -y update
+  RUN apt-get install -y apache2 && apt-get clean
+  #COPY ./test.html /var/www/html
+  RUN echo 'Hey! This apache v1.' > /var/www/html/index.html
+  EXPOSE 80
+  CMD apache2ctl -D FOREGROUND
+  $ docker build -t dt/apache:v1 .
+  $ docker images
+  REPOSITORY          TAG       IMAGE ID       CREATED          SIZE
+  dt/apache   v1        YOUR-ID1   56 seconds ago   223MB
+  $ docker run -d -p 8080:80 dt/apache:v1
+  YOUR-ID3cdee5962fd52ca4be262696c9d1567e4c677cd409e77b39bcb4
+    $ firefox http://localhost:8080 &
+    $ firefox https://hub.docker.com &
+    Registration - Add new Repository - webservers
+  $ docker ps
+  CONTAINER ID   IMAGE                  COMMAND                  CREATED              STATUS              PORTS                                   NAMES
+  YOUR-ID   dt/apache:v1   "/bin/sh -c 'apache2…"   About a minute ago   Up About a minute   0.0.0.0:8080->80/tcp, :::8080->80/tcp   ecstatic_tesla
+  $ docker stop YOUR-ID
+  $ docker login --username dt
+  $ docker ps -a
+  CONTAINER ID   IMAGE                  COMMAND                  CREATED         STATUS                            PORTS     NAMES
+  YOUR-ID   dt/apache:v1   "/bin/sh -c 'apache2…"   3 minutes ago   Exited (137) About a minute ago             ecstatic_tesla
+  $ docker tag dt/apache:v1 dt/webapps:apache
+  $ docker push dt/webapps:apache
+  $ docker ps -a
+  CONTAINER ID   IMAGE                  COMMAND                  CREATED          STATUS                        PORTS     NAMES
+  YOUR-ID   dt/apache:v1   "/bin/sh -c 'apache2…"   12 minutes ago   Exited (137) 10 minutes ago             ecstatic_tesla
+  $ docker images -a
+  REPOSITORY           TAG       IMAGE ID       CREATED          SIZE
+  dt/webapps   apache    YOUR-ID1   15 minutes ago   223MB
+  dt/apache    v1        YOUR-ID1   15 minutes ago   223MB
+  <none>               <none>    YOUR-ID2   15 minutes ago   223MB
+    ...
+  <none>               <none>    YOUR-ID3   22 minutes ago   72.8MB
+  Task:
+  Set up a LAMP server in Docker
+  Here I am using Docker Compose to create a LAMP server for PHP web development.
+  Decision:
+  $ mkdir Lamp
+  $ cd Lamp/
+  $ mkdir html
+  $ vim Dockerfile
+  $ cat Dockerfile
+  FROM php:7.4.3-apache
+  RUN docker-php-ext-install mysqli pdo pdo_mysql
+  $ vim docker-compose.yaml
+  $ cat docker-compose.yaml
+  version: "3.7"
+  services:
+    web-server:
+      build:
+        dockerfile: Dockerfile
+        context: .
+      restart: always
+      volumes:
+        - "./html/:/var/www/html/"
+      ports:
+        - "8080:80"
+    YOUR-HOST:
+      image: mysql:8.0.19
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: YOUR-PASSWORD
+        TZ: "Asia/Irkutsk"
+      volumes:
+        - mysql-data:/var/lib/mysql
+    phpmyadmin:
+      image: phpmyadmin/phpmyadmin:5.0.2
+      restart: always
+      environment:
+        PMA_HOST: YOUR-HOST
+        PMA_USER: YOUR-USERNAME
+        PMA_PASSWORD: YOUR-PASSWORD
+      ports:
+        - "5000:80"
+  volumes:
+    mysql-data:
+  $ vim html/index.php
+  $ cat html/index.php
+  <?php
+  $host = "YOUR-HOST";
+  $user = "YOUR-USERNAME";
+  $pass = "YOUR-PASSWORD";
+  $db = "tdb";
+  try {
+      $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+      $conn->setAttribute(PDO::ATTR_ERr-tODE, PDO::ERr-tODE_EXCEPTION);
+      echo "Connected successfully";
+  } catch(PDOException $e) {
+      echo "Connection failed: " . $e->getMessage();
+  $ docker-compose up -d
+  $ docker-compose ps
+         Name                      Command               State                  Ports
+  ---------------------------------------------------------------------------------------------------
+  lamp_YOUR-HOST_1   docker-entrypoint.sh mysqld      Up      3306/tcp, 33060/tcp
+  lamp_phpmyadmin_1     /docker-entrypoint.sh apac ...   Up      0.0.0.0:5000->80/tcp,:::5000->80/tcp
+  lamp_web-server_1     docker-php-entrypoint apac ...   Up      0.0.0.0:8080->80/tcp,:::8080->80/tcp
+    $ firefox http://localhost:5000 &
+  Соединение невозможно! Неверные настройки
+  $ docker-compose down -v
+  ...
+  ERROR: error while removing network: network lamp_default id YOUR-ID4 has active endpoints
+  $ docker network r-t lamp_default
+  Error response from daemon: error while removing network: network lamp_default id YOUR-ID4 has active endpoints
+  $ docker-compose down --remove-orphans
+  $ docker-compose up -d
+  $ docker ps
+  CONTAINER ID   IMAGE                         COMMAND                  CREATED          STATUS          PORTS                                   NAMES
+  YOUR-ID5   phpmyadmin/phpmyadmin:5.0.2   "/docker-entrypoint.…"   19 seconds ago   Up 14 seconds   0.0.0.0:5000->80/tcp, :::5000->80/tcp   lamp_phpmyadmin_1
+  YOUR-ID6   mysql:8.0.19                  "docker-entrypoint.s…"   19 seconds ago   Up 14 seconds   3306/tcp, 33060/tcp                     lamp_YOUR-HOST_1
+  YOUR-ID7   lamp_web-server               "docker-php-entrypoi…"   19 seconds ago   Up 15 seconds   0.0.0.0:8080->80/tcp, :::8080->80/tcp   lamp_web-server_1
+    $ firefox http://localhost:5000 &
+  new - tdb - create - http://localhost:8080
+  $ docker-compose down
+  $ docker ps -a
+  Task:
+  Docker-compose.yml For PgAdmin And PostgreSQL
+  Here I am using Docker Compose to create a PostgreSQL container and access it using pgAdmin 4, the PostgreSQL admin web interface. You also need to access the PostgreSQL database server running in a Docker container from the Datagrid IDE.
+  Decision:
+  $ mkdir PostgreslPgadmin
+  $ cd PostgreslPgadmin/
+  $ vim docker-compose.yml
+  $ cat docker-compose.yml
+  version: "2.3"
+  services:
+    demo-container-db:
+      image: postgres:12
+      mem_limit: 1536MB
+      mem_reservation: 1G
+      environment:
+        POSTGRES_USER: YOUR-USERNAME
+        POSTGRES_PASSWORD: YOUR-PASSWORD
+      ports:
+      - "5442:5432"
+      networks:
+      - TestNetwork
+      volumes:
+      - db-data:/var/lib/postgresql/data
+    demo-pgadmin4:
+      image: dpage/pgadmin4
+      environment:
+        PGADMIN_DEFAULT_EMAIL: YOUR-MAIL
+        PGADMIN_DEFAULT_PASSWORD: YOUR-PASSWORD
+      ports:
+      - "8889:80"
+      networks:
+      - TestNetwork
+  networks:
+    TestNetwork:
+      driver: bridge
+  volumes:
+    db-data:
+  $ docker-compose up -d
+  $ sudo netstat -tlpn
+  Active Internet connections (only servers)
+  Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+  tcp        0      0 0.0.0.0:5442            0.0.0.0:*               LISTEN      732/docker-proxy
+  tcp        0      0 0.0.0.0:8889            0.0.0.0:*               LISTEN      752/docker-proxy
+  tcp6       0      0 :::5442                 :::*                    LISTEN      739/docker-proxy
+  tcp6       0      0 :::8889                 :::*                    LISTEN      759/docker-proxy
+  $ docker images
+  REPOSITORY              TAG            IMAGE ID       CREATED         SIZE
+    ...
+  dpage/pgadmin4          latest         YOUR-ID8   4 days ago      382MB
+  postgres                12             YOUR-ID9   2 weeks ago     373MB
+  $ docker container ls
+  CONTAINER ID   IMAGE            COMMAND                  CREATED         STATUS         PORTS                                            NAMES
+  YOUR-ID10   dpage/pgadmin4   "/entrypoint.sh"         3 minutes ago   Up 3 minutes   443/tcp, 0.0.0.0:8889->80/tcp, :::8889->80/tcp   postgreslpgadmin_demo-pgadmin4_1
+  YOUR-ID11   postgres:12      "docker-entrypoint.s…"   3 minutes ago   Up 3 minutes   0.0.0.0:5442->5432/tcp, :::5442->5432/tcp        postgreslpgadmin_demo-container-db_1
+  $ docker inspect YOUR-ID10
+  ...
+                      "NetworkID": "YOUR-ID12",
+                      "EndpointID": "YOUR-ID13",
+                      "Gateway": "YOUR-IP",
+                      "IPAddress": "YOUR-IP1",
+                      "IPPrefixLen": 16,
+                      "IPv6Gateway": "",
+                      "GlobalIPv6Address": "",
+                      "GlobalIPv6PrefixLen": 0,
+                      "MacAddress": "YOUR-MACIP1",
+                      "DriverOpts": null
+                  }
+              }
+          }
+      }
+  ]
+    $ firefox http://localhost:8889 &
+    Mail logins - Servers - register - server - name - TestServer - port - 5432 - username - YOUR-USERNAME - password - YOUR-PASSWORD - save password - hostname - YOUR-IP1 - save
+  $ docker-compose down
+  $ docker ps -a
+  CONTAINER ID   IMAGE                    COMMAND                  CREATED             STATUS                           PORTS     NAMES
+  YOUR-ID   dt/apache:v1     "/bin/sh -c 'apache2…"   About an hour ago   Exited (137) About an hour ago             ecstatic_tesla
+  $ docker images -a
+  REPOSITORY              TAG            IMAGE ID       CREATED             SIZE
+    ...
+  dpage/pgadmin4          latest         YOUR-ID8   4 days ago          382MB
+  postgres                12             YOUR-ID9   2 weeks ago         373MB
+  ubuntu                  20.04          20fffa419e3a   7 weeks ago         72.8MB
+  Source:
+    https://linuxhint.com/lamp_server_docker/
+    https://www.youtube.com/playlist?list=PLTd7y0vdxhK643dY-Th-fQvyNP46eW7CU    
+  https://linuxhint.com/postgresql_docker/
+    https://www.youtube.com/playlist?list=PL7-fzhJ95xrPJUSzziEsymILf0bKusiLZ
+  Task:
+  Delete an image, container, and volume
+  Decision:
+  $ docker images
+  $ docker system prune
+  $ docker images
+  REPOSITORY              TAG            IMAGE ID       CREATED         SIZE
+  php                     latest         dc8b9808febc   13 hours ago    414MB
+  dt/webservers   lamp           dc8b9808febc   13 hours ago    414MB
+  lamp_web-server         latest         dc8b9808febc   13 hours ago    414MB
+  dpage/pgadmin4          latest         YOUR-ID8   4 days ago      382MB
+  postgres                12             YOUR-ID9   2 weeks ago     373MB
+  ubuntu                  20.04          20fffa419e3a   7 weeks ago     72.8MB
+  phpmyadmin/phpmyadmin   5.0.2          125749bd47bf   22 months ago   469MB
+  mysql                   8.0.19         0c27e8e5fcfa   2 years ago     546MB
+  php                     7.4.3-apache   d753d5b380a1   2 years ago     414MB
+  $ docker system prune -a
+  $ docker images
+  $ docker ps -a
+  $ docker volume ls
+  DRIVER    VOLUME NAME
+  local     YOUR-ID13
+  local     YOUR-ID14
+  local     YOUR-ID15
+  local     YOUR-ID16
+  local     YOUR-ID17
+  local     docker-mysqlphpmyadmin_dbdata
+  local     docker-postresqlpgadmin_db-data
+  local     docker_db-data
+  local     lamp_mysql-data
+  local     postgreslpgadmin_db-data
+  $ docker volume r-t YOUR-ID13 YOUR-ID14 YOUR-ID15 YOUR-ID16 YOUR-ID17 docker-mysqlphpmyadmin_dbdata docker-postresqlpgadmin_db-data docker_db-data lamp_mysql-data postgreslpgadmin_db-data
+  $ docker volume ls
+  Task:
+  Создадим новый проект. Для этого создаем файл docker-compose.yml. В ссылке https://hub.docker.com/_/mariadb есть инструкция для compose - копируем и вставлем по этой инструкции. после в директории, где расположен этот файл запустим ее. Потом надо будет в браузере локальной машины запустить 127.0.0.1:6080
+  Decision:
+  $ ls
+    docker-compose.yml  Dockerfile
+  $ cat Dockerfile
+  FROM ubuntu
+  RUN apt-get update && apt-get install -y cowsay && ln -s /usr/games/cowsay /usr/bin/cowsay
+  ENTRYPOINT ["cowsay"]
+  $ cat docker-compose.yml
+  version: '3.1'
+  services:
+    db:
+      image: mariadb
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: YOUR-PASSWORD
+    adminer:
+      image: adminer
+      restart: always
+      ports:
+        - 6080:8080
+  $ docker -v
+  $ docker-compose -v
+  $ docker-compose up
+  $ docker-compose up -d
+    $ docker-compose ps
+          Name                Command          State           Ports        
+    ------------------------------------------------------------------------
+    docker_adminer_1   entrypoint.sh docker-   Up      0.0.0.0:6080->8080/tc
+                       php-e ...                       p,:::6080->8080/tcp  
+    docker_db_1        docker-entrypoint.sh    Up      3306/tcp             
+                       mysqld
+    Decision:
+  В винде тот же самый файл и те же команды запуска. Единственное, чтоб узнать ip адрес машины, для запуска в браузере напишем команду - docker-machine ip default. и в браузере уже по этому адресу запускаем проект
 
 Добавил виртуальные машины, настроил виртуальные сети, распределил нагрузку между компонентами своей облачной системы и настроил автоматическое масштабирование веб-сервиса при неравномерной нагрузке
   Task:
