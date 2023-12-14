@@ -1,0 +1,242 @@
+Mail for feedback: David138it@gmail.com
+
+Docker, Set up a LAMP server in Docker
+    Task:
+    Here I am using Docker Compose to create a LAMP server for PHP web development.
+    Decision:
+    $ mkdir Lamp
+    $ cd Lamp/
+    $ mkdir html
+    $ vim Dockerfile
+    $ cat Dockerfile
+    FROM php:7.4.3-apache
+    RUN docker-php-ext-install mysqli pdo pdo_mysql
+    $ vim docker-compose.yaml
+    $ cat docker-compose.yaml
+    version: "3.7"
+    services:
+      web-server:
+        build:
+          dockerfile: Dockerfile
+          context: .
+        restart: always
+        volumes:
+          - "./html/:/var/www/html/"
+        ports:
+          - "8080:80"
+      YOUR-HOST:
+        image: mysql:8.0.19
+        restart: always
+        environment:
+          MYSQL_ROOT_PASSWORD: YOUR-PASSWORD
+          TZ: "Asia/Irkutsk"
+        volumes:
+          - mysql-data:/var/lib/mysql
+      phpmyadmin:
+        image: phpmyadmin/phpmyadmin:5.0.2
+        restart: always
+        environment:
+          PMA_HOST: YOUR-HOST
+          PMA_USER: YOUR-USERNAME
+          PMA_PASSWORD: YOUR-PASSWORD
+        ports:
+          - "5000:80"
+    volumes:
+      mysql-data:
+    $ vim html/index.php
+    $ cat html/index.php
+    <?php
+    $host = "YOUR-HOST";
+    $user = "YOUR-USERNAME";
+    $pass = "YOUR-PASSWORD";
+    $db = "tdb";
+    try {
+        $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+        $conn->setAttribute(PDO::ATTR_ERr-tODE, PDO::ERr-tODE_EXCEPTION);
+        echo "Connected successfully";
+    } catch(PDOException $e) {
+        echo "Connection failed: " . $e->getMessage();
+    $ docker-compose up -d
+    $ docker-compose ps
+           Name                      Command               State                  Ports
+    ---------------------------------------------------------------------------------------------------
+    lamp_YOUR-HOST_1   docker-entrypoint.sh mysqld      Up      3306/tcp, 33060/tcp
+    lamp_phpmyadmin_1     /docker-entrypoint.sh apac ...   Up      0.0.0.0:5000->80/tcp,:::5000->80/tcp
+    lamp_web-server_1     docker-php-entrypoint apac ...   Up      0.0.0.0:8080->80/tcp,:::8080->80/tcp
+      $ firefox http://localhost:5000 &
+    Соединение невозможно! Неверные настройки
+    $ docker-compose down -v
+    ...
+    ERROR: error while removing network: network lamp_default id YOUR-ID4 has active endpoints
+    $ docker network r-t lamp_default
+    Error response from daemon: error while removing network: network lamp_default id YOUR-ID4 has active endpoints
+    $ docker-compose down --remove-orphans
+    $ docker-compose up -d
+    $ docker ps
+    CONTAINER ID   IMAGE                         COMMAND                  CREATED          STATUS          PORTS                                   NAMES
+    YOUR-ID5   phpmyadmin/phpmyadmin:5.0.2   "/docker-entrypoint.…"   19 seconds ago   Up 14 seconds   0.0.0.0:5000->80/tcp, :::5000->80/tcp   lamp_phpmyadmin_1
+    YOUR-ID6   mysql:8.0.19                  "docker-entrypoint.s…"   19 seconds ago   Up 14 seconds   3306/tcp, 33060/tcp                     lamp_YOUR-HOST_1
+    YOUR-ID7   lamp_web-server               "docker-php-entrypoi…"   19 seconds ago   Up 15 seconds   0.0.0.0:8080->80/tcp, :::8080->80/tcp   lamp_web-server_1
+      $ firefox http://localhost:5000 &
+    new - tdb - create - http://localhost:8080
+    $ docker-compose down
+    $ docker ps -a
+
+Docker, Docker-compose.yml For PgAdmin And PostgreSQL
+    Task:
+    Here I am using Docker Compose to create a PostgreSQL container and access it using pgAdmin 4, the PostgreSQL admin web interface. You also need to access the PostgreSQL database server running in a Docker container from the Datagrid IDE.
+    Decision:
+    $ mkdir PostgreslPgadmin
+    $ cd PostgreslPgadmin/
+    $ vim docker-compose.yml
+    $ cat docker-compose.yml
+    version: "2.3"
+    services:
+      demo-container-db:
+        image: postgres:12
+        mem_limit: 1536MB
+        mem_reservation: 1G
+        environment:
+          POSTGRES_USER: YOUR-USERNAME
+          POSTGRES_PASSWORD: YOUR-PASSWORD
+        ports:
+        - "5442:5432"
+        networks:
+        - TestNetwork
+        volumes:
+        - db-data:/var/lib/postgresql/data
+      demo-pgadmin4:
+        image: dpage/pgadmin4
+        environment:
+          PGADMIN_DEFAULT_EMAIL: YOUR-MAIL
+          PGADMIN_DEFAULT_PASSWORD: YOUR-PASSWORD
+        ports:
+        - "8889:80"
+        networks:
+        - TestNetwork
+    networks:
+      TestNetwork:
+        driver: bridge
+    volumes:
+      db-data:
+    $ docker-compose up -d
+    $ sudo netstat -tlpn
+    Active Internet connections (only servers)
+    Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+    tcp        0      0 0.0.0.0:5442            0.0.0.0:*               LISTEN      732/docker-proxy
+    tcp        0      0 0.0.0.0:8889            0.0.0.0:*               LISTEN      752/docker-proxy
+    tcp6       0      0 :::5442                 :::*                    LISTEN      739/docker-proxy
+    tcp6       0      0 :::8889                 :::*                    LISTEN      759/docker-proxy
+    $ docker images
+    REPOSITORY              TAG            IMAGE ID       CREATED         SIZE
+      ...
+    dpage/pgadmin4          latest         YOUR-ID8   4 days ago      382MB
+    postgres                12             YOUR-ID9   2 weeks ago     373MB
+    $ docker container ls
+    CONTAINER ID   IMAGE            COMMAND                  CREATED         STATUS         PORTS                                            NAMES
+    YOUR-ID10   dpage/pgadmin4   "/entrypoint.sh"         3 minutes ago   Up 3 minutes   443/tcp, 0.0.0.0:8889->80/tcp, :::8889->80/tcp   postgreslpgadmin_demo-pgadmin4_1
+    YOUR-ID11   postgres:12      "docker-entrypoint.s…"   3 minutes ago   Up 3 minutes   0.0.0.0:5442->5432/tcp, :::5442->5432/tcp        postgreslpgadmin_demo-container-db_1
+    $ docker inspect YOUR-ID10
+    ...
+                        "NetworkID": "YOUR-ID12",
+                        "EndpointID": "YOUR-ID13",
+                        "Gateway": "YOUR-IP",
+                        "IPAddress": "YOUR-IP1",
+                        "IPPrefixLen": 16,
+                        "IPv6Gateway": "",
+                        "GlobalIPv6Address": "",
+                        "GlobalIPv6PrefixLen": 0,
+                        "MacAddress": "YOUR-MACIP1",
+                        "DriverOpts": null
+                    }
+                }
+            }
+        }
+    ]
+    $ firefox http://localhost:8889 &
+    Mail logins - Servers - register - server - name - TestServer - port - 5432 - username - YOUR-USERNAME - password - YOUR-PASSWORD - save password - hostname - YOUR-IP1 - save
+    $ docker-compose down
+    $ docker ps -a
+    CONTAINER ID   IMAGE                    COMMAND                  CREATED             STATUS                           PORTS     NAMES
+    YOUR-ID   dt/apache:v1     "/bin/sh -c 'apache2…"   About an hour ago   Exited (137) About an hour ago             ecstatic_tesla
+    $ docker images -a
+    REPOSITORY              TAG            IMAGE ID       CREATED             SIZE
+      ...
+    dpage/pgadmin4          latest         YOUR-ID8   4 days ago          382MB
+    postgres                12             YOUR-ID9   2 weeks ago         373MB
+    ubuntu                  20.04          20fffa419e3a   7 weeks ago         72.8MB
+    Source:
+    - https://linuxhint.com/lamp_server_docker/
+    - https://www.youtube.com/playlist?list=PLTd7y0vdxhK643dY-Th-fQvyNP46eW7CU    
+    - https://linuxhint.com/postgresql_docker/
+    - https://www.youtube.com/playlist?list=PL7-fzhJ95xrPJUSzziEsymILf0bKusiLZ
+
+Docker, Установка и настройка ПО
+    Task:
+    Delete an image, container, and volume
+    Decision:
+    $ docker images
+    $ docker system prune
+    $ docker images
+    REPOSITORY              TAG            IMAGE ID       CREATED         SIZE
+    php                     latest         dc8b9808febc   13 hours ago    414MB
+    dt/webservers   lamp           dc8b9808febc   13 hours ago    414MB
+    lamp_web-server         latest         dc8b9808febc   13 hours ago    414MB
+    dpage/pgadmin4          latest         YOUR-ID8   4 days ago      382MB
+    postgres                12             YOUR-ID9   2 weeks ago     373MB
+    ubuntu                  20.04          20fffa419e3a   7 weeks ago     72.8MB
+    phpmyadmin/phpmyadmin   5.0.2          125749bd47bf   22 months ago   469MB
+    mysql                   8.0.19         0c27e8e5fcfa   2 years ago     546MB
+    php                     7.4.3-apache   d753d5b380a1   2 years ago     414MB
+    $ docker system prune -a
+    $ docker images
+    $ docker ps -a
+    $ docker volume ls
+    DRIVER    VOLUME NAME
+    local     YOUR-ID13
+    local     YOUR-ID14
+    local     YOUR-ID15
+    local     YOUR-ID16
+    local     YOUR-ID17
+    local     docker-mysqlphpmyadmin_dbdata
+    local     docker-postresqlpgadmin_db-data
+    local     docker_db-data
+    local     lamp_mysql-data
+    local     postgreslpgadmin_db-data
+    $ docker volume r-t YOUR-ID13 YOUR-ID14 YOUR-ID15 YOUR-ID16 YOUR-ID17 docker-mysqlphpmyadmin_dbdata docker-postresqlpgadmin_db-data docker_db-data lamp_mysql-data postgreslpgadmin_db-data
+    $ docker volume ls
+    Task:
+    Создадим новый проект. Для этого создаем файл docker-compose.yml. В ссылке https://hub.docker.com/_/mariadb есть инструкция для compose - копируем и вставлем по этой инструкции. после в директории, где расположен этот файл запустим ее. Потом надо будет в браузере локальной машины запустить 127.0.0.1:6080
+    Decision:
+    $ ls
+      docker-compose.yml  Dockerfile
+    $ cat Dockerfile
+    FROM ubuntu
+    RUN apt-get update && apt-get install -y cowsay && ln -s /usr/games/cowsay /usr/bin/cowsay
+    ENTRYPOINT ["cowsay"]
+    $ cat docker-compose.yml
+    version: '3.1'
+    services:
+      db:
+        image: mariadb
+        restart: always
+        environment:
+          MYSQL_ROOT_PASSWORD: YOUR-PASSWORD
+      adminer:
+        image: adminer
+        restart: always
+        ports:
+          - 6080:8080
+    $ docker -v
+    $ docker-compose -v
+    $ docker-compose up
+    $ docker-compose up -d
+      $ docker-compose ps
+            Name                Command          State           Ports        
+      ------------------------------------------------------------------------
+      docker_adminer_1   entrypoint.sh docker-   Up      0.0.0.0:6080->8080/tc
+                         php-e ...                       p,:::6080->8080/tcp  
+      docker_db_1        docker-entrypoint.sh    Up      3306/tcp             
+                         mysqld
+    Decision:
+    В винде тот же самый файл и те же команды запуска. Единственное, чтоб узнать ip адрес машины, для запуска в браузере напишем команду - docker-machine ip default. и в браузере уже по этому адресу запускаем проект
