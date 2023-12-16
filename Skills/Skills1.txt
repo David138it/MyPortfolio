@@ -9107,6 +9107,13 @@ Windows vs Linux, установка и настройка ОС
   	
 Windows vs Linux, установка и настройка ПО
     Task:
+    устанавливаем касперский 
+    Decision:	
+    kes - setup
+    Указать имя сервера, записываем имя компа YOUR-HOST
+    netagent - setup
+    чтобы активировать касперский заходим через сервер в kasp Sec Center, комп, клиент компr, созд (пр кнопкой мыши), Маст добавл, клиент комп, YOUR-HOST
+    Task:
     Adding the Ubuntu using wsl
     Decision:
     C:\Users\dd>powershell "start-process powershell -verb runas"
