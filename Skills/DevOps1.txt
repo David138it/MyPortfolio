@@ -1,9 +1,0 @@
-	Task:
-	Ошибка после установки REDOS в Virtualbox
-	"Упс, что то пошло не так"
-	Decision:
-	# su
-	# systemctl disable gdm
-	# systemctl enable sddm
-	    Created symlink /etc/systemd/system/display-manager.service → /usr/lib/systemd/system/sddm.service.
-	# reboot
