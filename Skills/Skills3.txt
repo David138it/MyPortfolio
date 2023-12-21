@@ -4176,6 +4176,56 @@ Windows vs Linux, Interview
   В чем разница между этими двумя операциями: ls > file.txt и ls >> file.txt?
   Task:
   Что будет являться результатом работы команды cat file1.txt | wc -l?
+  Task:
+  Команды, которые покажут что у нас есть в составе системы
+  посмотрим какие у нас есть модули ядра, которые отвечают за какие то устройства
+  Decision:
+  - lsmod
+  Task:
+  смотрим устройства на шине pci. Для получения списка всех подсоединенных к системе устройств PCI вы можете либо обратиться к содержимому файла /proc/bus/pci, либо использовать утилиту lspci - /usr/sbin/lspci (фрагмент вывода которой приведен ниже).
+  Decision:
+  - lspci
+  Task:
+  посмотрим все детально
+  Decision:
+  - lshw
+  Task:
+  Для получения списка всех устройств usb, соединенных с вашей системой, вам придется прочитать содержимое файла /proc/bus/usb/devices
+  Decision:
+  - lsusb
+  Task:
+  лиункс сам может находить устройства, но иногда нужно добавлять устаройства или модули ядра для того чтобы это устройство работало, для этого есть утилиты управления модулями ядра.
+  Decision:
+  - lsmod
+  Task:
+  в lsmod увидим e1000, это интернет модуль, который отвечает за сетевую карту, давайте проверим
+  Decision:
+  - modinfo e1000
+  Task:
+  в description увидим  название сет карты. удалим его
+  Decision:
+  - rmmod e1000
+  Task:
+  теперь пропадет интернет. чтоб вернуть его
+  Decision:
+  - insmod e1000
+      insmod: ERROR: could not load module e1000: No such file or directory
+  Task:
+  - insmod e1000
+      insmod: ERROR: could not load module e1000: No such file or directory
+  но на нас будут ругаться так как от него заисят еще другие модули ядра.
+  Decision:
+  - modprobe e1000
+  Task:
+  Узнать сколько места занимает на диске:
+  Decision:
+  du [--max-depth <глубина> -h] <путь>
+  du -h ~/
+  du –-max-depth 1 -h .
+  Task:
+  Узнать сколько места занято/свободно во всей системе:
+  Decision:
+  - df [-h]
 
 English Interview Engineer
 	Task:

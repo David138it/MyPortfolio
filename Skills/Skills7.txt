@@ -1480,16 +1480,21 @@ Python, Interview Sberbank работа с файлами
   Эта строчка дописана при помощи контектстного менеджера! 
 
 Engineer, CryptoPro
-  Task:
-  Истек срок лицензии в CryptoPro.csp 4.0? 
-  Decision:
-  Заходим в regedit, в правке ищем ключ. 
-  [-HKEY_CLASSES_ROOT\CLSID\{C8B655BB-28A0-4BB6-BDE1-D0826457B2DF}]
-  Удаляем ключ в реестре. Запускаем сетап. Устанавливаем с пунктом исправить
-  И проверяем срок лицензиии в CryptoPro.csp
-  Или в CryptoPro.csp, управление компонентами, и добавляем серийный номер - 
-  40400-00000-UKAC2-00QP8-MT29G
-  организацию и пользователя указываем случайного
+    Task:
+    Истек срок лицензии в CryptoPro.csp 4.0? 
+    Decision:
+    Заходим в regedit, в правке ищем ключ. 
+    [-HKEY_CLASSES_ROOT\CLSID\{C8B655BB-28A0-4BB6-BDE1-D0826457B2DF}]
+    Удаляем ключ в реестре. Запускаем сетап. Устанавливаем с пунктом исправить
+    И проверяем срок лицензиии в CryptoPro.csp
+    Или в CryptoPro.csp, управление компонентами, и добавляем серийный номер - 
+    40400-00000-UKAC2-00QP8-MT29G
+    организацию и пользователя указываем случайного
+    Task:
+    Установил приложение на Windows 10 Oracle Virtual Box 7. И при запуске Virtual Box компьютер каждый раз перезагружается и пишет: 
+    код остановки: SYSTEM SERVICE EXCEPTION, что вызвало проблему: CProCtrl.4.0.0.19.sys.
+    Decision:
+    Обновить версию криптопро скачав на сайте https://cryptopro.ru/products/csp/downloads
 
 Engineer, Network Основы
   Task:
