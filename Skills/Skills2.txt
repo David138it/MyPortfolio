@@ -2,6 +2,20 @@ Mail for feedback: David138it@gmail.com
 
 Windows vs Linux, решение проблем
     Task:
+    Зайти в графическую настройку с командной строки в Ubuntu
+    Столкнулся у себя с такой проблемой в декстопной версии Ubuntu, что пропали в панели меню настройки, а мне захотелось изменить в настроках фона фотографию.
+    Decision:
+    Зайти в настройки можно с помощью командной строки
+    $ gnome-control-center
+    Task:
+    Не удалось получить доступ к местоположению
+    Error mounting /dev/sdb1 at /run/media/...: Filesystem type ntfs3, ntfs not configured in kernel
+    Decision:
+    $ sudo yum install epel-release
+    $ sudo yum install ntfs-3g
+    Source:
+    1. https://itisgood.ru/2019/03/26/kak-smontirovat-disk-ntfs-na-centos-rhel-scientific-linux/
+    Task:
     WslRegisterDistribution failed with error: 0x8007019e
     The Windows Subsystem for Linux optional component is not enabled. Please enable it and try again.
     See https://aka.ms/wslinstall for details.

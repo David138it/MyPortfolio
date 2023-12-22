@@ -4173,6 +4173,54 @@ English Interview Engineer Yandex Cloud
 
 Windows vs Linux, Interview
   Task:
+  Компьютер подключен к интернету с помощью pppoe соединения. Одно из необходимых условий функционирования – автоподключение интернета при запуске ОС. Предложите на ваш взгляд способ решения автозапуска в случае запуска рабочего стола при загрузке.
+  Task:
+  Прорешать первый том CCNA R&S
+  Task:
+  Создать образную инфраструктуру с серверами, обеспечить отказоустойчивые каналы между офисами и бекап линиями, потом создать еще два офиса используя Python. Выключить каналы или роутеры или свичи на линиях. Включить Firewall на сервере или рабочем пк с определенными правилами
+  Task:
+  Как узнать дистрибутив?
+  Decision:
+  $ cat /etc/*-release
+  DISTRIB_ID=Ubuntu
+  DISTRIB_RELEASE=20.04
+  DISTRIB_CODENAME=focal
+  DISTRIB_DESCRIPTION="Ubuntu 20.04.5 LTS"
+  NAME="Ubuntu"
+  VERSION="20.04.5 LTS (Focal Fossa)"
+  ID=ubuntu
+  ID_LIKE=debian
+  PRETTY_NAME="Ubuntu 20.04.5 LTS"
+  VERSION_ID="20.04"
+  HOME_URL="https://www.ubuntu.com/"
+  SUPPORT_URL="https://help.ubuntu.com/"
+  BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+  PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+  VERSION_CODENAME=focal
+  UBUNTU_CODENAME=focal
+  Source:
+  1. https://losst.ru/kak-uznat-versiyu-linux?ysclid=l7mrzpkpk917754519#%D0%A3%D0%B7%D0%BD%D0%B0%D1%82%D1%8C_%D0%B4%D0%B8%D1%81%D1%82%D1%80%D0%B8%D0%B1%D1%83%D1%82%D0%B8%D0%B2
+  Task:
+  В CentOS/Redhat/fedora нужно перечитать конфиг файл постгресса.
+  Decision:
+  # systemctl reload postgresql-bla-bla.servisw
+  Task:
+  Как посмотреть последние логи ос/ядра?
+  Task:
+  Вытащить последние 1000 строк лога, первые 1200 строк логов
+  Decision:
+  $ tail -n 1000 /var/log/syslog
+  $ head -n 1200 /var/log/syslog
+  Task:
+  Предложите один или несколько программных средств, с помощью которых можно подготовить образ с ОС для последующей установки с этого носителя. 
+  Task:
+  посмотреть занятость файловой системы в %, в килограммах
+  Decision:
+  $ df --output=pcent
+  Task:
+  оценить объем свободной памяти RAM, раздела подкачки
+  Decision:
+  Task:
   В чем разница между этими двумя операциями: ls > file.txt и ls >> file.txt?
   Task:
   Что будет являться результатом работы команды cat file1.txt | wc -l?
