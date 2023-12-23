@@ -776,6 +776,29 @@ Windows vs Linux, Управление процессами
    0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]
 
 Windows vs Linux, Сетевые настройки
+	Task:
+	Нужно создать еще одну сетевую папку для общего доступа в системе Windows Server 2012 r2
+	Decision:
+	создайте папку
+	Давайте теперь назначим на эту папку разрешения - кликаем по ней правой кнопкой мыши - выбираем пункт "Свойства"
+	Ставим галочку напротив надписи: открыть общий доступ к этой папке - добавить пользователей которые будут иметь доступ к этой папке с определенными правами - для того что бы выбрать конкретных пользователей из Active Directory нажмите вкладку "Разрешения"
+	Мы попали в настройки разрешения общего доступа, чтобы выбрать пользователя который будет иметь доступ, нажмите "Добавить".
+	Например, в AD мы создавали тестового пользователя с именем "Тест". Итак назначим учетной записи Тест полный доступ к этой папке, для этого введите имя "Тест" в поле выбираемых объектов после чего кликаем "Проверить имена". Так же добавляем еще один параметр для общего доступа, для этого нажмите ПКМ по папке и перейдите по пунктам: "Общий доступ" – "Отдельные люди" В появившимся окне в поле для ввода имени вводим "Тест" и кликаем "Добавить" (желательно в данной папке выставить пользователям права на Чтение и запись).
+	Как только пользователь определился в чек-боксе разрешить выставим "Полный доступ к данной папке" и нажмем "Ок" Идентичную операцию проделываем с Администраторами
+	Самое главное это путь к сетевой папке, для чего он нужен я расскажу чуть ниже, сейчас просто выберете "Свойства" сетевой папки и запомните "Сетевой путь"
+	Итак, можно проверить сетевую папку в другом компьютере (другого пользователя)
+	Task:
+	При входе в сетевую учетную запись выходит ошибка - не доверительные отношения
+	Decision:
+	Можно просто кабель вытащить и вставить, но эта ошибка повторяется снова.
+	У меня есть программа Password Chager, которая блокирует адиминистратора. У меня эта программа установлена через флешку. Итак запустим через биос флешку.
+	Заходим в меню Password ищем Password Chager, сначала блокируем администратора или admin, чтобы проверить сможем ли зайти или нет, save, перезагружаемся и вводим учетную запись админа ...\Admin, видим что запрещено админу входить.  Вместо троеточия это нужно написать свое доменное имя нынешнего компьютера, которое вы использовали до этого. Перезапускаем программу  Password Chager через биос. убираем блокировку для админа, убираем галочку. Перезагружаемся, тот же вход от ...\Admin. И в домене меняем через свойство компьютера на рабочую группу work, перезагружаемся, Заходим через ...\Admin, и обратно добавляем домен наш. Перезагружаемся, и заходим уже под нужную доменную учетную запись,  (не Админ). Теперь не должно быть проблем с не доверительными отношениями.
+	Task:
+	Добавить в исключения ip 10.99.10.42. У клиента после перезагрузки сбрасываются настройки
+	Decision:
+	dc-0-regedit-домены-lenrsud-Accounts-1Juides-IE11(Настройки)-Изменить (параметры)
+	Task:
+	Компьютер подключен к интернету с помощью USB 4G модема. В качестве примера будет рассмотрен МТС модем. Одно из необходимых условий функционирования – автоподключение интернета при запуске ОС. При обычном запуске ОС происходит загрузка рабочего стола (процесс explorer), затем запускается программа модема (обычно connect manager), затем выполняется автоподключение интернета. При запуске ОС без рабочего стола программа модема не запускается. Предложите на ваш взгляд способ решения автозапуска в случае отсутствия запуска рабочего стола при загрузке.
     Task:
     Замена неверного MAC на ПК
     Decision:
@@ -906,1368 +929,1442 @@ Windows vs Linux, Сетевые настройки
     ipconfig /flush dns
 
 Windows vs Linux, Программирование
-  Task:
-  Создайте скрипт, который будет создавать файл. После чего скрипт будет прописывать последнюю строчку из сообщений syslog в этот файл. Затем будет отправлять в syslog своё сообщение - «Logs collected».
-  Decision:
-  $ vim BASH-LogScript1.sh
-  $ chmod +x BASH-LogScript1.sh
-  $ vim BASH-LogScript1.sh
-  $ cat BASH-LogScript1.sh
-  #!/bin/bash
-  touch LogFile
-  tail -n 1 /var/log/messages > LogFile
-  echo 'Logs collected' >> /var/log/messages
-  $ sudo ./BASH-LogScript1.sh
-  $ sudo cat /var/log/messages | grep 'Logs collected'
-      Logs collected
-  Task:
-  Настройте rsyslog, чтобы логи, посланные этим скриптом, сохранялись в отдельном файле «collect.log» в директории /var/log.
-  Decision:
-  $ logger -p local4.info "Logs Collected"
-  $ sudo journalctl -p info | grep 'Logs Collected'
-      апр 28 09:21:31 i6.rt.ru ur[5962]: Logs Collected
-  $ sudo vim /etc/rsyslog.conf
-  $ cat /etc/rsyslog.conf
-  ....
-  # Save boot messages also to boot.log
-  local7.*                                                /var/log/boot.log
-  local4.*                                                /var/log/collect.log
-  ...
-  $ sudo systemctl restart rsyslog
-  $ sudo ./BASH-LogScript1.sh
-  $ sudo cat /var/log/collect.log
-      Apr 28 09:41:29 i6 ur[6135]: Logs Collected
-  $ logger -p local4.info "Logs Collected"
-  $ sudo cat /var/log/collect.log
-      Apr 28 09:41:29 i6 ur[6135]: Logs Collected
-      Apr 28 09:44:28 i6 ur[6162]: Logs Collected
-  Task:
-  Настройте ротацию этих логов, чтобы они сохранялись на протяжении месяца с еженедельной ротацией. Запустите скрипт и убедитесь, что все ранее проделанные шаги выполнили свою задачу.
-  Decision:
-  $ sudo vim /etc/logrotate.d/collect.conf
-  $ cat /etc/logrotate.d/collect.conf
-  /var/log/collect.log
-  {
-      dateext
-      weekly
-      rotate 4
-  }
-  $ logrotate -d /etc/logrotate.d/collect.conf
-      WARNING: logrotate in debug mode does nothing except printing debug messages!  Consider using verbose mode (-v) instead if this is not what you want.
-      reading config file /etc/logrotate.d/collect.conf
-      Reading state from file: /var/lib/logrotate/logrotate.status
-      Allocating hash table for state file, size 64 entries
-      Handling 1 logs
-      rotating pattern: /var/log/collect.log
-       weekly (4 rotations)
-      empty log files are rotated, old logs are removed
-      considering log /var/log/collect.log
-      Creating new state
-        Now: 2022-04-28 10:14
-        Last rotated at 2022-04-28 10:00
-        log does not need rotating (log has been already rotated)
-  $ sudo logrotate -f /etc/logrotate.d/collect.conf
-  $ ls -l /var/log/colle*
-      -rw-------. 1 root root 112 апр 28 09:44 /var/log/collect.log-20220428
-  $ sudo ./BASH-LogScript1.sh
-  $ sudo journalctl -e
-      ...
-      апр 28 10:46:50 i6.rt.ru sudo[6584]:     ur : TTY=pts/1 ; PWD=/home/ur ; ur=root ; COMMAND=./BASH-LogScript1.sh
-      ...
-  $ sudo tail -n 20 /var/log/messages
-      ...
-      Logs collected
-      ...
-  $ logger -p local4.info "Logs Collected"
-  $ sudo cat /var/log/collect.log
-      cat: /var/log/collect.log: No such file or directory
-  $ sudo cat /var/log/collect.log-20220428
-      Apr 28 09:41:29 i6 ur[6135]: Logs Collected
-      Apr 28 09:44:28 i6 ur[6162]: Logs Collected
-      Apr 28 10:38:59 i6 ur[6437]: Logs Collected
-      Apr 28 10:49:34 i6 ur[6601]: Logs Collected
-  $ sudo tail -n 20 /var/log/messages
-      ...
-      Apr 28 10:49:34 i6 ur[6601]: Logs Collected
-      ...
-  Task:
-  Создайте скрипт, который будет отправлять логи в syslog – This is normal log → debug, This is error → error и This is critical error → crit. Настройте syslog, чтобы записывал эти логи в соответствующие файлы - /var/log/mylog.debug, /var/log/mylog.crit, /var/log/mylog.error. Настройте ротацию этих логов, чтобы они ротировались 5 раз. debug и error должны ротировались ежедневно, debug с сжатием, а error без сжатия. crit должен ротироваться раз в неделю.
-  Decision:
-  $ sudo ./BASH-LogScript2.sh
-  $ sudo cat /etc/rsyslog.conf
-  # rsyslog configuration file
-  ...
-  # Save boot messages also to boot.log
-  local4.*                                                /var/log/collect.log
-  local7.*                                                /var/log/boot.log
-  # ### sample forwarding rule ###
-  ...
-  #Target="remote_host" Port="XXX" Protocol="tcp")
-  local1.*                                                /var/log/mylog.debug
-  local2.*                                                                                          /var/log/mylog.error
-  local3.*                                                                                          /var/log/mylog.crit
-  $ ls /var/log/mylog.
-      mylog.crit-20220428      mylog.debug-20220428.gz  mylog.error-20220428     
-  $ sudo cat /var/log/mylog.crit-20220428
-      Apr 28 11:46:30 i6 root[6943]: This is critical error -> crit
-  $ sudo cat /var/log/mylog.error-20220428
-      Apr 28 11:46:30 i6 root[6942]: This is error -> error
-  $ cat BASH-LogScript2.sh
-  #!/bin/bash
-  logger -p local1.debug "This is normal log -> debug"
-  echo 'local1.*                                                /var/log/mylog.debug' >> /etc/rsyslog.conf
+ 	Task:
+	Создать скрипт для ротации логов, и не только логов, но и любых файлов. Автоматическое переименование и удаление осуществляется, если файл достигнет заданного размера
+	Decision:
+  	#/bin/bash
+  	@echo off
+  	set file=query.log
+  	set path=»c:\logs\»
+  	set maxbytesize=268436480
+  	set filescount=7
+  	cd %path%
+  	for /F «usebackq» %%A in (‘%file%’) do set size=%%~zA
+  	if %size% LSS %maxbytesize% (
+  	echo «we should do nothing»
+  	) else (
+  		setlocal ENABLEDELAYEDEXPANSION
+  		set /a j=%filescount%-1
+ 		del /f /q %file%.%filescount%
+  		for /l %%i in (!j!,-1,0) do (
+  			set /a k=%%i+1
+  			ren %file%.%%i %file%.!k!
+  		)
+  		endlocal
+  		ren %file% %file%.0
+  	)
+  	Decision:
+  	Подготовим папку logs с файлами определенного размера query.log и скриптом log-rotation.txt
+ 	Source:
+    1. https://www.youtube.com/playlist?list=PLG-4IrwpAdz7tuB6A9EbDpIb3akCJ1hoe
+    Task:
+    Создайте скрипт, который будет создавать файл. После чего скрипт будет прописывать последнюю строчку из сообщений syslog в этот файл. Затем будет отправлять в syslog своё сообщение - «Logs collected».
+    Decision:
+    $ vim BASH-LogScript1.sh
+    $ chmod +x BASH-LogScript1.sh
+    $ vim BASH-LogScript1.sh
+    $ cat BASH-LogScript1.sh
+    #!/bin/bash
+    touch LogFile
+    tail -n 1 /var/log/messages > LogFile
+    echo 'Logs collected' >> /var/log/messages
+    $ sudo ./BASH-LogScript1.sh
+    $ sudo cat /var/log/messages | grep 'Logs collected'
+        Logs collected
+    Task:
+    Настройте rsyslog, чтобы логи, посланные этим скриптом, сохранялись в отдельном файле «collect.log» в директории /var/log.
+    Decision:
+    $ logger -p local4.info "Logs Collected"
+    $ sudo journalctl -p info | grep 'Logs Collected'
+        апр 28 09:21:31 i6.rt.ru ur[5962]: Logs Collected
+    $ sudo vim /etc/rsyslog.conf
+    $ cat /etc/rsyslog.conf
+    ....
+    # Save boot messages also to boot.log
+    local7.*                                                /var/log/boot.log
+    local4.*                                                /var/log/collect.log
+    ...
+    $ sudo systemctl restart rsyslog
+    $ sudo ./BASH-LogScript1.sh
+    $ sudo cat /var/log/collect.log
+        Apr 28 09:41:29 i6 ur[6135]: Logs Collected
+    $ logger -p local4.info "Logs Collected"
+    $ sudo cat /var/log/collect.log
+        Apr 28 09:41:29 i6 ur[6135]: Logs Collected
+        Apr 28 09:44:28 i6 ur[6162]: Logs Collected
+    Task:
+    Настройте ротацию этих логов, чтобы они сохранялись на протяжении месяца с еженедельной ротацией. Запустите скрипт и убедитесь, что все ранее проделанные шаги выполнили свою задачу.
+    Decision:
+    $ sudo vim /etc/logrotate.d/collect.conf
+    $ cat /etc/logrotate.d/collect.conf
+    /var/log/collect.log
+    {
+        dateext
+        weekly
+        rotate 4
+    }
+    $ logrotate -d /etc/logrotate.d/collect.conf
+        WARNING: logrotate in debug mode does nothing except printing debug messages!  Consider using verbose mode (-v) instead if this is not what you want.
+        reading config file /etc/logrotate.d/collect.conf
+        Reading state from file: /var/lib/logrotate/logrotate.status
+        Allocating hash table for state file, size 64 entries
+        Handling 1 logs
+        rotating pattern: /var/log/collect.log
+        weekly (4 rotations)
+        empty log files are rotated, old logs are removed
+        considering log /var/log/collect.log
+        Creating new state
+            Now: 2022-04-28 10:14
+            Last rotated at 2022-04-28 10:00
+            log does not need rotating (log has been already rotated)
+    $ sudo logrotate -f /etc/logrotate.d/collect.conf
+    $ ls -l /var/log/colle*
+        -rw-------. 1 root root 112 апр 28 09:44 /var/log/collect.log-20220428
+    $ sudo ./BASH-LogScript1.sh
+    $ sudo journalctl -e
+        ...
+        апр 28 10:46:50 i6.rt.ru sudo[6584]:     ur : TTY=pts/1 ; PWD=/home/ur ; ur=root ; COMMAND=./BASH-LogScript1.sh
+        ...
+    $ sudo tail -n 20 /var/log/messages
+        ...
+        Logs collected
+        ...
+    $ logger -p local4.info "Logs Collected"
+    $ sudo cat /var/log/collect.log
+        cat: /var/log/collect.log: No such file or directory
+    $ sudo cat /var/log/collect.log-20220428
+        Apr 28 09:41:29 i6 ur[6135]: Logs Collected
+        Apr 28 09:44:28 i6 ur[6162]: Logs Collected
+        Apr 28 10:38:59 i6 ur[6437]: Logs Collected
+        Apr 28 10:49:34 i6 ur[6601]: Logs Collected
+    $ sudo tail -n 20 /var/log/messages
+        ...
+        Apr 28 10:49:34 i6 ur[6601]: Logs Collected
+        ...
+    Task:
+    Создайте скрипт, который будет отправлять логи в syslog – This is normal log → debug, This is error → error и This is critical error → crit. Настройте syslog, чтобы записывал эти логи в соответствующие файлы - /var/log/mylog.debug, /var/log/mylog.crit, /var/log/mylog.error. Настройте ротацию этих логов, чтобы они ротировались 5 раз. debug и error должны ротировались ежедневно, debug с сжатием, а error без сжатия. crit должен ротироваться раз в неделю.
+    Decision:
+    $ sudo ./BASH-LogScript2.sh
+    $ sudo cat /etc/rsyslog.conf
+    # rsyslog configuration file
+    ...
+    # Save boot messages also to boot.log
+    local4.*                                                /var/log/collect.log
+    local7.*                                                /var/log/boot.log
+    # ### sample forwarding rule ###
+    ...
+    #Target="remote_host" Port="XXX" Protocol="tcp")
+    local1.*                                                /var/log/mylog.debug
+    local2.*                                                                                          /var/log/mylog.error
+    local3.*                                                                                          /var/log/mylog.crit
+    $ ls /var/log/mylog.
+        mylog.crit-20220428      mylog.debug-20220428.gz  mylog.error-20220428     
+    $ sudo cat /var/log/mylog.crit-20220428
+        Apr 28 11:46:30 i6 root[6943]: This is critical error -> crit
+    $ sudo cat /var/log/mylog.error-20220428
+        Apr 28 11:46:30 i6 root[6942]: This is error -> error
+    $ cat BASH-LogScript2.sh
+    #!/bin/bash
+    logger -p local1.debug "This is normal log -> debug"
+    echo 'local1.*                                                /var/log/mylog.debug' >> /etc/rsyslog.conf
 
-  logger -p local2.err "This is error -> error"
-  echo 'local2.*                                                                                          /var/log/mylog.error' >> /etc/rsyslog.conf
+    logger -p local2.err "This is error -> error"
+    echo 'local2.*                                                                                          /var/log/mylog.error' >> /etc/rsyslog.conf
 
-  logger -p local3.crit "This is critical error -> crit"
-  echo 'local3.*                                                                                          /var/log/mylog.crit' >> /etc/rsyslog.conf
+    logger -p local3.crit "This is critical error -> crit"
+    echo 'local3.*                                                                                          /var/log/mylog.crit' >> /etc/rsyslog.conf
 
-  sudo systemctl restart rsyslog
-  #sudo touch /etc/logrotate.d/mylogdebug.conf
-  #sudo touch /etc/logrotate.d/mylogerror.conf
-  #sudo touch /etc/logrotate.d/mylogcrit.conf
-  echo '/var/log/mylog.debug
-  {
-      dateext
-      daily
-      rotate 5
-      compress
-  }' > /etc/logrotate.d/mylogdebug.conf
-  sudo logrotate -f /etc/logrotate.d/mylogdebug.conf
+    sudo systemctl restart rsyslog
+    #sudo touch /etc/logrotate.d/mylogdebug.conf
+    #sudo touch /etc/logrotate.d/mylogerror.conf
+    #sudo touch /etc/logrotate.d/mylogcrit.conf
+    echo '/var/log/mylog.debug
+    {
+        dateext
+        daily
+        rotate 5
+        compress
+    }' > /etc/logrotate.d/mylogdebug.conf
+    sudo logrotate -f /etc/logrotate.d/mylogdebug.conf
 
-  echo '/var/log/mylog.error
-  {
-          dateext
-          daily
-          rotate 5
-      delaycompress
-  }' > /etc/logrotate.d/mylogerror.conf
-  sudo logrotate -f /etc/logrotate.d/mylogerror.conf
+    echo '/var/log/mylog.error
+    {
+            dateext
+            daily
+            rotate 5
+        delaycompress
+    }' > /etc/logrotate.d/mylogerror.conf
+    sudo logrotate -f /etc/logrotate.d/mylogerror.conf
 
-  echo '/var/log/mylog.crit
-  {
-          dateext
-          weekly
-          rotate 5
-  }' > /etc/logrotate.d/mylogcrit.conf
-  sudo logrotate -f /etc/logrotate.d/mylogcrit.conf
-  $ cat /etc/logrotate.d/mylog
-  mylogcrit.conf   mylogdebug.conf  mylogerror.conf  
-  $ cat /etc/logrotate.d/mylogdebug.conf
-  /var/log/mylog.debug
-  {
-      dateext
-      daily
-      rotate 5
-      compress
-  }
-  $ sudo cat /var/log/messages | grep 'This is '
-      Apr 28 11:34:58 i6 ur[6745]: This is error -> error
-      Apr 28 11:34:58 i6 ur[6746]: This is critical error -> crit
-      Apr 28 11:35:31 i6 root[6766]: This is error -> error
-      Apr 28 11:35:31 i6 root[6767]: This is critical error -> crit
-      Apr 28 11:40:00 i6 root[6828]: This is error -> error
-      Apr 28 11:40:00 i6 root[6829]: This is critical error -> crit
-      Apr 28 11:42:18 i6 root[6872]: This is error -> error
-      Apr 28 11:42:18 i6 root[6873]: This is critical error -> crit
-      Apr 28 11:44:04 i6 root[6903]: This is error -> error
-      Apr 28 11:44:04 i6 root[6904]: This is critical error -> crit
-      Apr 28 11:46:30 i6 root[6942]: This is error -> error
-      Apr 28 11:46:30 i6 root[6943]: This is critical error -> crit
-  $ sudo journalctl -e | grep 'This is '
-      апр 28 11:34:58 i6.rt.ru ur[6744]: This is normal log -> debug
-      апр 28 11:34:58 i6.rt.ru ur[6745]: This is error -> error
-      апр 28 11:34:58 i6.rt.ru ur[6746]: This is critical error -> crit
-      апр 28 11:35:31 i6.rt.ru root[6765]: This is normal log -> debug
-      апр 28 11:35:31 i6.rt.ru root[6766]: This is error -> error
-      апр 28 11:35:31 i6.rt.ru root[6767]: This is critical error -> crit
-      апр 28 11:40:00 i6.rt.ru root[6827]: This is normal log -> debug
-      апр 28 11:40:00 i6.rt.ru root[6828]: This is error -> error
-      апр 28 11:40:00 i6.rt.ru root[6829]: This is critical error -> crit
-      апр 28 11:42:18 i6.rt.ru root[6871]: This is normal log -> debug
-      апр 28 11:42:18 i6.rt.ru root[6872]: This is error -> error
-      апр 28 11:42:18 i6.rt.ru root[6873]: This is critical error -> crit
-      апр 28 11:44:04 i6.rt.ru root[6902]: This is normal log -> debug
-      апр 28 11:44:04 i6.rt.ru root[6903]: This is error -> error
-      апр 28 11:44:04 i6.rt.ru root[6904]: This is critical error -> crit
-      апр 28 11:46:30 i6.rt.ru root[6941]: This is normal log -> debug
-      апр 28 11:46:30 i6.rt.ru root[6942]: This is error -> error
-      апр 28 11:46:30 i6.rt.ru root[6943]: This is critical error -> crit
-  Task:
-  Создайте файл /etc/allowedurs, в котором пропишите логин своего пользователя.
-  Создайте скрипт, который сначала проверит, имеет ли данный текущий пользователь право запускать скрипт (пользователь должен быть в списке /etc/allowedurs). Если прав нету, то следует вывести на экран сообщение «This incident will be reported», а в syslog в секцию error написать «ur urname tried to run this script!». После запуска скрипт должен вывести содержимое директории /data/. После чего предложить пользователю указать имя файла и указать дату и время модификации для смены.
-  Decision:
-  $ sudo vim /etc/allowedurs
-  [sudo] пароль для ur:
-  $ cat /etc/allowedurs
-  root
-  it
-  $ vim BASH-LogScript3.sh
-  $ cat BASH-LogScript3.sh
-  #!/bin/bash
-  name1=$(whoami)
-  #echo $name1
-  cmd1=$(cat /etc/allowedurs | grep $name1)
-  #echo $cmd1
-  #for line1 in $(cat /etc/allowedurs)
-  #do
-  #    echo 'line1' $line1
-      #if [[ $name1 == $line1 ]];
-      #then
-      #    echo '+'
-      #else
-      #    echo '-'
-      #fi    
-  #done
-  if cat /etc/allowedurs | grep $name1
-  then
-      echo '+'
-  else
-      echo 'This incident will be reported'
-      logger -p local2.err "ur $name1 tried to run this script!"
-  fi
-  ls /data
-  read -p "specify the file name: " rename
-  read -p "specify the modification date and time for the shift: " date
-  $ whoami
-      ur
-  $ ./BASH-LogScript3.sh
-      This incident will be reported
-      testfile1  testfile2  testfile3  testfile4  testfile5
-      specify the file name: ur2
-      specify the modification date and time for the shift: 2019.10.12 19:15   
-  $ sudo journalctl -e | grep 'tried to run this '
-      апр 28 16:23:20 i6.rt.ru ur[8491]: ur urname tried to run this script!
-      апр 28 16:24:51 i6.rt.ru ur[8513]: ur ur tried to run this script!
-      апр 28 16:26:52 i6.rt.ru ur[8534]: ur ur tried to run this script!
-      апр 28 16:30:09 i6.rt.ru ur[8556]: ur ur tried to run this script!
-      апр 28 16:33:16 i6.rt.ru ur[8567]: ur ur tried to run this script!
-      апр 28 16:34:36 i6.rt.ru ur[8591]: ur ur tried to run this script!
-  Task:
-  Как в Bash проверить, содержит ли строка подстроку
-  Decision:
-  $ vim testbash.sh
-  $ cat testbash.sh
-  #!/bin/bash
-  ##############
-  #RESULT=$(echo 'hello')
-  #echo $RESULT
-  ##############
-  #echo -n "Enter a number: "
-  #read VAR
-  #if [[ $VAR -gt 10 ]]
-  #then
-  # echo "The variable is greater than 10."
-  #fi
-  ##############
-  string='Моя длинная строка'
-  if [[ $string == *"Моя длинная"* ]]; then
-  echo "Подстрока найдена!"
-  fi
-  $ ./testbash.sh
-  Подстрока найдена!
-  Source:
-  1. https://zalinux.ru/?p=3870
-  Task:
-  Сохранить результат команды в переменную
-  Decision:
-  $ vim testbash.sh
-  $ cat testbash.sh
-  RESULT=$(echo 'hello')
-  echo $RESULT
-  $ ./testbash.sh
-  hello
-  Source:
-  1. https://ru.stackoverflow.com/questions/326774/%D0%A1%D0%BE%D1%85%D1%80%D0%B0%D0%BD%D0%B8%D1%82%D1%8C-%D1%80%D0%B5%D0%B7%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%82-%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B-%D0%B2-%D0%BF%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D0%BD%D0%BD%D1%83%D1%8E?ysclid=l7mv4wpacm631163365
-  Task:
-  дан файл log.txt
-  80.149.9.216 - 10:30:20 - 300 - htttp://www.google.com
-  70.149.9.216 - 10:30:21 - 300 - htttp://www.google.com
-  83.149.9.216 - 10:30:22 - 325 - htttp://www.google.com
-  напиши скрипт который выведет статистику:
-  ip addgres: sum(KB)
-  ip addgres: sum(KB)
-  Source:
-  1. https://www.youtube.com/playlist?list=PLg5SS_4L6LYuu1RAT4l1tCkZrJzkIaNgL
-  Task:
-  Напишите результат выполнения команды:
-  $ echo 01.05.1889 | sed 's|\(..\).\(..\).\(....\)|\2/\1/\3|'
-  Decision:
-  05/01/1889
-  Task:
-  Напишите результат выполнения команды:
-  $ echo послезавтра | sed 's/после/&&/'
-  Decision:
-  послепослезавтра
-  Task:
-  Напишите результат выполнения команды:
-  $ echo Заморский | sed 's/За/При/'
-  Decision:
-  Приморский
-  Task:
-  Сделайте скрипт, который будет спрашивать имя пользователя и выводить оболочку этого пользователя.
-  Decision:
-  #!/bin/bash
-  read -p "Print urname: " user
-  cat /etc/passwd | grep "/home/$user:" >> testfile2
-  cut -d ':' -f 7 testfile2
-  Task:
-  Нужно полностью удалить неиспользуемые версии пакетов
-  Decision:
-  #!/bin/bash
-  set -eu
-  LANG=en_US.UTF-8 snap list --all | awk '/disabled/{print $1, $3}' |
-  while read snapname revision; do
-    snap remove "$snapname" --revision="$revision"
-  done
-  Task:
-  Сделайте скрипт, который спросит имя пользователя и скажет, является ли пользователь администратором?
-  Decision:
-  #!/bin/bash
-  read -p "Print urname: " user1
-  user2=$(cat /etc/group | grep wheel | cut -d ':' -f 4)
-  if [ "$user1" = "$user2" ]
-  then
-    echo "He is Admin"
-  else
-    echo "He is not Admin"
-  fi
-  Task:
-  Сделайте скрипт, который будет спрашивать название и создавать файл, затем спрашивать права для этого файла и задавать их.
-  Decision:
-  #!/bin/bash
-  read -p "Print name: " name
-  touch $name
-  read -p "What rights are needed? " rights
-  chmod $rights $name
-  Task:
-  Напишите скрипт на bash, который будет определять в какую возрастную группу попадают пользователи. При запуске скрипт должен вывести сообщение "enter your name:" и ждать от пользователя ввода имени (используйте read, чтобы прочитать его). Когда имя введено, то скрипт должен написать "enter your age:" и ждать ввода возраста (опять нужен read). Когда возраст введен, скрипт пишет на экран "<Имя>, your group is <группа>", где <группа> определяется на основе возраста по следующим правилам:
-      младше либо равно 16: "child",
-      от 17 до 25 (включительно): "youth",
-      старше 25: "adult".
-  После этого скрипт опять выводит сообщение "enter your name:" и всё начинается по новой. Если в какой-то момент работы скрипта будет введено пустое имя или возраст 0, то скрипт должен написать на экран "bye" и закончить свою работу.
-  Decision:
-  #!/bin/bash
-  while [[ True ]]
-  do
-      echo "enter your name:"
-      read name
-      if [[ $name == "" ]]
-      then
-          echo "bye"
-          break
-      fi
-      echo "enter your age:"
-      read age
-      if [[ $age == 0 ]]
-      then    
-          echo "bye"
-          break
-      elif [[ $age -le 16 ]]
-      then
-          echo "$name, your group is child"
-      elif [[ $age -ge 17 && $age -le 25 ]]
-      then
-          echo "$name, your group is youth"
-      else
-          echo "$name, your group is adult"
-      fi
-  done
-  Task:
-  у пользователя root создайте cron, чтобы он каждую пятницу в 23:30 записывал содержимое директории /data и содержимое архива /backup/archive.tar в файл /var/log/reports/текущаядата.
-  Decision:
-  #!/bin/bash
-  mkdir /var/log/reports
-  ls -l /data > /var/log/reports/$(date +"%d.%m.%Y")
-  tar -tf /backup/archive.tar >> /var/log/reports/$(date +"%d.%m.%Y")
-  Task:
-  Создайте пользователя backup и настройте для него cron, чтобы тот раз в день находил файлы старее 5 дней в директории /data и добавлял эти файлы в архив /backup/archive.tar, после чего удалял из исходной директории.
-  Decision:
-  #!/bin/bash
-  if find /data/ -type f -mtime +5; then
-    cd /data
-    tar -cvf /backup/archive.tar testfile*
-    rm -rf /data/testfile*
-  else
-          echo "No files"
-  fi
-  Task:
-  Разрешите пользователю helpdesk1 запускать команду Sh-Interview-NewBackup от имени пользователя backup. Команда Sh-Interview-NewBackup должна создавать сжатый архив директории /data и сохранять его в домашней директории пользователя backup с датой в названии.
-  Decision:
-  $ sudo useradd backup1
-  $ sudo passwd backup1
-      Изменение пароля пользователя backup1.
-      Новый пароль:
-      НЕУДАЧНЫЙ ПАРОЛЬ: Пароль должен содержать не менее 8 символов
-      Повторите ввод нового пароля:
-      passwd: данные аутентификации успешно обновлены.
-  $ sudo mkdir /data
-  $ sudo touch /data/testfile{1..5}
-  $ ls -l /data/
-      итого 0
-      -rw-r--r--. 1 root root 0 апр 14 13:14 testfile1
-      -rw-r--r--. 1 root root 0 апр 14 13:14 testfile2
-      -rw-r--r--. 1 root root 0 апр 14 13:14 testfile3
-      -rw-r--r--. 1 root root 0 апр 14 13:14 testfile4
-      -rw-r--r--. 1 root root 0 апр 14 13:14 testfile5
-  $ vim bash-script10
-  $ cat bash-script10
-  #/bin/bash
-  #Разрешите пользователю helpdesk1 запускать команду Bash-GnuLinux-NewBackup от имени пользователя backup. Команда Sh-Interview-NewBackup должна создавать сжатый архив директории /data и сохранять его в домашней директории пользователя backup с датой в названии.
-  #dt=$(date)
-  #echo "$dt"
-  #echo "$(date)"
-  #for line in $(date)
-  #do
-  #    echo "$line"
-  #done
-  #touch testfile5$(date +%y%m%d)
-  sudo tar -cjvf /home/backup1/testArchive$(date +%d%m%y).tar.gz /data/
-  $ bash /home/ur/bash-script10
-      tar: Удаляется начальный `/' из имен объектов
-      /data/
-      /data/testfile5
-      /data/testfile1
-      /data/testfile3
-      /data/testfile2
-      /data/testfile4
-  $ sudo r-t -rf /home/backup1/testArchive150422.tar.gz
-  $ mv bash-script10 Bash-GnuLinux-NewBackup
-  $ sudo cp Bash-GnuLinux-NewBackup /usr/bin/
-  $ sudo cat /etc/sudoers
-      ...
-      ## Allow root to run any commands anywhere
-      root    ALL=(ALL)     ALL
-      sysadmin        ALL=(ALL)       ALL
-      netadmin        ALL=(root)      /usr/bin/nmtui
-      #helpdesk1       ALL=(ALL)   /usr/bin/passwd, !/usr/bin/passwd sysadmin, !/usr/bin/passwd root
-      ...
-  $ sudo visudo
-  $ sudo cat /etc/sudoers
-      ...
-      ## Allow root to run any commands anywhere
-      root    ALL=(ALL)     ALL
-      sysadmin        ALL=(ALL)       ALL
-      netadmin        ALL=(root)      /usr/bin/nmtui
-      #helpdesk1       ALL=(ALL)   /usr/bin/passwd, !/usr/bin/passwd sysadmin, !/usr/bin/passwd root
-      backup1     ALL=(ALL)    ALL
-      helpdesk1     ALL=(backup1)    /usr/bin/Bash-GnuLinux-NewBackup
-      ...
-  $ su - helpdesk1
-  $ su - backup1 -c "sudo Bash-GnuLinux-NewBackup"
-      sudo: a ter-tinal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
-  $ su - helpdesk1
-      Последний вход в систему: Пт апр 15 14:24:48 +08 2022 на pts/0
-  $ su - backup1 Bash-GnuLinux-NewBackup
-      Последний вход в систему: Пт апр 15 14:27:43 +08 2022 на pts/0
-      tar: Удаляется начальный `/' из имен объектов
-      /data/
-      /data/testfile5
-      /data/testfile1
-      /data/testfile3
-      /data/testfile2
-      /data/testfile4
-  $ exit
-      выход
-  $ sudo ls -l /home/backup1/
-      итого 4
-      -rw-r--r--. 1 root    root    183 апр 15 14:28 testArchive150422.tar.gz
-  Task:
-  Cконструируем сценарий, вычисляющий сумму ежемесячных платежей по кредиту. Для передачи сценария программе bc в следующем примере используется встроенный документ. loan-calc : сценарий вычисления суммы ежемесячных платежей по кредиту
-  Decision:
-  #!/bin/bash
-  PROGNAME=$(basename $0)
-  usage () {
-      cat <<- EOF
-      Usage: $PROGNAME PRINCIPAL INTEREST MONTHS
-      Where:
-      PRINCIPAL is the amount of the loan.
-      INTEREST is the APR as a number (7% = 0.07).
-      MONTHS is the length of the loan's term.
-      EOF
-  }
-  if (($# != 3)); then
-      usage
-      exit 1
-  fi
-  principal=$1
-  interest=$2
-  months=$3
-  bc <<- EOF
-      scale = 10
-      i = $interest / 12
-      p = $principal
-      n = $months
-      a = p * ((i * ((1 + i) ^ n)) / (((1 + i) ^ n) - 1))
-      print a, "\n"
-      EOF
-  Task:
-  Определить файл или директория ваши данные
-  Decision:
-  #!/bin/bash
-  dir=/home/ik/* # your data
-  for file in $dir
-  do
-  if [ -d "$file" ]
-  then
-  echo "$file - директория"
-  elif [ -f "$file" ]
-  then
-  echo "$file - файл"
-  else
-  echo "Неизвестный файл"
-  fi
-  done
-  Task:
-  Бэкап архив всех файлов
-  Decision:
-  #!/bin/bash
-  BACKUPFILE=backup
-  archive=${1:-$BACKUPFILE}
-  find . -mtime -1 -type f -print0 | xargs -0 tar rvf "$archive.tar"
-  echo "Каталог $PWD заархивирован в файл \"$archive.tar\"."
-  exit 0
-  Task:
-  Напишите сценарий, который выводит дату, время, список зарегистрировавшихся пользователей, и uptime системы и сохраняет эту информацию в системном журнале.
-  Decision:
-  $ vim Bash-GnuLinux-AboutUserLogFile.sh
-  $ cat Bash-GnuLinux-AboutUserLogFile.sh
-  #!/bin/bash
-  echo "выводит число секунд прошедших с начала эпохи unix:"
-  date '+%s'
-  echo "выводит локальное время:"
-  date '+%F %T'
-  echo "список зарегистрировавшихся обычных пользователей, которые создаются с UID от UID_MIN до UID_MAX которые определены в файле /etc/login.defs:"
-  awk '/^UID/{print $1"="$2}' /etc/login.defs
-  echo "из файла /etc/passwd выбрать только тех пользователей у которых UID (третий столбик :) из этого диапазона:"
-  eval $(awk '/^UID/{print $1"="$2}' /etc/login.defs)
-  awk -v min=$UID_MIN -v max=$UID_MAX -F: '$3>=min && $3<=max {print $1}' /etc/passwd
-  echo "uptime системы:"
-  uptime -p
-  $ ./Bash-GnuLinux-AboutUserLogFile.sh
-      выводит число секунд прошедших с начала эпохи unix:
-      1633836259
-      выводит локальное время:
-      2021-10-09 22:24:19
-      список зарегистрировавшихся обычных пользователей, которые создаются с UID от UID_MIN до UID_MAX которые определены в файле /etc/login.defs:
-      UID_MIN=1000
-      UID_MAX=60000
-      из файла /etc/passwd выбрать только тех пользователей у которых UID (третий столбик :) из этого диапазона:
-      ubuntu
-      uptime системы:
-      up 21 minutes
-  $ cat Bash-GnuLinux-AboutUserLogFile.sh
-  #!/bin/bash
-  echo -e "Дата и Время:;$(date '+%F %T')\nПользователи:;$(eval $(awk '/^UID/{print $1"="$2}' /etc/login.defs) && awk -v min=$UID_MIN -v max=$UID_MAX -F: '$3>=min && $3<=max {print $1}' /etc/passwd)\nВремя работы (начало):;$(uptime -s)\nВремя работы (прошло):;$(uptime -p)" | column -t -s ";" | systemd-cat --identifier="задача3"
-  $ ./Bash-GnuLinux-AboutUserLogFile.sh
-  $ journalctl SYSLOG_IDENTIFIER="задача3"
-      -- Logs begin at Fri 2021-05-21 06:21:13 CDT, end at Sat 2021-10-09 22:33:30 CDT. --
-      Oct 09 22:25:25 ubuntu-VirtualBox задача3[2796]: Дата и Время:           2021-10-09 22:25:25
-      Oct 09 22:25:25 ubuntu-VirtualBox задача3[2796]: Пользователи:           ubuntu
-      Oct 09 22:25:25 ubuntu-VirtualBox задача3[2796]: Время работы (начало):  2021-10-09 22:02:57
-      Oct 09 22:25:25 ubuntu-VirtualBox задача3[2796]: Время работы (прошло):  up 22 minutes
-      Oct 09 22:26:23 ubuntu-VirtualBox задача3[2826]: Дата и Время:           2021-10-09 22:26:23
-      Oct 09 22:26:23 ubuntu-VirtualBox задача3[2826]: Пользователи:           ubuntu
-      Oct 09 22:26:23 ubuntu-VirtualBox задача3[2826]: Время работы (начало):  2021-10-09 22:02:57
-      Oct 09 22:26:23 ubuntu-VirtualBox задача3[2826]: Время работы (прошло):  up 23 minutes
-      Oct 09 22:29:41 ubuntu-VirtualBox задача3[2846]: Дата и Время:           2021-10-09 22:29:41
-      Oct 09 22:29:41 ubuntu-VirtualBox задача3[2846]: Пользователи:           ubuntu
-      Oct 09 22:29:41 ubuntu-VirtualBox задача3[2846]: Время работы (начало):  2021-10-09 22:02:57
-      Oct 09 22:29:41 ubuntu-VirtualBox задача3[2846]: Время работы (прошло):  up 26 minutes
-      Oct 09 22:31:48 ubuntu-VirtualBox задача3[2868]: Дата и Время:           2021-10-09 22:31:48
-      Oct 09 22:31:48 ubuntu-VirtualBox задача3[2868]: Пользователи:           ubuntu
-      Oct 09 22:31:48 ubuntu-VirtualBox задача3[2868]: Время работы (начало):  2021-10-09 22:02:57
-      Oct 09 22:31:48 ubuntu-VirtualBox задача3[2868]: Время работы (прошло):  up 28 minutes
-      Oct 09 22:33:30 ubuntu-VirtualBox задача3[2885]: Дата и Время:           2021-10-09 22:33:30
-      Oct 09 22:33:30 ubuntu-VirtualBox задача3[2885]: Пользователи:           ubuntu
-      Oct 09 22:33:30 ubuntu-VirtualBox задача3[2885]: Время работы (начало):  2021-10-09 22:02:57
-      Oct 09 22:33:30 ubuntu-VirtualBox задача3[2885]: Время работы (прошло):  up 30 minutes
-  Task:
-  Создайте функции просмотра информации о пользователе(1), создания пользователя(2), удаления пользователя (3). Используйте case и select для использования этих функций в виде меню.
-  Decision:
-  $ cat Bash-GnuLinux-AboutUser1.sh
-  #/bin/bash
-  aboutuser() {
-      read -p "About user: " line
-      cat /etc/passwd | grep -w $line
-  }
-  adduser(){
-      read -p "Add user: " name
-          #cut -d':' -f1 /etc/passwd | grep -w $name
-  }
-  deleteuser(){
-          read -p "Delete user: " name
-          #cut -d':' -f1 /etc/passwd | grep -w $name
-  }
-  user() {
-      select option in "About user" "Add user" "Delete user" "Exit"
-      do
-          case $option in
-              "About user") aboutuser ;;
-              "Add user") adduser ;;
-              "Delete user") deleteuser ;;
-              "Exit") break ;;
-              *) echo Wrong option ;;
-          esac
-      done
-  }
-  user
-  $ ./Bash-GnuLinux-AboutUser1.sh
-  1) About user
-  2) Add user
-  3) Delete user
-  4) Exit
-  #? 1
-  About user: d
-  d:x:1000:1000:,,,:/home/d:/bin/bash
-  #? 4
-  Task:
-  Создайте скрипт, который запрашивает имя пользователя, а в ответ выводит информацию о пользователе – его uid, домашнюю директорию, список групп, в которых он состоит.
-  После этого скрипт должен спросить, что следует поменять – uid, домашнюю директорию или группу.
-  Если uid, то сначала проверить, доступен ли такой uid, если нет – то один раз предложить ввести заново.
-  Если домашнюю директорию, то спросить, на какую директорию следует сменить, а также следует ли перемещать домашнюю директорию.
-  После чего следует вывести на экран итоговую команду.
-  Decision:
-  $ cat Bash-GnuLinux-AboutUser.sh
-  #/bin/bash
-  read -p "Print username: " user
-  #idd=$(id -u $user)
-  id1=$(cat /etc/passwd | grep $user | cut -d ':' -f 4)
-  home1=$(cat /etc/passwd | grep $user | cut -d ':' -f 6)
-  group1=$(cat /etc/group | grep $user | cut -d ':' -f 1)
-  echo "uid = $id1"
-  echo "home = $home1"
-  echo "group = $group1"
-  read -p "What should be changed? (uid/home/group): " change
-  #echo "$change"
-  if [ $change == "uid" ]
-  then
-      read -p "Write youser own version: " id2
-      if cut -d':' -f3 /etc/passwd | grep -w $id2
-      then
-          echo "there is such a user"
-      else
-          #echo "there is no such user"
-          read -p "Re-Enter. Write youser own version: " id2
-          if cut -d':' -f3 /etc/passwd | grep -w $id2
-              then
-                      echo "there is such a user"
-          fi
-      fi
-  elif [ $change == "home" ]
-  then
-      read -p "Write youser own version: " home2
-      if cut -d':' -f6 /etc/passwd | grep -w $home2
-          then
-          echo "Such a directory already exists"
-      else
-          echo "This is a unique home directory"
-      fi
-  elif [ $change == "group" ]
-  then
-      read -p "Write youser own version: " group2
-      if cut -d':' -f1 /etc/group | grep -w $group2
-      then
-          echo "+"
-      else
-          echo "-"
-      fi
-  else
-      echo "command not found"
-  fi
-  $ ./Bash-GnuLinux-AboutUser.sh
-  Print username: david
-  uid = 1000
-  home = /home/david
-  group = dialout
-  cdrom
-  floppy
-  sudo
-  audio
-  dip
-  video
-  plugdev
-  netdev
-  What should be changed? (uid/home/group): uid
-  Write youser own version: 45435
-  Re-Enter. Write youser own version: 34534
-  Task:
-  async-child : пример асинхронного выполнения (потомок)
-  Decision:
-  #!/bin/bash
-  echo "Child: child is running..."
-  sleep 5
-  echo "Child: child is done. Exiting."
-  Task:
-  пример асинхронного выполнения (родитель)
-  Decision:
-  #!/bin/bash
-  # async-parent : 
-  echo "Parent: starting..."
-  echo "Parent: launching child script..."
-  async-child &
-  pid=$!
-  echo "Parent: child (PID= $pid) launched."
-  echo "Parent: continuing..."
-  sleep 2
-  echo "Parent: pausing to wait for child to finish..."
-  wait $pid
-  echo "Parent: child is finished. Continuing..."
-  echo "Parent: parent is done. Exiting."
-  Task:
-  программа вывода системной информации, управляемая с помощью меню
-  Decision:
-  #!/bin/bash
-  # case-menu: 
-  clear
-  echo "
-  Please Select:
-  1. Display System Information
-  2. Display Disk Space
-  3. Display Home Space Utilization
-  0. Quit
-  "
-  read -p "Enter selection [0-3] > "
-  case $REPLY in
-      q|Q)    echo "Program terminated."
-              exit
-              ;;
-      a|A)    echo "Hostname: $HOSTNAME"
-              uptime
-              ;;
-      b|B)    df -h
-              ;;
-      c|C)    if [[ $(id -u) -eq 0 ]]; then
-                  echo "Home Space Utilization (All Users)"
-                  du -sh /home/*
-              else
-                  echo "Home Space Utilization ($USER)"
-                  du -sh $HOME
-              fi
-              ;;
-      *)      echo "Invalid entry." >&2
-              exit 1
-              ;;
-  esac
-  Task:
-  простая программа получения информации о файле
-  Decision:
-  #!/bin/bash
-  # file_info: 
-  PROGNAME=$(basename $0)
-  if [[ -e $1 ]]; then
-      echo -e "\nFile Type:"
-      file $1
-      echo -e "\nFile Status:"
-      stat $1
-  else
-      echo "$PROGNAME: usage: $PROGNAME file" >&2
-      exit 1
-  fi
-  Task:
-  сценарий для подсчета файлов по времени изменения
-  Decision:
-  #/bin/bash
-  # hours : 
-  usage () {
-      echo "usage: $(basename $0) directory" >&2
-  }
-  # Убедиться, что аргумент является каталогом
-  if [[ ! -d $1 ]]; then
-      usage
-      exit 1
-  fi
-  # Инициализировать массив
-  for i in {0..23}; do hours[i]=0; done
-  # Собрать данные
-  for i in $(stat -c %y "$1"/* | cut -c 12-13); do
-      j=${i/#0}
-      ((++hours[j]))
-      ((++count))
-  done
-  # Вывести данные
-  echo -e "Hour\tFiles\tHour\tFiles"
-  echo -e "----\t-----\t----\t-----"
-  for i in {0..11}; do
-      j=$((i + 12))
-      printf "%02d\t%d\t%02d\t%d\n" $i ${hours[i]} $j ${hours[j]}
-  done
-  printf "\nTotal files = %d\n" $count
-  Task:
-  сценарий для просмотра параметров командной строки
-  Decision:
-  #!/bin/bash
-  # posit-param: 
-  echo "
-  Number of arguments: $#
-  \$0 = $0
-  \$1 = $1
-  \$2 = $2
-  \$3 = $3
-  \$4 = $4
-  \$5 = $5
-  \$6 = $6
-  \$7 = $7
-  \$8 = $8
-  \$9 = $9
-  "
-  Task:
-  демонстрация подстановки процессов
-  Decision:
-  #/bin/bash
-  # pro-sub : 
-  while read attr links owner group size date time filename; do
-      cat <<- EOF
-          Filename:   $filename
-          Size:       $size
-          Owner:      $owner
-          Group:      $group
-          Modified:   $date $time
-          Links:      $links
-          Attributes: $attr
-      EOF
-  done < <(ls -l | tail -n +2)
-  Task:
-  чтение полей из файла
-  Decision:
-  #!/bin/bash
-  # read-ifs: 
-  FILE=/etc/passwd
-  read -p "Enter a username > " user_name
-  file_info=$(grep "^$user_name:" $FILE)
-  if [ -n "$file_info" ]; then
-      IFS=":" read user pw uid gid name home shell <<< "$file_info"
-      echo "User = '$user'"
-      echo "UID = '$uid'"
-      echo "GID = '$gid'"
-      echo "Full Name = '$name'"
-      echo "Home Dir. = '$home'"
-      echo "Shell = '$shell'"
-  else
-      echo "No such user '$user_name'" >&2
-      exit 1
-  fi
-  Task:
-  программа вывода системной информации, управляемая с помощью меню
-  Decision:
-  #!/bin/bash
-  # read-menu: 
-  clear
-  echo "
-  Please Select:
-  1. Display System Information
-  2. Display Disk Space
-  3. Display Home Space Utilization
-  0. Quit
-  "
-  read -p "Enter selection [0-3] > "
-  if [[ $REPLY =~ ^[0-3]$ ]]; then
-      if [[ $REPLY == 0 ]]; then
-          echo "Program terminated."
-          exit
-      fi
-      if [[ $REPLY == 1 ]]; then
-          echo "Hostname: $HOSTNAME"
-          uptime
-          exit
-      fi
-      if [[ $REPLY == 2 ]]; then
-          df -h
-          exit
-      fi
-      if [[ $REPLY == 3 ]]; then
-          if [[ $(id -u) -eq 0 ]]; then
-              echo "Home Space Utilization (All Users)"
-              du -sh /home/*
-          else
-              echo "Home Space Utilization ($USER)"
-              du -sh $HOME
-          fi
-          exit
-      fi
-  else
-      echo "Invalid entry." >&2
-      exit 1 fi
-  Task:
-  ввод секретного пароля
-  Decision:
-  #!/bin/bash
-  # read-secret: 
-  if read -t 10 -sp "Enter secret passphrase > " secret_pass; then
-      echo -e "\nSecret passphrase = '$secret_pass'"
-  else
-      echo -e "\nInput timed out" >&2
-      exit 1
-  fi
-  Task:
-  проверка ввода
-  Decision:
-  #!/bin/bash
-  # read-validate: 
-  invalid_input () {
-      echo "Invalid input '$REPLY'" >&2
-      exit 1
-  }
-  read -p "Enter a single item > "
-  # пустой ввод (недопустимо)
-  [[ -z $REPLY ]] && invalid_input
-  # ввод множества элементов (недопустимо)
-  (( $(echo $REPLY | wc -w) > 1 )) && invalid_input
-  # введено допустимое имя файла?
-  if [[ $REPLY =~ ^[-[:alnum:]\._]+$ ]]; then
-      echo "'$REPLY' is a valid filename."
-      if [[ -e $REPLY ]]; then
-          echo "And file '$REPLY' exists."
-      else
-          echo "However, file '$REPLY' does not exist."
-      fi
-      # введено вещественное число?
-      if [[ $REPLY =~ ^-?[[:digit:]]*\.[[:digit:]]+$ ]]; then
-          echo "'$REPLY' is a floating point number."
-      else
-          echo "'$REPLY' is not a floating point number."
-      fi
-      # введено целое число?
-      if [[ $REPLY =~ ^-?[[:digit:]]+$ ]]; then
-          echo "'$REPLY' is an integer."
-      else
-          echo "'$REPLY' is not an integer."
-      fi
-  else
-      echo "The string '$REPLY' is not a valid filename."
-  fi
-  Task:
-  Программа вывода страницы с информацией о системе
-  Decision:
-  #/bin/bash
-  PROGNAME=$(basename $0)
-  TITLE="System Information Report For $HOSTNAME"
-  CURRENT_TIME=$(date +"%x %r %Z")
-  TIME_STAMP="Generated $CURRENT_TIME, by $USER"
-  report_uptime () {
-      cat <<- _EOF_
-          <H2>System Uptime</H2>
-          <PRE>$(uptime)</PRE>
-          _EOF_
-      return
-  }
-  report_disk_space () {
-      cat <<- _EOF_
-          <H2>Disk Space Utilization</H2>
-          <PRE>$(df -h)</PRE>
-          _EOF_
-      return
-  }
-  report_home_space () {
-      local format="%8s%10s%10s\n"
-      local i dir_list total_files total_dirs total_size user_name
-      if [[ $(id -u) -eq 0 ]]; then
-          dir_list=/home/*
-          user_name="All Users"
-      else
-          dir_list=$HOME
-          user_name=$USER
-      fi
-      echo "<H2>Home Space Utilization ($user_name)</H2>"
-      for i in $dir_list; do   
-          total_files=$(find $i -type f | wc -l)
-          total_dirs=$(find $i -type d | wc -l)
-          total_size=$(du -sh $i | cut -f 1)
-          echo "<H3>$i</H3>"
-          echo "<PRE>"
-          printf "$format" "Dirs" "Files" "Size"
-          printf "$format" "----" "-----" "----"
-          printf "$format" $total_dirs $total_files $total_size
-          echo "</PRE>"
-      done
-      return
-  }
-  usage () {
-      echo "$PROGNAME: usage: $PROGNAME [-f file | -i]"
-      return
-  }
-  write_html_page () {
-      cat <<- _EOF_
-      <HTML>
-          <HEAD>
-              <TITLE>$TITLE</TITLE>
-          </HEAD>
-          <BODY>
-              <H1>$TITLE</H1>
-              <P>$TIME_STAMP</P>
-              $(report_uptime)
-              $(report_disk_space)
-              $(report_home_space)    
-          </BODY>
-      </HTML>
-      _EOF_
-      return
-  }
-  # обработка параметров командной строки
-  interactive=
-  filename=
-  while [[ -n $1 ]]; do
-      case $1 in
-      -f | --file)        shift
-                  filename=$1
-                  ;;
-      -i | --interactive) interactive=1
-                  ;;
-      -h | --help)        usage
-                  exit
-                  ;;
-      *)          usage >&2
-                  exit 1
-                  ;;
-      esac
-      shift
-  done
-  # интерактивный режим
-  if [[ -n $interactive ]]; then
-      while true; do
-      read -p "Enter name of output file: " filename
-          if [[ -e $filename ]]; then
-              read -p "'$filename' exists. Overwrite? [y/n/q] > "
-              case $REPLY in
-                  Y|y)    break
-                      ;;
-                  Q|q)    echo "Program terminated."
-                      exit
-                      ;;
-                  *)  continue
-                      ;;
-              esac
-          fi
-      done
-  fi
-  # вывод страницы html
-  if [[ -n $filename ]]; then
-      if touch $filename && [[ -f $filename ]]; then
-          write_html_page > $filename
-      else
-          echo "$PROGNAME: Cannot write file '$filename'" >&2
-          exit 1
-      fi
-  else
-      write_html_page
-  fi
-  Task:
-  сценарий для демонстрации распространенных видов ошибок
-  Decision:
-  #!/bin/bash
-  # trouble: 
-  number=1
-  echo "number=$number" # ОТЛАДКА
-  set -x # Включить трассировку
-  if [ $number = 1 ]; then
-  echo "Number is equal to 1."
-  else
-  echo "Number is not equal to 1."
-  fi
-  set +x # Выключить трассировку
-  Task:
-  программа вывода системной информации, управляемая с помощью меню
-  Decision:
-  #!/bin/bash
-  # while-menu: 
-  DELAY=3 # Время отображения результатов на экране (в секундах)
-  while [[ $REPLY != 0 ]]; do
-  clear
-  cat <<- _EOF_
-  Please Select:
-  1. Display System Information
-  2. Display Disk Space
-  3. Display Home Space Utilization
-  4. Quit
-  _EOF_
-  read -p "Enter selection [0-3] > "
-  if [[ $REPLY =~ ^[0-3]$ ]]; then
-  if [[ $REPLY == 1 ]]; then
-  echo "Hostname: $HOSTNAME"
-  uptime
-  sleep $DELAY
-  fi
-  if [[ $REPLY == 2 ]]; then
-  df -h
-  sleep $DELAY
-  fi
-  if [[ $REPLY == 3 ]]; then
-  if [[ $(id -u) -eq 0 ]]; then
-  echo "Home Space Utilization (All Users)"
-  du -sh /home/*
-  else
-  echo "Home Space Utilization ($USER)"
-  du -sh $HOME
-  fi
-  sleep $DELAY
-  fi
-  else
-  echo "Invalid entry."
-  sleep $DELAY
-  fi
-  done
-  echo "Program terminated."
-  Task:
-  программа вывода системной информации, управляемая с помощью меню
-  Decision:
-  #!/bin/bash
-  # while-menu2: 
-  DELAY=3 # Время отображения результатов на экране (в секундах)
-  while true; do
-  clear
-  cat <<- _EOF_
-  Please Select:
-  1. Display System Information
-  2. Display Disk Space
-  3. Display Home Space Utilization
-  4. Quit
-  _EOF_
-  read -p "Enter selection [0-3] > "
-  if [[ $REPLY =~ ^[0-3]$ ]]; then
-  if [[ $REPLY == 1 ]]; then
-  echo "Hostname: $HOSTNAME"
-  uptime
-  sleep $DELAY
-  continue
-  fi
-  if [[ $REPLY == 2 ]]; then
-  df -h
-  sleep $DELAY
-  continue
-  fi
-  if [[ $REPLY == 3 ]]; then
-  if [[ $(id -u) -eq 0 ]]; then
-  echo "Home Space Utilization (All Users)"
-  du -sh /home/*
-  else
-  echo "Home Space Utilization ($USER)"
-  du -sh $HOME
-  fi
-  sleep $DELAY
-  continue
-  fi
-  if [[ $REPLY == 0 ]]; then
-  break
-  fi
-  else
-  echo "Invalid entry."
-  sleep $DELAY
-  fi
-  done
-  echo "Program terminated."
-  Task:
-  чтение строк из файла
-  Decision:
-  #!/bin/bash
-  # while-read: 
-  while read distro version release; do
-  printf "Distro: %s\tVersion: %s\tReleased: %s\n" \
-  $distro \
-  $version \
-  $release
-  done < distros.txt
-  Task:
-  чтение строк из файла
-  Decision:
-  #!/bin/bash
-  # while-read2: 
-  sort -k 1,1 -k 2n distros.txt | while read distro version release; do
-  printf "Distro: %s\tVersion: %s\tReleased: %s\n" \
-  $distro \
-  $version \
-  $release
-  done
-  Task:
-  Напишите bash-скрипт, сохраняющий подробное описание объектов, расположенных в каталоге /home/de13ma, но не принадлежащих пользователю de13ma (владелец не de13ma) в файл description.txt. В задаче есть допущение что имя файла или группы не может содержать слово de13ma.
-  Decision:
-  $ cat Linux-Description4.sh
-  #!/bin/bash
-  ls -l /home/de13ma | grep -v "de13ma" > /home/de13ma/gabn/description.txt
-  Task:
-  Напишите bash-скрипт, сохраняющий все запущенные процессы пользователя de13ma в файл processes.txt. В задаче есть допущение что имя процесса не может содержать слово de13ma.
-  Decision:
-  $ cat Linux-Processes4.sh
-  #!/bin/bash
-  ps -fu de13ma > processes.txt
-  Task:
-  Записать строку в конец файла linux 
-  Decision:
-  $ cat testfile
-  Hey
-  $ cat testscript.sh
-  #!/bin/bash
-  echo USERSPASSWORD | sudo -S sudo sh -c "echo 'bro' >> /home/dato/testdir/testfile"
-  $ ./testscript.sh
-  $ ./testscript.sh
-  $ cat testfile
-  Hey
-  bro
-  bro
-  Source:
-  https://jeka.by/ask/165/bash-add-string-in-file/
-  Task:
-  Напишите скрипт на bash, который принимает на вход два аргумента и выводит на экран строку следующего вида:
-  Arguments are: $1=первый_аргумент $2=второй_аргумент
-  Decision:
-  $ cat Linux-StandartStreams.sh
-  #/bin/bash
-  var1=$1
-  var2=$2
-  echo "Arguments are:" \$1=$var1 \$2=$var2
-  Task:
-  Напишите скрипт на bash, который принимает на вход один аргумент (целое число от 0 до бесконечности), который будет обозначать число студентов в аудитории. В зависимости от значения числа нужно вывести разные сообщения.
-  Соответствие входа и выхода должно быть таким:
-      0 -->  No students
-      1 -->  1 student
-      2 -->  2 students
-      3 -->  3 students
-      4 -->  4 students
-      5 и больше --> A lot of students
-  Decision:
-  $ cat Linux-StandartStreams2.sh
-  #!/bin/bash
-  number=student
-  case $1 in
-  0) result="No ${number}s";;
-  1) result="$1 ${number}";;
-  [2-4]) result="$1 ${number}s";;
-  *) result="A lot of ${number}s";;
-  esac
-  echo "$result"
-  Task:
-  Предположим, вы пишете скрипт на bash и хотите использовать в нем конструкцию if в следующем фрагменте:
-      if [[ ... ]]
-      then
-        echo "True"
-      fi
-  Вы можете вписать вместо "..." (внутри [[ ]] и не забудьте про пробелы после [[ и перед ]]!) любое из перечисленных ниже условий.
-  1) $# -ge 0
-  2) $var1 == $var2 && $var1 != $var2
-  3) -e $0
-  4) -z " "
-  5) -s $0
-  6) $var1 == $var2 || $var1 != $var2
-  Однако мы просим вас выбрать только те из них, при которых echo напечатает на экран True вне зависимости от того, с какими параметрами был запущен ваш скрипт и какие в нем есть переменные.
-  #Например, условие 0 -eq 0 подходит, т.к. ноль всегда равен нулю вне зависимости от аргументов и переменных внутри скрипта и на экран будет напечатано True.  В то же время условие $var1 -eq 0 не подходит, так как в переменной var1 как может быть записан ноль (тогда будет напечатано True), так его может и не быть (тогда ничего напечатано не будет).
-  Decision:
-  $ cat Linux-StandartStreams1.sh
-  #!/bin/bash
-  if [[ $# -ge 0 ]] # -ge больше или равно
-  then
-    echo "True1"
-  fi
-  if [[ $var1 == $var2 && $var1 != $var2 ]]
-  then
-    echo "True2"
-  fi
-  if [[ -e $0 ]] # -e <путь> путь существует
-  then
-    echo "True3"
-  fi
-  if [[ -z " " ]] # -z <строка> строка пуста
-  then
-    echo "True4"
-  fi
-  if [[ -s $0 ]] # -s <путь> размер файла больше 0
-  then
-    echo "True5"
-  fi
-  if [[ $var1 == $var2 || $var1 != $var2 ]]
-  then
-    echo "True6"
-  fi
-  Task:
-  Создайте файл со списком пользователей. С помощью for выведите на экран текст: «Creating new ur: uradd имя_пользователя».
-  Decision:
-  $ cat Linux-CreatingNewUser.sh
-  #/bin/bash
-  cut -d':' -f1 /etc/passwd >> testfile4
-  for line in $(cat testfile4)
-  do echo "Creating new ur: uradd $line"
-  done
-  Task:
-  Определить, что является файлом, а что папкой в заданном каталоге
-  Decision:
-  $ cat Linux-LsLtAFileOrADirectory.sh
-  #!/bin/bash
-  dir=/home/*
-  for file in $dir
-  do
-  if [ -d "$file" ]
-  then
-  echo "$file - директория"
-  elif [ -f "$file" ]
-  then
-  echo "$file - файл"
-  else
-  echo "Неизвестный файл"
-  fi
-  done
-  Task:
-  Что делает следующий скрипт:
-  #!/bin/bash
-  Filial="CH"
-  EXT="VF_CHR"
-  Period="201502" 
-  DIRIN="/home/siu01/ITC/${Filial}/2015/02"
-  FNAME="${Filial}_${Period}"
-  rm -f ${FNAME}.*
-  for FN in `find ${DIRIN} -type f -name '*'${EXT} | grep -E '_TrunkB.*'${EXT}'|_02.*'${EXT} | sort`
-  do
-   echo ${FN} >> ${FNAME}.txt
-   cat ${FN} | awk -F "," 'substr($7,2,6)=="800505" || substr($7,2,6)=="800777" {print $0}' >> ${FNAME}.dat1
-  done
-  cat ${FNAME}.dat1 | sort -u | sort -t "," -k 7 > ${FNAME}.dat
-  rm -f ${FNAME}.dat1
-  cat ${FNAME}.dat | awk -F "," -v fl=${Filial} \
-  '{if(substr($7,2,6)=="800505") {DUR += $9; Q++;}} END {printf "%-5s\t%5s\t%10s\n",fl,Q,DUR}' >> 800505_${Period}.txt
-  cat ${FNAME}.dat | awk -F "," -v fl=${Filial} \
-  '{if(substr($7,2,6)=="800777") {DUR += $9; Q++;}} END {printf "%-5s\t%5s\t%10s\n",fl,Q,DUR}' >> 800777_${Period}.txt
-  Task:
-  Составте конвейер, при помощи которого слово ABRAKADABRA, выведется на экран с заменой букв R на L (echo, tr)
-  Task:
-  Напишите программу на любом скриптовом языке, которая позволит мониторить состояние http сервера (параметры мониторинга придумайте сами).
-  Вход: ./http_check www.mail.ru
-  Коды выхода:
-  0 – Ок
-  1 – Warning
-  2 – Critical
-  Task:
-  Напишите регулярку, которая завхватывает имена pdf файлов из этих урлов?
-  http://server.com/downloads/life_changing_plans.pdf
-  http://server.com/downl/life_changing_plans.doc
-  https://server-dot.com/root.pdf
-  Task:
-  Нужно этот код программы:
-  #!/bin/bash
-  # read-integer: проверка целочисленного значения.
-  echo -n "Please enter an integer -> "
-  read int
-  if [[ "$int" =~ ^-?[0-9]+$ ]]; then
-      if [ $int -eq 0 ]; then
-          echo "$int is zero."
-      else
-          if [ $int -lt 0 ]; then
-              echo "$int is negative."
-          else
-              echo "$int is positive."
-          fi
-          if [ $((int % 2)) -eq 0 ]; then
-              echo "$int is even."
-          else
-              echo "$int is odd."
-          fi
-      fi
-  else
-      echo "Input value is not an integer." >&2
-      exit 1
-  fi
-  переписать используя команду test вместо составной команды [[ ]] . Подсказка: использовать grep для сопоставления с регулярными выражениями
-  Decision:
-  echo "$int" | grep -Eo '^-?[0-9]+$'
+    echo '/var/log/mylog.crit
+    {
+            dateext
+            weekly
+            rotate 5
+    }' > /etc/logrotate.d/mylogcrit.conf
+    sudo logrotate -f /etc/logrotate.d/mylogcrit.conf
+    $ cat /etc/logrotate.d/mylog
+    mylogcrit.conf   mylogdebug.conf  mylogerror.conf  
+    $ cat /etc/logrotate.d/mylogdebug.conf
+    /var/log/mylog.debug
+    {
+        dateext
+        daily
+        rotate 5
+        compress
+    }
+    $ sudo cat /var/log/messages | grep 'This is '
+        Apr 28 11:34:58 i6 ur[6745]: This is error -> error
+        Apr 28 11:34:58 i6 ur[6746]: This is critical error -> crit
+        Apr 28 11:35:31 i6 root[6766]: This is error -> error
+        Apr 28 11:35:31 i6 root[6767]: This is critical error -> crit
+        Apr 28 11:40:00 i6 root[6828]: This is error -> error
+        Apr 28 11:40:00 i6 root[6829]: This is critical error -> crit
+        Apr 28 11:42:18 i6 root[6872]: This is error -> error
+        Apr 28 11:42:18 i6 root[6873]: This is critical error -> crit
+        Apr 28 11:44:04 i6 root[6903]: This is error -> error
+        Apr 28 11:44:04 i6 root[6904]: This is critical error -> crit
+        Apr 28 11:46:30 i6 root[6942]: This is error -> error
+        Apr 28 11:46:30 i6 root[6943]: This is critical error -> crit
+    $ sudo journalctl -e | grep 'This is '
+        апр 28 11:34:58 i6.rt.ru ur[6744]: This is normal log -> debug
+        апр 28 11:34:58 i6.rt.ru ur[6745]: This is error -> error
+        апр 28 11:34:58 i6.rt.ru ur[6746]: This is critical error -> crit
+        апр 28 11:35:31 i6.rt.ru root[6765]: This is normal log -> debug
+        апр 28 11:35:31 i6.rt.ru root[6766]: This is error -> error
+        апр 28 11:35:31 i6.rt.ru root[6767]: This is critical error -> crit
+        апр 28 11:40:00 i6.rt.ru root[6827]: This is normal log -> debug
+        апр 28 11:40:00 i6.rt.ru root[6828]: This is error -> error
+        апр 28 11:40:00 i6.rt.ru root[6829]: This is critical error -> crit
+        апр 28 11:42:18 i6.rt.ru root[6871]: This is normal log -> debug
+        апр 28 11:42:18 i6.rt.ru root[6872]: This is error -> error
+        апр 28 11:42:18 i6.rt.ru root[6873]: This is critical error -> crit
+        апр 28 11:44:04 i6.rt.ru root[6902]: This is normal log -> debug
+        апр 28 11:44:04 i6.rt.ru root[6903]: This is error -> error
+        апр 28 11:44:04 i6.rt.ru root[6904]: This is critical error -> crit
+        апр 28 11:46:30 i6.rt.ru root[6941]: This is normal log -> debug
+        апр 28 11:46:30 i6.rt.ru root[6942]: This is error -> error
+        апр 28 11:46:30 i6.rt.ru root[6943]: This is critical error -> crit
+    Task:
+    Создайте файл /etc/allowedurs, в котором пропишите логин своего пользователя.
+    Создайте скрипт, который сначала проверит, имеет ли данный текущий пользователь право запускать скрипт (пользователь должен быть в списке /etc/allowedurs). Если прав нету, то следует вывести на экран сообщение «This incident will be reported», а в syslog в секцию error написать «ur urname tried to run this script!». После запуска скрипт должен вывести содержимое директории /data/. После чего предложить пользователю указать имя файла и указать дату и время модификации для смены.
+    Decision:
+    $ sudo vim /etc/allowedurs
+    [sudo] пароль для ur:
+    $ cat /etc/allowedurs
+    root
+    it
+    $ vim BASH-LogScript3.sh
+    $ cat BASH-LogScript3.sh
+    #!/bin/bash
+    name1=$(whoami)
+    #echo $name1
+    cmd1=$(cat /etc/allowedurs | grep $name1)
+    #echo $cmd1
+    #for line1 in $(cat /etc/allowedurs)
+    #do
+    #    echo 'line1' $line1
+        #if [[ $name1 == $line1 ]];
+        #then
+        #    echo '+'
+        #else
+        #    echo '-'
+        #fi    
+    #done
+    if cat /etc/allowedurs | grep $name1
+    then
+        echo '+'
+    else
+        echo 'This incident will be reported'
+        logger -p local2.err "ur $name1 tried to run this script!"
+    fi
+    ls /data
+    read -p "specify the file name: " rename
+    read -p "specify the modification date and time for the shift: " date
+    $ whoami
+        ur
+    $ ./BASH-LogScript3.sh
+        This incident will be reported
+        testfile1  testfile2  testfile3  testfile4  testfile5
+        specify the file name: ur2
+        specify the modification date and time for the shift: 2019.10.12 19:15   
+    $ sudo journalctl -e | grep 'tried to run this '
+        апр 28 16:23:20 i6.rt.ru ur[8491]: ur urname tried to run this script!
+        апр 28 16:24:51 i6.rt.ru ur[8513]: ur ur tried to run this script!
+        апр 28 16:26:52 i6.rt.ru ur[8534]: ur ur tried to run this script!
+        апр 28 16:30:09 i6.rt.ru ur[8556]: ur ur tried to run this script!
+        апр 28 16:33:16 i6.rt.ru ur[8567]: ur ur tried to run this script!
+        апр 28 16:34:36 i6.rt.ru ur[8591]: ur ur tried to run this script!
+    Task:
+    Как в Bash проверить, содержит ли строка подстроку
+    Decision:
+    $ vim testbash.sh
+    $ cat testbash.sh
+    #!/bin/bash
+    ##############
+    #RESULT=$(echo 'hello')
+    #echo $RESULT
+    ##############
+    #echo -n "Enter a number: "
+    #read VAR
+    #if [[ $VAR -gt 10 ]]
+    #then
+    # echo "The variable is greater than 10."
+    #fi
+    ##############
+    string='Моя длинная строка'
+    if [[ $string == *"Моя длинная"* ]]; then
+    echo "Подстрока найдена!"
+    fi
+    $ ./testbash.sh
+    Подстрока найдена!
+    Source:
+    1. https://zalinux.ru/?p=3870
+    Task:
+    Сохранить результат команды в переменную
+    Decision:
+    $ vim testbash.sh
+    $ cat testbash.sh
+    RESULT=$(echo 'hello')
+    echo $RESULT
+    $ ./testbash.sh
+    hello
+    Source:
+    1. https://ru.stackoverflow.com/questions/326774/%D0%A1%D0%BE%D1%85%D1%80%D0%B0%D0%BD%D0%B8%D1%82%D1%8C-%D1%80%D0%B5%D0%B7%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%82-%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B-%D0%B2-%D0%BF%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D0%BD%D0%BD%D1%83%D1%8E?ysclid=l7mv4wpacm631163365
+    Task:
+    дан файл log.txt
+    80.149.9.216 - 10:30:20 - 300 - htttp://www.google.com
+    70.149.9.216 - 10:30:21 - 300 - htttp://www.google.com
+    83.149.9.216 - 10:30:22 - 325 - htttp://www.google.com
+    напиши скрипт который выведет статистику:
+    ip addgres: sum(KB)
+    ip addgres: sum(KB)
+    Source:
+    1. https://www.youtube.com/playlist?list=PLg5SS_4L6LYuu1RAT4l1tCkZrJzkIaNgL
+    Task:
+    Напишите результат выполнения команды:
+    $ echo 01.05.1889 | sed 's|\(..\).\(..\).\(....\)|\2/\1/\3|'
+    Decision:
+    05/01/1889
+    Task:
+    Напишите результат выполнения команды:
+    $ echo послезавтра | sed 's/после/&&/'
+    Decision:
+    послепослезавтра
+    Task:
+    Напишите результат выполнения команды:
+    $ echo Заморский | sed 's/За/При/'
+    Decision:
+    Приморский
+    Task:
+    Сделайте скрипт, который будет спрашивать имя пользователя и выводить оболочку этого пользователя.
+    Decision:
+    #!/bin/bash
+    read -p "Print urname: " user
+    cat /etc/passwd | grep "/home/$user:" >> testfile2
+    cut -d ':' -f 7 testfile2
+    Task:
+    Нужно полностью удалить неиспользуемые версии пакетов
+    Decision:
+    #!/bin/bash
+    set -eu
+    LANG=en_US.UTF-8 snap list --all | awk '/disabled/{print $1, $3}' |
+    while read snapname revision; do
+        snap remove "$snapname" --revision="$revision"
+    done
+    Task:
+    Сделайте скрипт, который спросит имя пользователя и скажет, является ли пользователь администратором?
+    Decision:
+    #!/bin/bash
+    read -p "Print urname: " user1
+    user2=$(cat /etc/group | grep wheel | cut -d ':' -f 4)
+    if [ "$user1" = "$user2" ]
+    then
+        echo "He is Admin"
+    else
+        echo "He is not Admin"
+    fi
+    Task:
+    Сделайте скрипт, который будет спрашивать название и создавать файл, затем спрашивать права для этого файла и задавать их.
+    Decision:
+    #!/bin/bash
+    read -p "Print name: " name
+    touch $name
+    read -p "What rights are needed? " rights
+    chmod $rights $name
+    Task:
+    Напишите скрипт на bash, который будет определять в какую возрастную группу попадают пользователи. При запуске скрипт должен вывести сообщение "enter your name:" и ждать от пользователя ввода имени (используйте read, чтобы прочитать его). Когда имя введено, то скрипт должен написать "enter your age:" и ждать ввода возраста (опять нужен read). Когда возраст введен, скрипт пишет на экран "<Имя>, your group is <группа>", где <группа> определяется на основе возраста по следующим правилам:
+        младше либо равно 16: "child",
+        от 17 до 25 (включительно): "youth",
+        старше 25: "adult".
+    После этого скрипт опять выводит сообщение "enter your name:" и всё начинается по новой. Если в какой-то момент работы скрипта будет введено пустое имя или возраст 0, то скрипт должен написать на экран "bye" и закончить свою работу.
+    Decision:
+    #!/bin/bash
+    while [[ True ]]
+    do
+        echo "enter your name:"
+        read name
+        if [[ $name == "" ]]
+        then
+            echo "bye"
+            break
+        fi
+        echo "enter your age:"
+        read age
+        if [[ $age == 0 ]]
+        then    
+            echo "bye"
+            break
+        elif [[ $age -le 16 ]]
+        then
+            echo "$name, your group is child"
+        elif [[ $age -ge 17 && $age -le 25 ]]
+        then
+            echo "$name, your group is youth"
+        else
+            echo "$name, your group is adult"
+        fi
+    done
+    Task:
+    у пользователя root создайте cron, чтобы он каждую пятницу в 23:30 записывал содержимое директории /data и содержимое архива /backup/archive.tar в файл /var/log/reports/текущаядата.
+    Decision:
+    #!/bin/bash
+    mkdir /var/log/reports
+    ls -l /data > /var/log/reports/$(date +"%d.%m.%Y")
+    tar -tf /backup/archive.tar >> /var/log/reports/$(date +"%d.%m.%Y")
+    Task:
+    Создайте пользователя backup и настройте для него cron, чтобы тот раз в день находил файлы старее 5 дней в директории /data и добавлял эти файлы в архив /backup/archive.tar, после чего удалял из исходной директории.
+    Decision:
+    #!/bin/bash
+    if find /data/ -type f -mtime +5; then
+        cd /data
+        tar -cvf /backup/archive.tar testfile*
+        rm -rf /data/testfile*
+    else
+            echo "No files"
+    fi
+    Task:
+    Разрешите пользователю helpdesk1 запускать команду Sh-Interview-NewBackup от имени пользователя backup. Команда Sh-Interview-NewBackup должна создавать сжатый архив директории /data и сохранять его в домашней директории пользователя backup с датой в названии.
+    Decision:
+    $ sudo useradd backup1
+    $ sudo passwd backup1
+        Изменение пароля пользователя backup1.
+        Новый пароль:
+        НЕУДАЧНЫЙ ПАРОЛЬ: Пароль должен содержать не менее 8 символов
+        Повторите ввод нового пароля:
+        passwd: данные аутентификации успешно обновлены.
+    $ sudo mkdir /data
+    $ sudo touch /data/testfile{1..5}
+    $ ls -l /data/
+        итого 0
+        -rw-r--r--. 1 root root 0 апр 14 13:14 testfile1
+        -rw-r--r--. 1 root root 0 апр 14 13:14 testfile2
+        -rw-r--r--. 1 root root 0 апр 14 13:14 testfile3
+        -rw-r--r--. 1 root root 0 апр 14 13:14 testfile4
+        -rw-r--r--. 1 root root 0 апр 14 13:14 testfile5
+    $ vim bash-script10
+    $ cat bash-script10
+    #/bin/bash
+    #Разрешите пользователю helpdesk1 запускать команду Bash-GnuLinux-NewBackup от имени пользователя backup. Команда Sh-Interview-NewBackup должна создавать сжатый архив директории /data и сохранять его в домашней директории пользователя backup с датой в названии.
+    #dt=$(date)
+    #echo "$dt"
+    #echo "$(date)"
+    #for line in $(date)
+    #do
+    #    echo "$line"
+    #done
+    #touch testfile5$(date +%y%m%d)
+    sudo tar -cjvf /home/backup1/testArchive$(date +%d%m%y).tar.gz /data/
+    $ bash /home/ur/bash-script10
+        tar: Удаляется начальный `/' из имен объектов
+        /data/
+        /data/testfile5
+        /data/testfile1
+        /data/testfile3
+        /data/testfile2
+        /data/testfile4
+    $ sudo r-t -rf /home/backup1/testArchive150422.tar.gz
+    $ mv bash-script10 Bash-GnuLinux-NewBackup
+    $ sudo cp Bash-GnuLinux-NewBackup /usr/bin/
+    $ sudo cat /etc/sudoers
+        ...
+        ## Allow root to run any commands anywhere
+        root    ALL=(ALL)     ALL
+        sysadmin        ALL=(ALL)       ALL
+        netadmin        ALL=(root)      /usr/bin/nmtui
+        #helpdesk1       ALL=(ALL)   /usr/bin/passwd, !/usr/bin/passwd sysadmin, !/usr/bin/passwd root
+        ...
+    $ sudo visudo
+    $ sudo cat /etc/sudoers
+        ...
+        ## Allow root to run any commands anywhere
+        root    ALL=(ALL)     ALL
+        sysadmin        ALL=(ALL)       ALL
+        netadmin        ALL=(root)      /usr/bin/nmtui
+        #helpdesk1       ALL=(ALL)   /usr/bin/passwd, !/usr/bin/passwd sysadmin, !/usr/bin/passwd root
+        backup1     ALL=(ALL)    ALL
+        helpdesk1     ALL=(backup1)    /usr/bin/Bash-GnuLinux-NewBackup
+        ...
+    $ su - helpdesk1
+    $ su - backup1 -c "sudo Bash-GnuLinux-NewBackup"
+        sudo: a ter-tinal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
+    $ su - helpdesk1
+        Последний вход в систему: Пт апр 15 14:24:48 +08 2022 на pts/0
+    $ su - backup1 Bash-GnuLinux-NewBackup
+        Последний вход в систему: Пт апр 15 14:27:43 +08 2022 на pts/0
+        tar: Удаляется начальный `/' из имен объектов
+        /data/
+        /data/testfile5
+        /data/testfile1
+        /data/testfile3
+        /data/testfile2
+        /data/testfile4
+    $ exit
+        выход
+    $ sudo ls -l /home/backup1/
+        итого 4
+        -rw-r--r--. 1 root    root    183 апр 15 14:28 testArchive150422.tar.gz
+    Task:
+    Cконструируем сценарий, вычисляющий сумму ежемесячных платежей по кредиту. Для передачи сценария программе bc в следующем примере используется встроенный документ. loan-calc : сценарий вычисления суммы ежемесячных платежей по кредиту
+    Decision:
+    #!/bin/bash
+    PROGNAME=$(basename $0)
+    usage () {
+        cat <<- EOF
+        Usage: $PROGNAME PRINCIPAL INTEREST MONTHS
+        Where:
+        PRINCIPAL is the amount of the loan.
+        INTEREST is the APR as a number (7% = 0.07).
+        MONTHS is the length of the loan's term.
+        EOF
+    }
+    if (($# != 3)); then
+        usage
+        exit 1
+    fi
+    principal=$1
+    interest=$2
+    months=$3
+    bc <<- EOF
+        scale = 10
+        i = $interest / 12
+        p = $principal
+        n = $months
+        a = p * ((i * ((1 + i) ^ n)) / (((1 + i) ^ n) - 1))
+        print a, "\n"
+        EOF
+    Task:
+    Определить файл или директория ваши данные
+    Decision:
+    #!/bin/bash
+    dir=/home/ik/* # your data
+    for file in $dir
+    do
+    if [ -d "$file" ]
+    then
+    echo "$file - директория"
+    elif [ -f "$file" ]
+    then
+    echo "$file - файл"
+    else
+    echo "Неизвестный файл"
+    fi
+    done
+    Task:
+    Бэкап архив всех файлов
+    Decision:
+    #!/bin/bash
+    BACKUPFILE=backup
+    archive=${1:-$BACKUPFILE}
+    find . -mtime -1 -type f -print0 | xargs -0 tar rvf "$archive.tar"
+    echo "Каталог $PWD заархивирован в файл \"$archive.tar\"."
+    exit 0
+    Task:
+    Напишите сценарий, который выводит дату, время, список зарегистрировавшихся пользователей, и uptime системы и сохраняет эту информацию в системном журнале.
+    Decision:
+    $ vim Bash-GnuLinux-AboutUserLogFile.sh
+    $ cat Bash-GnuLinux-AboutUserLogFile.sh
+    #!/bin/bash
+    echo "выводит число секунд прошедших с начала эпохи unix:"
+    date '+%s'
+    echo "выводит локальное время:"
+    date '+%F %T'
+    echo "список зарегистрировавшихся обычных пользователей, которые создаются с UID от UID_MIN до UID_MAX которые определены в файле /etc/login.defs:"
+    awk '/^UID/{print $1"="$2}' /etc/login.defs
+    echo "из файла /etc/passwd выбрать только тех пользователей у которых UID (третий столбик :) из этого диапазона:"
+    eval $(awk '/^UID/{print $1"="$2}' /etc/login.defs)
+    awk -v min=$UID_MIN -v max=$UID_MAX -F: '$3>=min && $3<=max {print $1}' /etc/passwd
+    echo "uptime системы:"
+    uptime -p
+    $ ./Bash-GnuLinux-AboutUserLogFile.sh
+        выводит число секунд прошедших с начала эпохи unix:
+        1633836259
+        выводит локальное время:
+        2021-10-09 22:24:19
+        список зарегистрировавшихся обычных пользователей, которые создаются с UID от UID_MIN до UID_MAX которые определены в файле /etc/login.defs:
+        UID_MIN=1000
+        UID_MAX=60000
+        из файла /etc/passwd выбрать только тех пользователей у которых UID (третий столбик :) из этого диапазона:
+        ubuntu
+        uptime системы:
+        up 21 minutes
+    $ cat Bash-GnuLinux-AboutUserLogFile.sh
+    #!/bin/bash
+    echo -e "Дата и Время:;$(date '+%F %T')\nПользователи:;$(eval $(awk '/^UID/{print $1"="$2}' /etc/login.defs) && awk -v min=$UID_MIN -v max=$UID_MAX -F: '$3>=min && $3<=max {print $1}' /etc/passwd)\nВремя работы (начало):;$(uptime -s)\nВремя работы (прошло):;$(uptime -p)" | column -t -s ";" | systemd-cat --identifier="задача3"
+    $ ./Bash-GnuLinux-AboutUserLogFile.sh
+    $ journalctl SYSLOG_IDENTIFIER="задача3"
+        -- Logs begin at Fri 2021-05-21 06:21:13 CDT, end at Sat 2021-10-09 22:33:30 CDT. --
+        Oct 09 22:25:25 ubuntu-VirtualBox задача3[2796]: Дата и Время:           2021-10-09 22:25:25
+        Oct 09 22:25:25 ubuntu-VirtualBox задача3[2796]: Пользователи:           ubuntu
+        Oct 09 22:25:25 ubuntu-VirtualBox задача3[2796]: Время работы (начало):  2021-10-09 22:02:57
+        Oct 09 22:25:25 ubuntu-VirtualBox задача3[2796]: Время работы (прошло):  up 22 minutes
+        Oct 09 22:26:23 ubuntu-VirtualBox задача3[2826]: Дата и Время:           2021-10-09 22:26:23
+        Oct 09 22:26:23 ubuntu-VirtualBox задача3[2826]: Пользователи:           ubuntu
+        Oct 09 22:26:23 ubuntu-VirtualBox задача3[2826]: Время работы (начало):  2021-10-09 22:02:57
+        Oct 09 22:26:23 ubuntu-VirtualBox задача3[2826]: Время работы (прошло):  up 23 minutes
+        Oct 09 22:29:41 ubuntu-VirtualBox задача3[2846]: Дата и Время:           2021-10-09 22:29:41
+        Oct 09 22:29:41 ubuntu-VirtualBox задача3[2846]: Пользователи:           ubuntu
+        Oct 09 22:29:41 ubuntu-VirtualBox задача3[2846]: Время работы (начало):  2021-10-09 22:02:57
+        Oct 09 22:29:41 ubuntu-VirtualBox задача3[2846]: Время работы (прошло):  up 26 minutes
+        Oct 09 22:31:48 ubuntu-VirtualBox задача3[2868]: Дата и Время:           2021-10-09 22:31:48
+        Oct 09 22:31:48 ubuntu-VirtualBox задача3[2868]: Пользователи:           ubuntu
+        Oct 09 22:31:48 ubuntu-VirtualBox задача3[2868]: Время работы (начало):  2021-10-09 22:02:57
+        Oct 09 22:31:48 ubuntu-VirtualBox задача3[2868]: Время работы (прошло):  up 28 minutes
+        Oct 09 22:33:30 ubuntu-VirtualBox задача3[2885]: Дата и Время:           2021-10-09 22:33:30
+        Oct 09 22:33:30 ubuntu-VirtualBox задача3[2885]: Пользователи:           ubuntu
+        Oct 09 22:33:30 ubuntu-VirtualBox задача3[2885]: Время работы (начало):  2021-10-09 22:02:57
+        Oct 09 22:33:30 ubuntu-VirtualBox задача3[2885]: Время работы (прошло):  up 30 minutes
+    Task:
+    Создайте функции просмотра информации о пользователе(1), создания пользователя(2), удаления пользователя (3). Используйте case и select для использования этих функций в виде меню.
+    Decision:
+    $ cat Bash-GnuLinux-AboutUser1.sh
+    #/bin/bash
+    aboutuser() {
+        read -p "About user: " line
+        cat /etc/passwd | grep -w $line
+    }
+    adduser(){
+        read -p "Add user: " name
+            #cut -d':' -f1 /etc/passwd | grep -w $name
+    }
+    deleteuser(){
+            read -p "Delete user: " name
+            #cut -d':' -f1 /etc/passwd | grep -w $name
+    }
+    user() {
+        select option in "About user" "Add user" "Delete user" "Exit"
+        do
+            case $option in
+                "About user") aboutuser ;;
+                "Add user") adduser ;;
+                "Delete user") deleteuser ;;
+                "Exit") break ;;
+                *) echo Wrong option ;;
+            esac
+        done
+    }
+    user
+    $ ./Bash-GnuLinux-AboutUser1.sh
+    1) About user
+    2) Add user
+    3) Delete user
+    4) Exit
+    #? 1
+    About user: d
+    d:x:1000:1000:,,,:/home/d:/bin/bash
+    #? 4
+    Task:
+    Создайте скрипт, который запрашивает имя пользователя, а в ответ выводит информацию о пользователе – его uid, домашнюю директорию, список групп, в которых он состоит.
+    После этого скрипт должен спросить, что следует поменять – uid, домашнюю директорию или группу.
+    Если uid, то сначала проверить, доступен ли такой uid, если нет – то один раз предложить ввести заново.
+    Если домашнюю директорию, то спросить, на какую директорию следует сменить, а также следует ли перемещать домашнюю директорию.
+    После чего следует вывести на экран итоговую команду.
+    Decision:
+    $ cat Bash-GnuLinux-AboutUser.sh
+    #/bin/bash
+    read -p "Print username: " user
+    #idd=$(id -u $user)
+    id1=$(cat /etc/passwd | grep $user | cut -d ':' -f 4)
+    home1=$(cat /etc/passwd | grep $user | cut -d ':' -f 6)
+    group1=$(cat /etc/group | grep $user | cut -d ':' -f 1)
+    echo "uid = $id1"
+    echo "home = $home1"
+    echo "group = $group1"
+    read -p "What should be changed? (uid/home/group): " change
+    #echo "$change"
+    if [ $change == "uid" ]
+    then
+        read -p "Write youser own version: " id2
+        if cut -d':' -f3 /etc/passwd | grep -w $id2
+        then
+            echo "there is such a user"
+        else
+            #echo "there is no such user"
+            read -p "Re-Enter. Write youser own version: " id2
+            if cut -d':' -f3 /etc/passwd | grep -w $id2
+                then
+                        echo "there is such a user"
+            fi
+        fi
+    elif [ $change == "home" ]
+    then
+        read -p "Write youser own version: " home2
+        if cut -d':' -f6 /etc/passwd | grep -w $home2
+            then
+            echo "Such a directory already exists"
+        else
+            echo "This is a unique home directory"
+        fi
+    elif [ $change == "group" ]
+    then
+        read -p "Write youser own version: " group2
+        if cut -d':' -f1 /etc/group | grep -w $group2
+        then
+            echo "+"
+        else
+            echo "-"
+        fi
+    else
+        echo "command not found"
+    fi
+    $ ./Bash-GnuLinux-AboutUser.sh
+    Print username: david
+    uid = 1000
+    home = /home/david
+    group = dialout
+    cdrom
+    floppy
+    sudo
+    audio
+    dip
+    video
+    plugdev
+    netdev
+    What should be changed? (uid/home/group): uid
+    Write youser own version: 45435
+    Re-Enter. Write youser own version: 34534
+    Task:
+    async-child : пример асинхронного выполнения (потомок)
+    Decision:
+    #!/bin/bash
+    echo "Child: child is running..."
+    sleep 5
+    echo "Child: child is done. Exiting."
+    Task:
+    пример асинхронного выполнения (родитель)
+    Decision:
+    #!/bin/bash
+    # async-parent : 
+    echo "Parent: starting..."
+    echo "Parent: launching child script..."
+    async-child &
+    pid=$!
+    echo "Parent: child (PID= $pid) launched."
+    echo "Parent: continuing..."
+    sleep 2
+    echo "Parent: pausing to wait for child to finish..."
+    wait $pid
+    echo "Parent: child is finished. Continuing..."
+    echo "Parent: parent is done. Exiting."
+    Task:
+    программа вывода системной информации, управляемая с помощью меню
+    Decision:
+    #!/bin/bash
+    # case-menu: 
+    clear
+    echo "
+    Please Select:
+    1. Display System Information
+    2. Display Disk Space
+    3. Display Home Space Utilization
+    0. Quit
+    "
+    read -p "Enter selection [0-3] > "
+    case $REPLY in
+        q|Q)    echo "Program terminated."
+                exit
+                ;;
+        a|A)    echo "Hostname: $HOSTNAME"
+                uptime
+                ;;
+        b|B)    df -h
+                ;;
+        c|C)    if [[ $(id -u) -eq 0 ]]; then
+                    echo "Home Space Utilization (All Users)"
+                    du -sh /home/*
+                else
+                    echo "Home Space Utilization ($USER)"
+                    du -sh $HOME
+                fi
+                ;;
+        *)      echo "Invalid entry." >&2
+                exit 1
+                ;;
+    esac
+    Task:
+    простая программа получения информации о файле
+    Decision:
+    #!/bin/bash
+    # file_info: 
+    PROGNAME=$(basename $0)
+    if [[ -e $1 ]]; then
+        echo -e "\nFile Type:"
+        file $1
+        echo -e "\nFile Status:"
+        stat $1
+    else
+        echo "$PROGNAME: usage: $PROGNAME file" >&2
+        exit 1
+    fi
+    Task:
+    сценарий для подсчета файлов по времени изменения
+    Decision:
+    #/bin/bash
+    # hours : 
+    usage () {
+        echo "usage: $(basename $0) directory" >&2
+    }
+    # Убедиться, что аргумент является каталогом
+    if [[ ! -d $1 ]]; then
+        usage
+        exit 1
+    fi
+    # Инициализировать массив
+    for i in {0..23}; do hours[i]=0; done
+    # Собрать данные
+    for i in $(stat -c %y "$1"/* | cut -c 12-13); do
+        j=${i/#0}
+        ((++hours[j]))
+        ((++count))
+    done
+    # Вывести данные
+    echo -e "Hour\tFiles\tHour\tFiles"
+    echo -e "----\t-----\t----\t-----"
+    for i in {0..11}; do
+        j=$((i + 12))
+        printf "%02d\t%d\t%02d\t%d\n" $i ${hours[i]} $j ${hours[j]}
+    done
+    printf "\nTotal files = %d\n" $count
+    Task:
+    сценарий для просмотра параметров командной строки
+    Decision:
+    #!/bin/bash
+    # posit-param: 
+    echo "
+    Number of arguments: $#
+    \$0 = $0
+    \$1 = $1
+    \$2 = $2
+    \$3 = $3
+    \$4 = $4
+    \$5 = $5
+    \$6 = $6
+    \$7 = $7
+    \$8 = $8
+    \$9 = $9
+    "
+    Task:
+    демонстрация подстановки процессов
+    Decision:
+    #/bin/bash
+    # pro-sub : 
+    while read attr links owner group size date time filename; do
+        cat <<- EOF
+            Filename:   $filename
+            Size:       $size
+            Owner:      $owner
+            Group:      $group
+            Modified:   $date $time
+            Links:      $links
+            Attributes: $attr
+        EOF
+    done < <(ls -l | tail -n +2)
+    Task:
+    чтение полей из файла
+    Decision:
+    #!/bin/bash
+    # read-ifs: 
+    FILE=/etc/passwd
+    read -p "Enter a username > " user_name
+    file_info=$(grep "^$user_name:" $FILE)
+    if [ -n "$file_info" ]; then
+        IFS=":" read user pw uid gid name home shell <<< "$file_info"
+        echo "User = '$user'"
+        echo "UID = '$uid'"
+        echo "GID = '$gid'"
+        echo "Full Name = '$name'"
+        echo "Home Dir. = '$home'"
+        echo "Shell = '$shell'"
+    else
+        echo "No such user '$user_name'" >&2
+        exit 1
+    fi
+    Task:
+    программа вывода системной информации, управляемая с помощью меню
+    Decision:
+    #!/bin/bash
+    # read-menu: 
+    clear
+    echo "
+    Please Select:
+    1. Display System Information
+    2. Display Disk Space
+    3. Display Home Space Utilization
+    0. Quit
+    "
+    read -p "Enter selection [0-3] > "
+    if [[ $REPLY =~ ^[0-3]$ ]]; then
+        if [[ $REPLY == 0 ]]; then
+            echo "Program terminated."
+            exit
+        fi
+        if [[ $REPLY == 1 ]]; then
+            echo "Hostname: $HOSTNAME"
+            uptime
+            exit
+        fi
+        if [[ $REPLY == 2 ]]; then
+            df -h
+            exit
+        fi
+        if [[ $REPLY == 3 ]]; then
+            if [[ $(id -u) -eq 0 ]]; then
+                echo "Home Space Utilization (All Users)"
+                du -sh /home/*
+            else
+                echo "Home Space Utilization ($USER)"
+                du -sh $HOME
+            fi
+            exit
+        fi
+    else
+        echo "Invalid entry." >&2
+        exit 1 fi
+    Task:
+    ввод секретного пароля
+    Decision:
+    #!/bin/bash
+    # read-secret: 
+    if read -t 10 -sp "Enter secret passphrase > " secret_pass; then
+        echo -e "\nSecret passphrase = '$secret_pass'"
+    else
+        echo -e "\nInput timed out" >&2
+        exit 1
+    fi
+    Task:
+    проверка ввода
+    Decision:
+    #!/bin/bash
+    # read-validate: 
+    invalid_input () {
+        echo "Invalid input '$REPLY'" >&2
+        exit 1
+    }
+    read -p "Enter a single item > "
+    # пустой ввод (недопустимо)
+    [[ -z $REPLY ]] && invalid_input
+    # ввод множества элементов (недопустимо)
+    (( $(echo $REPLY | wc -w) > 1 )) && invalid_input
+    # введено допустимое имя файла?
+    if [[ $REPLY =~ ^[-[:alnum:]\._]+$ ]]; then
+        echo "'$REPLY' is a valid filename."
+        if [[ -e $REPLY ]]; then
+            echo "And file '$REPLY' exists."
+        else
+            echo "However, file '$REPLY' does not exist."
+        fi
+        # введено вещественное число?
+        if [[ $REPLY =~ ^-?[[:digit:]]*\.[[:digit:]]+$ ]]; then
+            echo "'$REPLY' is a floating point number."
+        else
+            echo "'$REPLY' is not a floating point number."
+        fi
+        # введено целое число?
+        if [[ $REPLY =~ ^-?[[:digit:]]+$ ]]; then
+            echo "'$REPLY' is an integer."
+        else
+            echo "'$REPLY' is not an integer."
+        fi
+    else
+        echo "The string '$REPLY' is not a valid filename."
+    fi
+    Task:
+    Программа вывода страницы с информацией о системе
+    Decision:
+    #/bin/bash
+    PROGNAME=$(basename $0)
+    TITLE="System Information Report For $HOSTNAME"
+    CURRENT_TIME=$(date +"%x %r %Z")
+    TIME_STAMP="Generated $CURRENT_TIME, by $USER"
+    report_uptime () {
+        cat <<- _EOF_
+            <H2>System Uptime</H2>
+            <PRE>$(uptime)</PRE>
+            _EOF_
+        return
+    }
+    report_disk_space () {
+        cat <<- _EOF_
+            <H2>Disk Space Utilization</H2>
+            <PRE>$(df -h)</PRE>
+            _EOF_
+        return
+    }
+    report_home_space () {
+        local format="%8s%10s%10s\n"
+        local i dir_list total_files total_dirs total_size user_name
+        if [[ $(id -u) -eq 0 ]]; then
+            dir_list=/home/*
+            user_name="All Users"
+        else
+            dir_list=$HOME
+            user_name=$USER
+        fi
+        echo "<H2>Home Space Utilization ($user_name)</H2>"
+        for i in $dir_list; do   
+            total_files=$(find $i -type f | wc -l)
+            total_dirs=$(find $i -type d | wc -l)
+            total_size=$(du -sh $i | cut -f 1)
+            echo "<H3>$i</H3>"
+            echo "<PRE>"
+            printf "$format" "Dirs" "Files" "Size"
+            printf "$format" "----" "-----" "----"
+            printf "$format" $total_dirs $total_files $total_size
+            echo "</PRE>"
+        done
+        return
+    }
+    usage () {
+        echo "$PROGNAME: usage: $PROGNAME [-f file | -i]"
+        return
+    }
+    write_html_page () {
+        cat <<- _EOF_
+        <HTML>
+            <HEAD>
+                <TITLE>$TITLE</TITLE>
+            </HEAD>
+            <BODY>
+                <H1>$TITLE</H1>
+                <P>$TIME_STAMP</P>
+                $(report_uptime)
+                $(report_disk_space)
+                $(report_home_space)    
+            </BODY>
+        </HTML>
+        _EOF_
+        return
+    }
+    # обработка параметров командной строки
+    interactive=
+    filename=
+    while [[ -n $1 ]]; do
+        case $1 in
+        -f | --file)        shift
+                    filename=$1
+                    ;;
+        -i | --interactive) interactive=1
+                    ;;
+        -h | --help)        usage
+                    exit
+                    ;;
+        *)          usage >&2
+                    exit 1
+                    ;;
+        esac
+        shift
+    done
+    # интерактивный режим
+    if [[ -n $interactive ]]; then
+        while true; do
+        read -p "Enter name of output file: " filename
+            if [[ -e $filename ]]; then
+                read -p "'$filename' exists. Overwrite? [y/n/q] > "
+                case $REPLY in
+                    Y|y)    break
+                        ;;
+                    Q|q)    echo "Program terminated."
+                        exit
+                        ;;
+                    *)  continue
+                        ;;
+                esac
+            fi
+        done
+    fi
+    # вывод страницы html
+    if [[ -n $filename ]]; then
+        if touch $filename && [[ -f $filename ]]; then
+            write_html_page > $filename
+        else
+            echo "$PROGNAME: Cannot write file '$filename'" >&2
+            exit 1
+        fi
+    else
+        write_html_page
+    fi
+    Task:
+    сценарий для демонстрации распространенных видов ошибок
+    Decision:
+    #!/bin/bash
+    # trouble: 
+    number=1
+    echo "number=$number" # ОТЛАДКА
+    set -x # Включить трассировку
+    if [ $number = 1 ]; then
+    echo "Number is equal to 1."
+    else
+    echo "Number is not equal to 1."
+    fi
+    set +x # Выключить трассировку
+    Task:
+    программа вывода системной информации, управляемая с помощью меню
+    Decision:
+    #!/bin/bash
+    # while-menu: 
+    DELAY=3 # Время отображения результатов на экране (в секундах)
+    while [[ $REPLY != 0 ]]; do
+    clear
+    cat <<- _EOF_
+    Please Select:
+    1. Display System Information
+    2. Display Disk Space
+    3. Display Home Space Utilization
+    4. Quit
+    _EOF_
+    read -p "Enter selection [0-3] > "
+    if [[ $REPLY =~ ^[0-3]$ ]]; then
+    if [[ $REPLY == 1 ]]; then
+    echo "Hostname: $HOSTNAME"
+    uptime
+    sleep $DELAY
+    fi
+    if [[ $REPLY == 2 ]]; then
+    df -h
+    sleep $DELAY
+    fi
+    if [[ $REPLY == 3 ]]; then
+    if [[ $(id -u) -eq 0 ]]; then
+    echo "Home Space Utilization (All Users)"
+    du -sh /home/*
+    else
+    echo "Home Space Utilization ($USER)"
+    du -sh $HOME
+    fi
+    sleep $DELAY
+    fi
+    else
+    echo "Invalid entry."
+    sleep $DELAY
+    fi
+    done
+    echo "Program terminated."
+    Task:
+    программа вывода системной информации, управляемая с помощью меню
+    Decision:
+    #!/bin/bash
+    # while-menu2: 
+    DELAY=3 # Время отображения результатов на экране (в секундах)
+    while true; do
+    clear
+    cat <<- _EOF_
+    Please Select:
+    1. Display System Information
+    2. Display Disk Space
+    3. Display Home Space Utilization
+    4. Quit
+    _EOF_
+    read -p "Enter selection [0-3] > "
+    if [[ $REPLY =~ ^[0-3]$ ]]; then
+    if [[ $REPLY == 1 ]]; then
+    echo "Hostname: $HOSTNAME"
+    uptime
+    sleep $DELAY
+    continue
+    fi
+    if [[ $REPLY == 2 ]]; then
+    df -h
+    sleep $DELAY
+    continue
+    fi
+    if [[ $REPLY == 3 ]]; then
+    if [[ $(id -u) -eq 0 ]]; then
+    echo "Home Space Utilization (All Users)"
+    du -sh /home/*
+    else
+    echo "Home Space Utilization ($USER)"
+    du -sh $HOME
+    fi
+    sleep $DELAY
+    continue
+    fi
+    if [[ $REPLY == 0 ]]; then
+    break
+    fi
+    else
+    echo "Invalid entry."
+    sleep $DELAY
+    fi
+    done
+    echo "Program terminated."
+    Task:
+    чтение строк из файла
+    Decision:
+    #!/bin/bash
+    # while-read: 
+    while read distro version release; do
+    printf "Distro: %s\tVersion: %s\tReleased: %s\n" \
+    $distro \
+    $version \
+    $release
+    done < distros.txt
+    Task:
+    чтение строк из файла
+    Decision:
+    #!/bin/bash
+    # while-read2: 
+    sort -k 1,1 -k 2n distros.txt | while read distro version release; do
+    printf "Distro: %s\tVersion: %s\tReleased: %s\n" \
+    $distro \
+    $version \
+    $release
+    done
+    Task:
+    Напишите bash-скрипт, сохраняющий подробное описание объектов, расположенных в каталоге /home/de13ma, но не принадлежащих пользователю de13ma (владелец не de13ma) в файл description.txt. В задаче есть допущение что имя файла или группы не может содержать слово de13ma.
+    Decision:
+    $ cat Linux-Description4.sh
+    #!/bin/bash
+    ls -l /home/de13ma | grep -v "de13ma" > /home/de13ma/gabn/description.txt
+    Task:
+    Напишите bash-скрипт, сохраняющий все запущенные процессы пользователя de13ma в файл processes.txt. В задаче есть допущение что имя процесса не может содержать слово de13ma.
+    Decision:
+    $ cat Linux-Processes4.sh
+    #!/bin/bash
+    ps -fu de13ma > processes.txt
+    Task:
+    Записать строку в конец файла linux 
+    Decision:
+    $ cat testfile
+    Hey
+    $ cat testscript.sh
+    #!/bin/bash
+    echo USERSPASSWORD | sudo -S sudo sh -c "echo 'bro' >> /home/dato/testdir/testfile"
+    $ ./testscript.sh
+    $ ./testscript.sh
+    $ cat testfile
+    Hey
+    bro
+    bro
+    Source:
+    https://jeka.by/ask/165/bash-add-string-in-file/
+    Task:
+    Напишите скрипт на bash, который принимает на вход два аргумента и выводит на экран строку следующего вида:
+    Arguments are: $1=первый_аргумент $2=второй_аргумент
+    Decision:
+    $ cat Linux-StandartStreams.sh
+    #/bin/bash
+    var1=$1
+    var2=$2
+    echo "Arguments are:" \$1=$var1 \$2=$var2
+    Task:
+    Напишите скрипт на bash, который принимает на вход один аргумент (целое число от 0 до бесконечности), который будет обозначать число студентов в аудитории. В зависимости от значения числа нужно вывести разные сообщения.
+    Соответствие входа и выхода должно быть таким:
+        0 -->  No students
+        1 -->  1 student
+        2 -->  2 students
+        3 -->  3 students
+        4 -->  4 students
+        5 и больше --> A lot of students
+    Decision:
+    $ cat Linux-StandartStreams2.sh
+    #!/bin/bash
+    number=student
+    case $1 in
+    0) result="No ${number}s";;
+    1) result="$1 ${number}";;
+    [2-4]) result="$1 ${number}s";;
+    *) result="A lot of ${number}s";;
+    esac
+    echo "$result"
+    Task:
+    Предположим, вы пишете скрипт на bash и хотите использовать в нем конструкцию if в следующем фрагменте:
+        if [[ ... ]]
+        then
+            echo "True"
+        fi
+    Вы можете вписать вместо "..." (внутри [[ ]] и не забудьте про пробелы после [[ и перед ]]!) любое из перечисленных ниже условий.
+    1) $# -ge 0
+    2) $var1 == $var2 && $var1 != $var2
+    3) -e $0
+    4) -z " "
+    5) -s $0
+    6) $var1 == $var2 || $var1 != $var2
+    Однако мы просим вас выбрать только те из них, при которых echo напечатает на экран True вне зависимости от того, с какими параметрами был запущен ваш скрипт и какие в нем есть переменные.
+    #Например, условие 0 -eq 0 подходит, т.к. ноль всегда равен нулю вне зависимости от аргументов и переменных внутри скрипта и на экран будет напечатано True.  В то же время условие $var1 -eq 0 не подходит, так как в переменной var1 как может быть записан ноль (тогда будет напечатано True), так его может и не быть (тогда ничего напечатано не будет).
+    Decision:
+    $ cat Linux-StandartStreams1.sh
+    #!/bin/bash
+    if [[ $# -ge 0 ]] # -ge больше или равно
+    then
+        echo "True1"
+    fi
+    if [[ $var1 == $var2 && $var1 != $var2 ]]
+    then
+        echo "True2"
+    fi
+    if [[ -e $0 ]] # -e <путь> путь существует
+    then
+        echo "True3"
+    fi
+    if [[ -z " " ]] # -z <строка> строка пуста
+    then
+        echo "True4"
+    fi
+    if [[ -s $0 ]] # -s <путь> размер файла больше 0
+    then
+        echo "True5"
+    fi
+    if [[ $var1 == $var2 || $var1 != $var2 ]]
+    then
+        echo "True6"
+    fi
+    Task:
+    Создайте файл со списком пользователей. С помощью for выведите на экран текст: «Creating new ur: uradd имя_пользователя».
+    Decision:
+    $ cat Linux-CreatingNewUser.sh
+    #/bin/bash
+    cut -d':' -f1 /etc/passwd >> testfile4
+    for line in $(cat testfile4)
+    do echo "Creating new ur: uradd $line"
+    done
+    Task:
+    Определить, что является файлом, а что папкой в заданном каталоге
+    Decision:
+    $ cat Linux-LsLtAFileOrADirectory.sh
+    #!/bin/bash
+    dir=/home/*
+    for file in $dir
+    do
+    if [ -d "$file" ]
+    then
+    echo "$file - директория"
+    elif [ -f "$file" ]
+    then
+    echo "$file - файл"
+    else
+    echo "Неизвестный файл"
+    fi
+    done
+    Task:
+    Что делает следующий скрипт:
+    #!/bin/bash
+    Filial="CH"
+    EXT="VF_CHR"
+    Period="201502" 
+    DIRIN="/home/siu01/ITC/${Filial}/2015/02"
+    FNAME="${Filial}_${Period}"
+    rm -f ${FNAME}.*
+    for FN in `find ${DIRIN} -type f -name '*'${EXT} | grep -E '_TrunkB.*'${EXT}'|_02.*'${EXT} | sort`
+    do
+    echo ${FN} >> ${FNAME}.txt
+    cat ${FN} | awk -F "," 'substr($7,2,6)=="800505" || substr($7,2,6)=="800777" {print $0}' >> ${FNAME}.dat1
+    done
+    cat ${FNAME}.dat1 | sort -u | sort -t "," -k 7 > ${FNAME}.dat
+    rm -f ${FNAME}.dat1
+    cat ${FNAME}.dat | awk -F "," -v fl=${Filial} \
+    '{if(substr($7,2,6)=="800505") {DUR += $9; Q++;}} END {printf "%-5s\t%5s\t%10s\n",fl,Q,DUR}' >> 800505_${Period}.txt
+    cat ${FNAME}.dat | awk -F "," -v fl=${Filial} \
+    '{if(substr($7,2,6)=="800777") {DUR += $9; Q++;}} END {printf "%-5s\t%5s\t%10s\n",fl,Q,DUR}' >> 800777_${Period}.txt
+    Task:
+    Составте конвейер, при помощи которого слово ABRAKADABRA, выведется на экран с заменой букв R на L (echo, tr)
+    Task:
+    Напишите программу на любом скриптовом языке, которая позволит мониторить состояние http сервера (параметры мониторинга придумайте сами).
+    Вход: ./http_check www.mail.ru
+    Коды выхода:
+    0 – Ок
+    1 – Warning
+    2 – Critical
+    Task:
+    Напишите регулярку, которая завхватывает имена pdf файлов из этих урлов?
+    http://server.com/downloads/life_changing_plans.pdf
+    http://server.com/downl/life_changing_plans.doc
+    https://server-dot.com/root.pdf
+    Task:
+    Нужно этот код программы:
+    #!/bin/bash
+    # read-integer: проверка целочисленного значения.
+    echo -n "Please enter an integer -> "
+    read int
+    if [[ "$int" =~ ^-?[0-9]+$ ]]; then
+        if [ $int -eq 0 ]; then
+            echo "$int is zero."
+        else
+            if [ $int -lt 0 ]; then
+                echo "$int is negative."
+            else
+                echo "$int is positive."
+            fi
+            if [ $((int % 2)) -eq 0 ]; then
+                echo "$int is even."
+            else
+                echo "$int is odd."
+            fi
+        fi
+    else
+        echo "Input value is not an integer." >&2
+        exit 1
+    fi
+    переписать используя команду test вместо составной команды [[ ]] . Подсказка: использовать grep для сопоставления с регулярными выражениями
+    Decision:
+    echo "$int" | grep -Eo '^-?[0-9]+$'
 
 Windows vs Linux, Шифрование и безопасность
+	Task:
+	DrWeb занимает много места.
+	Decision:
+	Удалить полностью drWeb утиилитой drWeb remober
+	Task:
+	Обновление лицензии DrWeb
+	Decision:
+	Администрирование, менеджер лицензии, ОРГАНИЗАЦИЯ, распр-ть ключ на группы и станции, EveryOne,Заменить ключи
+	Task:
+	Для подготовки стенда:
+	1. Необходимо скачать архив по ссылке: courses-shop.zip (Зеркало: courses-shop.zip Яндекс.Диск)
+	2. Распаковать данный архив и перейти в появившуюся директорию courses-shop-prod в терминальной оболочке вашей ОС. Выполнить команду (при запущенном сервисе docker): docker-compose up -d. По адресу http://localhost:1337 появится приложение лабораторного стенда.
+	Возможные проблемы:
+	1. На некоторых компьютерах приложение может долго ожидать подключения к базе данных. Это зависит от мощностей вашего компьютера.
+	2. По той же причине бот (администратор приложения) может не запуститься, если база данных запускалась дольше 15 секунд. В таком случае вы можете перезагрузить сервис бота из папки приложения после загрузки базы данных командой:
+	docker-compose restart bot
+	Необходимо находиться в директории приложения, в одном месте с файлом docker-compose.yml
+	Проанализируйте защищенность механизмов аутентификации административной панели и проэксплуатируйте найденные уязвимости.
+	В качестве подтверждения успешной эксплуатации предоставьте флаг (секретную строку в формате 32 букв и цифр) из кода страницы панели администратора.
+    Вопрос для самопроверки на протяжении работы с данным лабораторным стендом:
+    Что опасного в этой информационной системе может сделать злоумышленник? Какие риски он мог бы реализовать?
+	Decision:
+	$ firefox https://disk.yandex.ru/d/bXfeC1DM4vrUsw
+	$ unzip Downloads/courses-shop.zip
+	$ cd courses-shop-prod
+	$ docker-compose up -d
+	$ firefox https://portswigger.net/burp/releases/professional-community-2023-9-4?requestededition=community&requestedplatform=
+	$ chmod ugo+x burpsuite_community_linux_v2023_9_4.sh
+	$ ./burpsuite_community_linux_v2023_9_4.sh
+	$ /home/tuser/BurpSuiteCommunity/BurpSuiteCommunity &
+	$ firefox https://github.com/empty-jack/YAWR/blob/master/brute/passwords/realyBest.txt 
+	Source:
+	1. https://portswigger.net/burp/documentation/desktop/getting-started/download-and-install
+	2. https://losst.pro/zapusk-skripta-sh-v-linux
+	Task:
+	Проанализируйте существующие поддомены основного домена компании cyber-ed.ru. Выявите домен, который похож на название домена для задания, и изучите его DNS TXT записи.
+	В качестве подтверждения успешной эксплуатации предоставьте флаг (секретную строку в формате 32 букв и цифр несвязного текста) из DNS записи типа TXT (Чтобы получить TXT записи для домена, выполните команду nslookup -q=TXT domain.name).
+	Decision:
+	$ google-chrome https://crt.sh/?q=cyber-ed.ru
+	$ nslookup -q=TXT task.cyber-ed.ru
+	Server:		192.168.0.1
+	Address:	192.168.0.1#53
+	Non-authoritative answer:
+	task.cyber-ed.ru	text = "FLAG=ОТВЕТ"
+	Authoritative answers can be found from:
+    Task:
     Использование симметричного шифрования
     Давайте зашифруем и расшифруем данные с помощью симметричного метода. Для этого выполним команду gpg с опцией -c, которая сообщает, что нужно использовать симметричный режим шифрования. Далее указываем файл, который необходимо зашифровать. По умолчанию применяется алгоритм CAST5, который можно изменить с помощью опции --cipher-algo. Посмотреть доступные алгоритмы можно в выводе команды gpg --version (строка Cipher:).
     Decision:
@@ -3224,6 +3321,36 @@ Windows vs Linux, Шифрование и безопасность
     1. https://www.youtube.com/playlist?list=PLLqKATfceKNsptsrNP63TukGKETztvf1r
 
 Windows vs Linux, Работа с дисками
+	Task:
+	Нужно обойти восстановление при загрузке Windows 7. Во время запуска появляется восстановление загрузки. Даже когда запускаем в бут меню с обычной загрузки.
+	Decision:
+	    Иногда достаточно просто вставить установочный диск Windows 7  -> перезагрузить компьютер  -> нажать любую клавишу при появлении запроса  -> выберать ваши языковые настройки ->Далее  -> Ремонт вашего компьютера -> в командной строке открыли доступ к папке с файлами, которые следует заменить C:\Windows\System32\Config
+	cd windows 
+	cd system32
+	cd config
+	dir
+    Было 5 файлов с окончанием .gbck, и 5 файлов без какого-либо завершения. Это следующие файлы: DEFAULT, SAM, SECURITY, SOFTWARE и SYSTEM ->Переименуйте все файлы без завершения в .bak один за другим. просто так: ren COMPONENTS COMPONENTS.bak (вы должны сделать это для остальных 4 файлов) ->Переименуйте все .gbck в один без завершения. просто так: ren COMPONENTS.gbck COMPONENTS (вы должны сделать это для остальных 4 файлов)  -> Введите dir , чтобы увидеть, были ли имена файлов именно такими, как вы ожидаете  -> Перезагрузите компьютер.
+    Но в моем случае не было установочного диска Windows 7 -> Зато у меня есть загрузочная флешка, с помощью которой можно устаналивать, например, винду, или есть программа акронис с помощью которого можно упралятть жестким диском (удалять разделы, добавлять), или есть прорграмма тотал командер, в нашем случае, как раз, она и нужна, чтобы заменить конфиги windows - system32 - config - выделяем Default, SAM, Security, software, system - это нужно удалить, не выделенные оставляем - и вставляем в папку regpack удаленныефайлы, windows - system32 - config - Regpack - перезагружаемся.
+	Task:
+	Windows 10 запускается с ошибкой UNMOUNTABLE BOOT VOLUME
+	Decision:
+	загрузившись с загрузочной флешки или диска с Windows 10 (8 и 7 тоже подойдут, несмотря на установленную десятку, для быстрой загрузки с флешки проще всего использовать Boot Menu) - клавиши Shift+F10 - на экране установки, должна появиться командная строка. Если не появится, на экране выбора языка выберите «Далее», а на втором экране внизу слева – «Восстановление системы» и найдите в средствах восстановления пункт «Командная строка».
+	diskpart
+	list volume
+	в результате команды вы увидите список разделов на ваших дисках. Обратите внимание на букву раздела, на котором установлена Windows 10, она может отличаться от привычной буквы C во время работы в среде восстановления, в моем случае на скриншоте это буква D
+	exit
+	chkdsk D: /r
+	закройте командную строку - перезагрузите компьютер с жесткого диска
+	Task:
+	Был такой случай, что компьютер не видит мою флешку. Хотя вчера я прекрасно работал с флешкой. Сначала проверил, работает ли флешка в других USB-портах. Потом вставил флешку в другой компьютер и он загрузился. Получается, что один компьютер видит флешку, а другой — нет.
+	Decision:
+	Вставляю флешку в компьютер -> Мой компьютер -> Управление дисками -> видим диски С и диск без имени — это флешка -> Изменить имя диска -> в открывшемся окне система предложит букву диску (обычно «i» ) -> ок
+	Task:
+	После запуска любой программы (чат, Фемида) выходит такая ошибка:
+	«Ошибочный образ C:\Program Files\Windows Portable Devices\netapi.dll не предназначен для выполнения под управлением Windows или содержит ошибку» 
+	Decision:
+	> sfc /scannow
+	> shutdown /r
     Task:
     Перемещение папки /var на другой физический диск
     Decision:
@@ -4687,6 +4814,37 @@ Windows vs Linux, установка и настройка ОС
     Необходимо отключить автоматическое обновления ОС. Предложите на ваш взгляд способы решения задачи. Решение необходимо сделать с использованием cmd | powershell. 
 
 Windows vs Linux, установка и настройка ПО
+	Task:
+	После установки операционной системы Windows 8.1, столкнулся с такой проблемой, что видеофайлы открываются с ошибками. Например, когда я открыл файл с помощью Windows Media Player, выдавал такую ошибку: "Проигрывателю Windows Media не удается воспроизвести файл. Возможно, проигрывателем Windows Media не поддерживается типфайла или кодек, использованный для сжатия файла".
+	Decision:
+	установил кодек K-line в официальном сайте. -> Запускаем программу кодек -> Media Foundation -> выбираем нужные расширения, например, mp4, avi и т.д.
+	Task:
+	чтобы увеличить звук проигрывателя
+	Decision:
+	пуск -> K-lite codec -> Media Player Classi-c -> вид -> настройки -> встроенные фильтры -> аудиопереключатель можно поставить галочку на нормализацию -> убрать галочку на восстанавливать громкость -> настроить усиление по больше.
+	Task:
+	я попробовал другой плеер установить, например, Media Player Classi-c. После установки и запуска видеофайла, он просто был остановлен. Не хотел воспроизводиться.
+	Decision:
+	вид -> настройки -> вывод ->DirectShow -> Видео Mixing Render 9 (без рендера).
+	Task:
+	восстановление системы даже под обычной загрузки
+	Decision: 
+	пробуем в командной строке открыть доступ к папке с файлами, которые следует заменить С:\windows\System32\config.С флешки эту папку нужно открыть и внутри удалить/вырезать 5 файлов DEFAUT,SAM, SECURITY,SOFTWARE,SYSTEM,и с regpack переношу эти же файлы в конфиг и перезагружаюсь
+	Task:
+	в 404 Консультант ошибка: программа не запускается, или пишет при обновлении: ошибка 36, испорчен файл \thost\const\base\socn\socn.dt2
+	Decision:
+	ок, появл сообщ про сис админ, ок, вывод с ошибкой кода 0х000736, диспетчер, процессы, завершили задачи v.32... и cons все, грузится.
+  	Task:
+  	Install PgAdmin 4
+  	Decision:
+  	$ sudo rpm -i https://ftp.postgresql.org/pub/pgadmin/pgadmin4/yum/pgadmin4-redhat-repo-2-1.noarch.rpm
+  	$ sudo yum install -y pgadmin4
+  	$ sudo yum install -y pgadmin4-desktop
+  	$ sudo yum install -y pgadmin4-web
+  	$ sudo /usr/pgadmin4/bin/setup-web.sh
+  	$ sudo yum upgrade -y pgadmin4
+  	Source:
+  	https://www.pgadmin.org/download/pgadmin-4-rpm/
     Task:
     Установить Git
     Decision:

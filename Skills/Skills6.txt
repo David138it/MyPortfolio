@@ -400,7 +400,7 @@ Docker, Установка и настройка ПО
     Source:
     1. https://stepik.org/course/1612/syllabus
 
-Sql, Основы PostgreSQL
+Sql, Основы SQL
   Task:
   Задача на соединение таблиц
   Таблица "Прайс-лист":

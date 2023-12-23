@@ -9403,3 +9403,4 @@ Windows vs Linux, Расписание заданий
   30  23  *  *  5  /usr/bin/Linux-Gnulinux-TaskScheduler3.sh
   Source:
   1. https://basis.gnulinux.pro/ru/latest/
+

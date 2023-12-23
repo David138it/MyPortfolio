@@ -713,8 +713,41 @@ Python, Обработка логов
 	*Использовать pandas для загрузки датафрейма из csv.
 	Комментарий к первому заданию.
 	Это задания из области Process Mining – исследуется лог процесса, например, процесс выдачи кредита. Процесс может состоять из различных этапов – создание заявки, запрос проверки клиента, проверка клиента, согласование и т.д. В разрезе задания, эти этапы соответствуют колонке state. Каждый процесс имеет свой уникальный id, то есть пришёл Иванов И.И. оформлять кредит – это процесс с одним id, пришёл Петров П.П. – это процесс с другим id и т.д. Это соответствует колонке trace. Так же у каждого этапа есть временная метка, в примере – date. Например, когда стоит задача, найти количество проходов по ребру, необходимо найти, сколько раз осуществлялся переход от одного этапа к другому, составляющим это ребро. И это в целом по всем id. Хотя может стоять и задача найти то же самое, но для конкретного id. Скажем, в идеальном процессе, переход от запроса на проверку клиента к проверке клиента должен осуществляться один раз, но в силу каких-то обстоятельств, после проверки клиента снова создаётся запрос на проверку и далее проверка клиента, как бы зацикливание.
+	Task:
+	У нас на иркру есть баннеры. Когда баннер показывается пользователю, на сервер статистики отправляется запрос. Этот запрос попадает в лог-файл сервера Nginx.
+	Строка в логе выглядит примерно так:
+	185.37.57.206 - static.irk.ru [23/Jan/2021:06:25:17 +0800] "GET /static2/img/adv/audit/?stat=12872&banner=11199&t=1611354316972 HTTP/1.1" 200 43 "https://www.irk.ru/" "Mozilla/5.0 (iPhone; CPU iPhone OS 14_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1" 0.000 185.37.57.206
+	Тут видно, что 23 января в 6:25 был показ баннера (banner=11199).
+	Также в лог отправлются события доскролла. Доскролл - это когда баннер где-то внизу страницы, пользователь его сначала не видит. А потом, когда он до него скроллом доходит, на сервер отправлятся событие "доскролл" и логируется. Строка лога выглядит точно так же, только у нее адрес не /audit/, а /scrollaudit/
+	Каждый запрос на лету дописывается в файл access-irk.log
+	В процессе своей работы, сервер Nginx (а точнее демон logrotate) ротирует логи. Каждый день, в 6:25 утра, создается новый файл access-irk.log, а старый файл закрывается и переименовывается в access-irk.log.1. А лог-файлы, начиная со второго, еще и сжимаются.
+	В любой момент времени папка логов выглядит примерно так:
+	-rw-r----- 1 dima dima  12932420 Jan 23 09:53 access-irk.log
+	-rw-r----- 1 dima dima 176615549 Jan 23 06:25 access-irk.log.1
+	-rw-r----- 1 dima dima  10522468 Jan 22 06:25 access-irk.log.2.gz
+	-rw-r----- 1 dima dima   6764534 Jan 21 06:25 access-irk.log.3.gz
+	-rw-r----- 1 dima dima   7718910 Jan 20 06:25 access-irk.log.4.gz
+	-rw-r----- 1 dima dima   6178164 Jan 19 06:25 access-irk.log.5.gz
+	-rw-r----- 1 dima dima   3842092 Jan 23 09:51 access-irk.log.6.gz
+	Задача. Вам надо написать функцию, которая проанализирует логи в папке и покажет количество просмотров и доскроллов для заданного баннера в заданный день.
+	Моменты:
+	1. функция запускается по крону, поэтому от нее не требуется супер быстродействие
+	2. но при прочих равных, чем быстрее она даст ответ, тем лучше
+	3. читабельность кода важна, ведь код читают и поддерживают люди
+	4. я приложил тест для pytest - вы сможете проверить свой алгоритм на корректность
+	5. в папке логов в реальности может быть 50-90 файлов и файлы с другими названиями
+	6. робастность скрипта приветствуется, недавно у нас проскакивал поврежденный лог-файл
+	Что делать
+	Скачайте файлы логов и заготовку вот тут: https://yadi.sk/d/QEwIrkyoBAEP2g?w=1
 
 Python, Работа с данными
+    Task:
+    Data collection
+    Write a program that asks the user for data and adds this data to a file "output.txt"
+    Decision:
+    In the program, I created a list of keys '_ip1_', '_ip2_', '_sName_', '_sNumb_', '_tNumb_'. These are the values that will need to be replaced. Then the program asks what data needs to be replaced with - IP addresses, station names, station number and transmitter. These values are stored in the values variable. Then the program reads the information in the file "template.txt " and changes the file data. In the file I added values that will need to be replaced - '_ip1_', '_ip2_', '_sName_', '_sNumb_', '_tNumb_'. Then I just save the changes to a separate file "output.txt "
+	Task:
+	Написать структуру классов, методов и свойств, описывающих работу сети кинотеатров (нескольких кинотеатров; в каждом кинотеатре несколько кинозалов; кинозалы в разных кинотеатрах могут повторяться; существует набор фильмов, которые сейчас показывают; фильмы в кинозалах демонстрируют по расписанию; стоимость билета на сеанс может отличаться в зависимости от места в кинозале; и т.д.).
 	Task:
 	Работаем с ПДФ файлами. Выведем только первые 5 страниц
 	Decision:
@@ -7317,4 +7350,236 @@ Engineer, Network Cisco Packet Tracer
         add simple pdu -> PC4-PC7, PC4(1)-PC7(1) -> Simulation
     Source:
     1. https://www.youtube.com/playlist?list=PLcDkQ2Au8aVNYsqGsxRQxYyQijILa94T9
+
+Python, Time
+	Task:
+	Applications created in python using the tkinter module
+	Decision:
+	$ vim Py-ApplicationsCreatedInPythonUsingTheTkinterModule-Calendar.py
+	$ cat Py-ApplicationsCreatedInPythonUsingTheTkinterModule-Calendar.py
+	#Source: https://www.youtube.com/playlist?list=PL9aGGxgLOVw44btcB1CM6j_jhrl7L95aH
+	from tkinter import *
+	import calendar
+	import datetime
+	root=Tk()
+	root.title('Calendar')
+	days=[]
+	now=datetime.datetime.now()
+	year=now.year
+	month=now.month
+	back_button=Button(root,text='<')
+	back_button.grid(row=0, column=0, sticky=NSEW)
+	next_button=Button(root,text='>')
+	next_button.grid(row=0, column=6, sticky=NSEW)
+	info_label=Label(root, text='0', width=1, height=1, font='Aria; 16 bold', fg='blue')
+	info_label.grid(row=0, column=1, columnspan=5, sticky=NSEW)
+	for n in range(7):
+	        lbl=Label(root, text=calendar.day_abbr[n], width=1, height=1, font='Arial 10 bold', fg='darkblue')
+	        lbl.grid(row=1, column=n, sticky=NSEW)
+	for row in range(6):
+	        for col in range(7):
+	                lbl=Label(root, text='0', width=4, height=2, font='Arial 16 bold')
+	                lbl.grid(row=row+2, column=col, sticky=NSEW)
+	                days.append(lbl)
+	root.mainloop()
+	$ vim Py-ApplicationsCreatedInPythonUsingTheTkinterModule-Calendar.py    
+	$ cat Py-ApplicationsCreatedInPythonUsingTheTkinterModule-Calendar.py    
+	#Source: https://www.youtube.com/playlist?list=PL9aGGxgLOVw44btcB1CM6j_jhrl7L95aH
+	from tkinter import *
+	import calendar
+	import datetime
+	def fill():
+	        info_label['text']=calendar.month_name[month]+', '+str(year)
+	        month_days=calendar.monthrange(year, month)[1]
+	        if month==1:
+	                back_month_days=calendar.monthrange(year-1, 12)[1]
+	        else:
+	                back_month_days=calendar.monthrange(year, month-1)[1]
+	        week_day=calendar.monthrange(year, month)[0]
+	        for n in range(month_days):
+	                days[n + week_day]['text']=n+1
+	                days[n + week_day]['fg']='black'
+	                if year == now.year and month == now.month and n == now.day:
+	                        days[week_day]['bg']='green'
+	                        days[n + week_day]['bg']='grey'
+	                else:
+	                        days[n + week_day]['bg']='gray'
+	root=Tk()
+	root.title('Calendar')
+	days=[]
+	now=datetime.datetime.now()
+	year=now.year
+	month=now.month
+	back_button=Button(root,text='<')
+	back_button.grid(row=0, column=0, sticky=NSEW)
+	next_button=Button(root,text='>')
+	next_button.grid(row=0, column=6, sticky=NSEW)
+	info_label=Label(root, text='0', width=1, height=1, font='Aria; 16 bold', fg='blue')
+	info_label.grid(row=0, column=1, columnspan=5, sticky=NSEW)
+	for n in range(7):
+	        lbl=Label(root, text=calendar.day_abbr[n], width=1, height=1, font='Arial 10 bold', fg='darkblue')
+	        lbl.grid(row=1, column=n, sticky=NSEW)
+	for row in range(6):
+	        for col in range(7):
+	                lbl=Label(root, text='0', width=4, height=2, font='Arial 16 bold')
+	                lbl.grid(row=row+2, column=col, sticky=NSEW)
+	                days.append(lbl)
+	fill()
+	root.mainloop()
+	$ vim Py-ApplicationsCreatedInPythonUsingTheTkinterModule-Calendar.py    
+	$ cat Py-ApplicationsCreatedInPythonUsingTheTkinterModule-Calendar.py    
+	#Source: https://www.youtube.com/playlist?list=PL9aGGxgLOVw44btcB1CM6j_jhrl7L95aH
+	from tkinter import *
+	import calendar
+	import datetime
+	def fill():
+	        info_label['text']=calendar.month_name[month]+', '+str(year)
+	        month_days=calendar.monthrange(year, month)[1]
+	        if month==1:
+	                back_month_days=calendar.monthrange(year-1, 12)[1]
+	        else:
+	                back_month_days=calendar.monthrange(year, month-1)[1]
+	        week_day=calendar.monthrange(year, month)[0]
+	        for n in range(month_days):
+	                days[n + week_day]['text']=n+1
+	                days[n + week_day]['fg']='black'
+	                if year == now.year and month == now.month and n == now.day:
+	                        days[week_day]['bg']='green'
+	                        days[n + week_day]['bg']='grey'
+	                else:
+	                        days[n + week_day]['bg']='gray'
+	        for n in range(week_day):
+	                days[week_day-n-1]['text']=back_month_days-n
+	                days[week_day-n-1]['fg']='gray'
+	                days[week_day-n-1]['bg']='#f3f3f3'
+	        for n in range(6*7-month_days-week_day):
+	                days[week_day+month_days+n]['text']=n+1
+	                days[week_day+month_days+n]['fg']='gray'
+	                days[week_day+month_days+n]['bg']='#f3f3f3'
+	root=Tk()
+	root.title('Calendar')
+	days=[]
+	now=datetime.datetime.now()
+	year=now.year
+	month=now.month
+	back_button=Button(root,text='<')
+	back_button.grid(row=0, column=0, sticky=NSEW)
+	next_button=Button(root,text='>')
+	next_button.grid(row=0, column=6, sticky=NSEW)
+	info_label=Label(root, text='0', width=1, height=1, font='Aria; 16 bold', fg='blue')
+	info_label.grid(row=0, column=1, columnspan=5, sticky=NSEW)
+	for n in range(7):
+	        lbl=Label(root, text=calendar.day_abbr[n], width=1, height=1, font='Arial 10 bold', fg='darkblue')
+	        lbl.grid(row=1, column=n, sticky=NSEW)
+	for row in range(6):
+	        for col in range(7):
+	                lbl=Label(root, text='0', width=4, height=2, font='Arial 16 bold')
+	                lbl.grid(row=row+2, column=col, sticky=NSEW)
+	                days.append(lbl)
+	fill()
+	root.mainloop()
+	$ vim Py-ApplicationsCreatedInPythonUsingTheTkinterModule-Calendar.py    
+	$ cat Py-ApplicationsCreatedInPythonUsingTheTkinterModule-Calendar.py    
+	from tkinter import *
+	import calendar
+	import datetime
+	def back():
+		global month, year
+		month -= 1
+		if month == 0:
+			month=12
+			year -= 1
+		fill()
+	def next():
+		global month, year
+		month += 1
+		if month == 13:
+			month=11
+			year += 1
+		fill()
+	def fill():
+		info_label['text']=calendar.month_name[month]+', '+str(year)
+		month_days=calendar.monthrange(year, month)[1]
+		if month==1:
+			back_month_days=calendar.monthrange(year-1, 12)[1]
+		else:
+			back_month_days=calendar.monthrange(year, month-1)[1]
+		week_day=calendar.monthrange(year, month)[0]
+		for n in range(month_days):
+			days[n + week_day]['text']=n+1
+			days[n + week_day]['fg']='black'
+			if year == now.year and month == now.month and n == now.day:
+				days[week_day]['bg']='green'
+				days[n + week_day]['bg']='grey'
+			else:
+				days[n + week_day]['bg']='gray'
+		for n in range(week_day):
+			days[week_day-n-1]['text']=back_month_days-n
+			days[week_day-n-1]['fg']='gray'
+			days[week_day-n-1]['bg']='#f3f3f3'
+		for n in range(6*7-month_days-week_day):
+			days[week_day+month_days+n]['text']=n+1
+			days[week_day+month_days+n]['fg']='gray'
+			days[week_day+month_days+n]['bg']='#f3f3f3'
+	root=Tk()
+	root.title('Calendar')
+	days=[]
+	now=datetime.datetime.now()
+	year=now.year
+	month=now.month
+	back_button=Button(root,text='<',command=back)
+	back_button.grid(row=0, column=0, sticky=NSEW)
+	next_button=Button(root,text='>',command=next)
+	next_button.grid(row=0, column=6, sticky=NSEW)
+	info_label=Label(root, text='0', width=1, height=1, font='Aria; 16 bold', fg='blue')
+	info_label.grid(row=0, column=1, columnspan=5, sticky=NSEW)
+	for n in range(7):
+		lbl=Label(root, text=calendar.day_abbr[n], width=1, height=1, font='Arial 10 bold', fg='darkblue')
+		lbl.grid(row=1, column=n, sticky=NSEW)
+	for row in range(6):	
+		for col in range(7):
+			lbl=Label(root, text='0', width=4, height=2, font='Arial 16 bold')
+			lbl.grid(row=row+2, column=col, sticky=NSEW)
+			days.append(lbl)
+	fill()
+	root.mainloop()
+	Source: 
+	https://www.youtube.com/playlist?list=PL9aGGxgLOVw44btcB1CM6j_jhrl7L95aH
+	Task:
+	високосный год
+	Decision:
+	year=int(input("Укажите год: "))
+	if year%4==0:
+	    if year%100==0:
+	        if year%400==0:
+	            print("Это високосный год")
+	        else:
+	            print("Это не високосный год")
+	    else:
+	        print("Это високосный год")
+	else:
+	    print("Это не високосный год")
+
+Python, Погода
+	Decision:
+	#/usr/bin/python
+	# -*- encoding: utf-8 -*-
+	import pyowm
+	city=input('Какой город вас интересует? ')
+	owm = pyowm.OWM('566b41c32a6a99107ba96c215e9fafea')  # Yeu MUST provide a valid API key
+	# Have a pro subscription? Then use:
+	# owm = pyowm.OWM(API_key='your-API-key', subscription_type='pro')
+	# Search for current weather in London (Great Britain)
+	observation = owm.weather_at_place('city')
+	w = observation.get_weather()
+	temperature=w.get_temperature('celsius')['temp']
+	print("В городе" + city  +" Сейчас температура: " + str(temperature))                      # <Weather - reference time=2013-12-18 09:20,
+	                              # status=Clouds>
+	# Weather details
+	#w.get_wind()                  # {'speed': 4.6, 'deg': 330}
+	#w.get_humidity()              # 87
+	#w.get_temperature('celsius')  # {'temp_max': 10.5, 'temp': 9.7, 'temp_min': 9.0}
+	# Search current weather observations in the surroundings of
+	# lat=22.57W, lon=43.12S (Rio de Janeiro, BR)
+	#observation_list = owm.weather_around_coords(-2257, -43.12)
 
