@@ -1,5 +1,363 @@
 Mail for feedback: David138it@gmail.com
 
+Engineer
+	$ docker run busybox echo "Hello world"
+	Unable to find image 'busybox:latest' locally
+	latest: Pulling from library/busybox
+	a307d6ecc620: Pull complete 
+	Digest: sha256:ba76950ac9eaa407512c9d859cea48114eeff8a6f12ebaa5d32ce79d4a017dd8
+	Status: Downloaded newer image for busybox:latest
+	Hello world
+	$ la
+	.bash_history                           Documents                               .local          pt                         tProjects
+	.bash_logout                            Downloads                               Music           Public                     Videos
+	.bashrc                                 .fontconfig                             .mysql_history  .python_history            .vim
+	.cache                                  .gitconfig                              .packettracer   snap                       .viminfo
+	CiscoPacketTracer_821_Ubuntu_64bit.deb  .gnome                                  Pictures        .ssh                       .wget-hsts
+	.config                                 .gnupg                                  .pki            .sudo_as_admin_successful  .Xauthority
+	Desktop                                 google-chrome-stable_current_amd64.deb  .profile        Templates
+	.docker                                 .lesshst                                Projects        test.txt
+	$ vim app.js
+	$ vim Dockerfile
+	$ cat Dockerfile
+	FROM node:7
+	ADD app.js /app.js
+	ENTRYPOINT ["node", "app.js"]
+	$ cat app.js
+	const http = require('http');
+	const os = require('os');
+	console.log("Kubia server starting...");
+	var handler = function(request, response) {
+			console.log("Received request from " + request.connection.remoteAddress);
+			response.writeHead(200);
+			response.end("You've hit " + os.hostname() + "\n");
+	};
+	var www = http.createServer(handler);
+	www.listen(8080);
+	$ docker build -t kubia .
+	[+] Building 386.6s (7/7) FINISHED                                                                                       docker:default
+	=> [internal] load build definition from Dockerfile                                                                               1.6s
+	=> => transferring dockerfile: 98B                                                                                                0.0s
+	=> [internal] load .dockerignore                                                                                                  1.5s
+	=> => transferring context: 2B                                                                                                    0.1s
+	=> [internal] load metadata for docker.io/library/node:7                                                                          7.7s
+	=> [internal] load build context                                                                                                  0.9s
+	=> => transferring context: 389B                                                                                                  0.0s
+	=> [1/2] FROM docker.io/library/node:7@sha256:af5c2c6ac8bc3fa372ac031ef60c45a285eeba7bce9ee9ed66dad3a01e29ab8d                  369.4s
+	=> => resolve docker.io/library/node:7@sha256:af5c2c6ac8bc3fa372ac031ef60c45a285eeba7bce9ee9ed66dad3a01e29ab8d                    0.5s
+	=> => sha256:af5c2c6ac8bc3fa372ac031ef60c45a285eeba7bce9ee9ed66dad3a01e29ab8d 2.01kB / 2.01kB                                     0.0s
+	=> => sha256:d9aed20b68a4a40a396dc03a881c43531097404838e4dc60dbb7ed29f95974aa 7.21kB / 7.21kB                                     0.0s
+	=> => sha256:ad74af05f5a24bcf9459ae1cf7718628c2aeb6b587eb51b6eeaf639aca3e566f 52.61MB / 52.61MB                                  45.8s
+	=> => sha256:2b032b8bbe8bc215ad3337035d0183fc353841ec6478d1c481e6e13628ad9e00 19.26MB / 19.26MB                                  46.7s
+	=> => sha256:a9a5b35f6ead105e66a9af969454ac09b5772eeb0c6281972c48d2ce882e8eba 43.23MB / 43.23MB                                  47.6s
+	=> => extracting sha256:ad74af05f5a24bcf9459ae1cf7718628c2aeb6b587eb51b6eeaf639aca3e566f                                         82.2s
+	=> => sha256:afa075743392fc2e79375c44e3ef285f775b722bbf27d01f8fe3789144e97f7c 4.38kB / 4.38kB                                    47.8s
+	=> => sha256:3f40ad2666bcec6baf03f4322c4736464de25d351740037d3ecae8dfd46d9693 15.68MB / 15.68MB                                 127.1s
+	=> => sha256:3245b5a1c52cbf0ae23d948fb94ef7b321e3dc54e13c3f6cf79951ed8237f03e 131.86MB / 131.86MB                               127.1s
+	=> => sha256:9fb9f21641cdf120516153e477e21bad887648cdced5e870cb6eed1c1a2aefa3 119.15kB / 119.15kB                                51.8s
+	=> => sha256:49c0ed396b49ee88dec473e3277b89a80d79a5eefebb96c0e1a649069630cfbb 900.58kB / 900.58kB                               163.0s
+	=> => extracting sha256:2b032b8bbe8bc215ad3337035d0183fc353841ec6478d1c481e6e13628ad9e00                                          1.8s
+	=> => extracting sha256:a9a5b35f6ead105e66a9af969454ac09b5772eeb0c6281972c48d2ce882e8eba                                         46.8s
+	=> => extracting sha256:3245b5a1c52cbf0ae23d948fb94ef7b321e3dc54e13c3f6cf79951ed8237f03e                                         58.4s
+	=> => extracting sha256:afa075743392fc2e79375c44e3ef285f775b722bbf27d01f8fe3789144e97f7c                                          0.0s
+	=> => extracting sha256:9fb9f21641cdf120516153e477e21bad887648cdced5e870cb6eed1c1a2aefa3                                          0.0s
+	=> => extracting sha256:3f40ad2666bcec6baf03f4322c4736464de25d351740037d3ecae8dfd46d9693                                         76.3s
+	=> => extracting sha256:49c0ed396b49ee88dec473e3277b89a80d79a5eefebb96c0e1a649069630cfbb                                          1.3s
+	=> [2/2] ADD app.js /app.js                                                                                                       3.4s
+	=> exporting to image                                                                                                             1.4s
+	=> => exporting layers                                                                                                            1.1s
+	=> => writing image sha256:bee94b686e2020508743ed69bd8ad11b31814442517263d66eda2a4f48a8ee71                                       0.1s
+	=> => naming to docker.io/library/kubia                                                                                           0.2s
+	$ ls
+	app.js                                  Dockerfile  google-chrome-stable_current_amd64.deb  Projects  snap       tProjects
+	CiscoPacketTracer_821_Ubuntu_64bit.deb  Documents   Music                                   pt        Templates  Videos
+	Desktop                                 Downloads   Pictures                                Public    test.txt
+	$ docker run --name kubia-container -p 8080:8080 -d kubia
+	3f9e7e82d141515aa1daf870a0bc1d32bb6b571610df9d8c87df2e9a98af6017
+	$ curl localhost:8080
+	You've hit 3f9e7e82d141
+	$ docker ps
+	CONTAINER ID   IMAGE     COMMAND         CREATED              STATUS              PORTS                                       NAMES
+	3f9e7e82d141   kubia     "node app.js"   About a minute ago   Up About a minute   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp   kubia-container
+	$ docker inspect kubia-container
+	[
+		{
+			"Id": "3f9e7e82d141515aa1daf870a0bc1d32bb6b571610df9d8c87df2e9a98af6017",
+			"Created": "2023-12-27T11:03:14.012162865Z",
+			"Path": "node",
+			"Args": [
+				"app.js"
+			],
+			"State": {
+				"Status": "running",
+				"Running": true,
+				"Paused": false,
+				"Restarting": false,
+				"OOMKilled": false,
+				"Dead": false,
+				"Pid": 3116,
+				"ExitCode": 0,
+				"Error": "",
+				"StartedAt": "2023-12-27T11:03:20.162103977Z",
+				"FinishedAt": "0001-01-01T00:00:00Z"
+			},
+			"Image": "sha256:bee94b686e2020508743ed69bd8ad11b31814442517263d66eda2a4f48a8ee71",
+			"ResolvConfPath": "/var/lib/docker/containers/3f9e7e82d141515aa1daf870a0bc1d32bb6b571610df9d8c87df2e9a98af6017/resolv.conf",
+			"HostnamePath": "/var/lib/docker/containers/3f9e7e82d141515aa1daf870a0bc1d32bb6b571610df9d8c87df2e9a98af6017/hostname",
+			"HostsPath": "/var/lib/docker/containers/3f9e7e82d141515aa1daf870a0bc1d32bb6b571610df9d8c87df2e9a98af6017/hosts",
+			"LogPath": "/var/lib/docker/containers/3f9e7e82d141515aa1daf870a0bc1d32bb6b571610df9d8c87df2e9a98af6017/3f9e7e82d141515aa1daf870a0bc1d32bb6b571610df9d8c87df2e9a98af6017-json.log",
+			"Name": "/kubia-container",
+			"RestartCount": 0,
+			"Driver": "overlay2",
+			"Platform": "linux",
+			"MountLabel": "",
+			"ProcessLabel": "",
+			"AppArmorProfile": "docker-default",
+			"ExecIDs": null,
+			"HostConfig": {
+				"Binds": null,
+				"ContainerIDFile": "",
+				"LogConfig": {
+					"Type": "json-file",
+					"Config": {}
+				},
+				"NetworkMode": "default",
+				"PortBindings": {
+					"8080/tcp": [
+						{
+							"HostIp": "",
+							"HostPort": "8080"
+						}
+					]
+				},
+				"RestartPolicy": {
+					"Name": "no",
+					"MaximumRetryCount": 0
+				},
+				"AutoRemove": false,
+				"VolumeDriver": "",
+				"VolumesFrom": null,
+				"ConsoleSize": [
+					9,
+					136
+				],
+				"CapAdd": null,
+				"CapDrop": null,
+				"CgroupnsMode": "private",
+				"Dns": [],
+				"DnsOptions": [],
+				"DnsSearch": [],
+				"ExtraHosts": null,
+				"GroupAdd": null,
+				"IpcMode": "private",
+				"Cgroup": "",
+				"Links": null,
+				"OomScoreAdj": 0,
+				"PidMode": "",
+				"Privileged": false,
+				"PublishAllPorts": false,
+				"ReadonlyRootfs": false,
+				"SecurityOpt": null,
+				"UTSMode": "",
+				"UsernsMode": "",
+				"ShmSize": 67108864,
+				"Runtime": "runc",
+				"Isolation": "",
+				"CpuShares": 0,
+				"Memory": 0,
+				"NanoCpus": 0,
+				"CgroupParent": "",
+				"BlkioWeight": 0,
+				"BlkioWeightDevice": [],
+				"BlkioDeviceReadBps": [],
+				"BlkioDeviceWriteBps": [],
+				"BlkioDeviceReadIOps": [],
+				"BlkioDeviceWriteIOps": [],
+				"CpuPeriod": 0,
+				"CpuQuota": 0,
+				"CpuRealtimePeriod": 0,
+				"CpuRealtimeRuntime": 0,
+				"CpusetCpus": "",
+				"CpusetMems": "",
+				"Devices": [],
+				"DeviceCgroupRules": null,
+				"DeviceRequests": null,
+				"MemoryReservation": 0,
+				"MemorySwap": 0,
+				"MemorySwappiness": null,
+				"OomKillDisable": null,
+				"PidsLimit": null,
+				"Ulimits": null,
+				"CpuCount": 0,
+				"CpuPercent": 0,
+				"IOMaximumIOps": 0,
+				"IOMaximumBandwidth": 0,
+				"MaskedPaths": [
+					"/proc/asound",
+					"/proc/acpi",
+					"/proc/kcore",
+					"/proc/keys",
+					"/proc/latency_stats",
+					"/proc/timer_list",
+					"/proc/timer_stats",
+					"/proc/sched_debug",
+					"/proc/scsi",
+					"/sys/firmware",
+					"/sys/devices/virtual/powercap"
+				],
+				"ReadonlyPaths": [
+					"/proc/bus",
+					"/proc/fs",
+					"/proc/irq",
+					"/proc/sys",
+					"/proc/sysrq-trigger"
+				]
+			},
+			"GraphDriver": {
+				"Data": {
+					"LowerDir": "/var/lib/docker/overlay2/eb4d18a4caf4a76bf515da04b05f9c4e5356dbd34b644df41557ca329cad44f9-init/diff:/var/lib/docker/overlay2/pz1gx9ajli5v00dl94jzrbmwd/diff:/var/lib/docker/overlay2/ad6856293f86271d395c6c81b6bfda4d9d60df733c18e99bd6dcf61642b970b4/diff:/var/lib/docker/overlay2/52812e4c080d9e69973506a2d3a99a30ea25527b4aa79254143f197252ad048a/diff:/var/lib/docker/overlay2/ecd864b51d4b72b028b602e2405e87170dfbfcda792c603ac29952e4ecacbe9c/diff:/var/lib/docker/overlay2/165cc57966205a55d02875ac6abe94664190605908621e4548fcceebed1a70d0/diff:/var/lib/docker/overlay2/6c113a542cdf7f20c872220c985aa7a2dcc81b42023f459d7d2c168a07461ed2/diff:/var/lib/docker/overlay2/75b0a8c4e0d28b08b55da929ee19c54d6977f66c7879834c4d049cd62f8d31b5/diff:/var/lib/docker/overlay2/eed665d4c0d03e12a47eb0ec3dd45999b6f459fe0d1645b41227b517fb672172/diff:/var/lib/docker/overlay2/e35cc0f8dd675ff25b9dbf5cfe11b14f36a233a34571631169ab152279b6b02e/diff",
+					"MergedDir": "/var/lib/docker/overlay2/eb4d18a4caf4a76bf515da04b05f9c4e5356dbd34b644df41557ca329cad44f9/merged",
+					"UpperDir": "/var/lib/docker/overlay2/eb4d18a4caf4a76bf515da04b05f9c4e5356dbd34b644df41557ca329cad44f9/diff",
+					"WorkDir": "/var/lib/docker/overlay2/eb4d18a4caf4a76bf515da04b05f9c4e5356dbd34b644df41557ca329cad44f9/work"
+				},
+				"Name": "overlay2"
+			},
+			"Mounts": [],
+			"Config": {
+				"Hostname": "3f9e7e82d141",
+				"Domainname": "",
+				"User": "",
+				"AttachStdin": false,
+				"AttachStdout": false,
+				"AttachStderr": false,
+				"ExposedPorts": {
+					"8080/tcp": {}
+				},
+				"Tty": false,
+				"OpenStdin": false,
+				"StdinOnce": false,
+				"Env": [
+					"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+					"NPM_CONFIG_LOGLEVEL=info",
+					"NODE_VERSION=7.10.1",
+					"YARN_VERSION=0.24.4"
+				],
+				"Cmd": null,
+				"Image": "kubia",
+				"Volumes": null,
+				"WorkingDir": "",
+				"Entrypoint": [
+					"node",
+					"app.js"
+				],
+				"OnBuild": null,
+				"Labels": {}
+			},
+			"NetworkSettings": {
+				"Bridge": "",
+				"SandboxID": "75d7d6fe5d4b7ff7e519e08fb04a816212aed7c8f381290a424bc56a40ee9582",
+				"HairpinMode": false,
+				"LinkLocalIPv6Address": "",
+				"LinkLocalIPv6PrefixLen": 0,
+				"Ports": {
+					"8080/tcp": [
+						{
+							"HostIp": "0.0.0.0",
+							"HostPort": "8080"
+						},
+						{
+							"HostIp": "::",
+							"HostPort": "8080"
+						}
+					]
+				},
+				"SandboxKey": "/var/run/docker/netns/75d7d6fe5d4b",
+				"SecondaryIPAddresses": null,
+				"SecondaryIPv6Addresses": null,
+				"EndpointID": "6e34972b30f33f1e01b26c79d666185ee9a7fe5bff4abace616c26196008ddc1",
+				"Gateway": "172.17.0.1",
+				"GlobalIPv6Address": "",
+				"GlobalIPv6PrefixLen": 0,
+				"IPAddress": "172.17.0.2",
+				"IPPrefixLen": 16,
+				"IPv6Gateway": "",
+				"MacAddress": "02:42:ac:11:00:02",
+				"Networks": {
+					"bridge": {
+						"IPAMConfig": null,
+						"Links": null,
+						"Aliases": null,
+						"NetworkID": "04057c9cbb7fcb696c6d46e071ded0da5497aeadfa10fd8c269f66a127132d40",
+						"EndpointID": "6e34972b30f33f1e01b26c79d666185ee9a7fe5bff4abace616c26196008ddc1",
+						"Gateway": "172.17.0.1",
+						"IPAddress": "172.17.0.2",
+						"IPPrefixLen": 16,
+						"IPv6Gateway": "",
+						"GlobalIPv6Address": "",
+						"GlobalIPv6PrefixLen": 0,
+						"MacAddress": "02:42:ac:11:00:02",
+						"DriverOpts": null
+					}
+				}
+			}
+		}
+	]
+	$ docker exec -it kubia-container bash
+	root@3f9e7e82d141:/# ls
+	app.js  bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+	root@3f9e7e82d141:/#  ls home/node/.
+	./            ../           .bash_logout  .bashrc       .profile      
+	root@3f9e7e82d141:/# ps aux         
+	USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+	root           1  0.0  1.3 614440 26488 ?        Ssl  11:03   0:00 node app.js
+	root          12  0.0  0.1  20252  3200 pts/0    Ss   11:08   0:00 bash
+	root          20  0.0  0.0  17508  1920 pts/0    R+   11:10   0:00 ps aux
+	root@3f9e7e82d141:/# ps aux | grep app.js
+	root           1  0.0  1.3 614440 26488 ?        Ssl  11:03   0:00 node app.js
+	root@3f9e7e82d141:/# exit
+	exit
+	$ docker stop kubia-container
+	kubia-container
+	$ docker rm kubia-container
+	kubia-container
+	$ docker tag kubia luksa/kubia
+	$ docker images | head
+	REPOSITORY         TAG           IMAGE ID       CREATED          SIZE
+	kubia              latest        bee94b686e20   15 minutes ago   660MB
+	luksa/kubia        latest        bee94b686e20   15 minutes ago   660MB
+	busybox            latest        9211bbaa0dbd   8 days ago       4.26MB
+	prom/prometheus    latest        620d5e2a39df   5 weeks ago      247MB
+	tbase/postgres     latest        42d80f305d9e   6 weeks ago      425MB
+	hello-world        latest        9c7a54a9a43c   7 months ago     13.3kB
+	gitlab/gitlab-ce   15.2.0-ce.0   67972b8f737f   17 months ago    2.66GB
+	$ docker login
+	Username: tmail138
+	Password: 
+	$ docker tag kubia tmail138/kubia
+	$ docker images | head
+	$ docker push tmail138/kubia
+	$ docker run -p 8080:8080 -d tmail138/kubia
+	$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.23.0/minikube-linuxy-amd64 && chmod +x minikube && sudo mv m
+	inikube /usr/local/bin/
+	$ minikube start
+	Starting local Kubernetes v1.8.0 cluster...
+	Starting VM...
+	E1227 07:58:31.150290    8733 start.go:150] Error starting host: Error creating host: Error executing step: Running precreate checks.
+	: VBoxManage not found. Make sure VirtualBox is installed and VBoxManage is in the path.
+	Retrying.
+	E1227 07:58:31.153208    8733 start.go:156] Error starting host:  Error creating host: Error executing step: Running precreate checks.
+	: VBoxManage not found. Make sure VirtualBox is installed and VBoxManage is in the path
+	E1227 07:58:31.791593    8733 util.go:147] Error uploading error message: Error sending error report to https://clouderrorreporting.googleapis.com/v1beta1/projects/k8s-minikube/events:report?key=AIzaSyACUwzG0dEPcl-eOgpDKnyKoUFgHdfoFuA, got response code 400
+	$ sudo apt-get install virtualbox -y
+	$ minikube start
+	$ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+	$ kubectl cluster-info
+	$ gcloud container clusters create kubia --num-nodes 3 --machine-type f1-micro
+	$ kubectl get nodes
+
+
+gcloud container clusters create kubia --num-nodes 3 --machine-type f1-micro
+
 Windows vs Linux, Криптография
 	Task:
 	В тексте, состоящем из 24 букв и записанном без пробелов, буквы переставлены по следующему правилу: 
