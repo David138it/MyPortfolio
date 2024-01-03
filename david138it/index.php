@@ -1,7 +1,7 @@
 <?php
-$user = "david";
-$password = "92Ykj!38";
-$database = "david138it";
+$user = "YOUR-NAME";
+$password = "YOUR-PASSWORD";
+$database = "YOUR-DB";
 $table1 = "experience";
 $table2 = "results";
 echo '
