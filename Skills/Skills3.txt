@@ -2998,11 +2998,82 @@ Django, Разработка сайта
 	$ python manage.py runserver
 	Decision:
 	$ deactivate
+	Task:
+	Создаем API блога на Django REST Framefork
+	Decision:
+	$ vim coolsite/settings
+	$ cat coolsite/settings
+	...
+	INSTALLED_APPS = [
+		'django.contrib.admin',
+		'django.contrib.auth',
+		'django.contrib.contenttypes',
+		'django.contrib.sessions',
+		'django.contrib.messages',
+		'django.contrib.staticfiles',
+		'debug_toolbar',
+		'captcha',
+		'women.apps.WomenConfig',
+		'rest_framework',
+	]
+	...
+	$ vim women/serializers.py
+	$ cat women/serializers.py
+	from rest_framework import serializers
+	from django.contrib.auth.models import User
+	class UserSerializer(serializers.ModelSerializer):
+		class Meta:
+			model = User
+			fields = ['id', 'username']
+	$ vim women/views.py
+	$ cat women/views.py
+	...
+	from rest_framework import generics
+	from . import serializers
+	from django.contrib.auth.models import User
+	...
+	class UserList(generics.ListAPIView):
+		queryset = User.objects.all()
+		serializer_class = serializers.UserSerializer
+	class UserDetail(generics.RetrieveAPIView):
+		queryset = User.objects.all()
+		serializer_class = serializers.UserSerializer
+	$ vim women/urls.py
+	$ cat women/urls.py
+	...
+	from rest_framework.urlpatterns import format_suffix_patterns
+	from . import views
+	urlpatterns = [
+		...
+		path('users/', views.UserList.as_view()),
+		path('users/<int:pk>/', views.UserDetail.as_view()),
+	]
+	urlpatterns = format_suffix_patterns(urlpatterns)
+	$ curl http://127.0.0.1:8000/users
+	$ vim women/models.py
+	$ cat women/models.py
+	class Women(models.Model):
+		...
+		cat=models.ForeignKey('Category', on_delete=models.PROTECT, verbose_name="Категории")
+		owner = models.ForeignKey('auth.User', related_name='womens', on_delete=models.CASCADE)
+		...
+	$ python3 manage.py makemigrations women
+	It is impossible to add a non-nullable field 'owner' to women without specifying a default. This is because the database needs something to populate existing rows.
+	Please select a fix:
+	1) Provide a one-off default now (will be set on all existing rows with a null value for this column)
+	2) Quit and manually define a default value in models.py.
+	Select an option: 2
+	$ rm -rf women/migrations/000*.py
+	$ rm -rf db.sqlite3
+	$ python3 manage.py makemigrations women
+	$ python3 manage.py migrate
+	$ python3 manage.py createsuperuser
 	Source:
 	1. https://docs.python.org/3/tutorial/venv.html
 	2. https://translated.turbopages.org/proxy_u/en-ru.ru.6b298518-64cb356b-c3e4f7d2-74722d776562/https/stackoverflow.com/questions/5334882/how-to-get-list-of-all-the-tables-in-sqlite-programmatically
 	3. https://django-debug-toolbar.readthedocs.io/en/latest/
 	4. https://pypi.org/project/django-recaptcha/#installation
+	5. https://pythonru.com/uroki/django-rest-api
 
 Django, Разработка сайта
     Task:
