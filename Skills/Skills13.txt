@@ -1,6 +1,16 @@
 Mail for feedback: David138it@gmail.com
 
 Engineer
+	$ sudo dnf update
+	...
+	Ошибка: Не удалось загрузить метаданные для репозитория «pgdg-common»: repomd.xml GPG signature verification error: Bad GPG signature
+	$ sudo dnf install --nogpgcheck https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-9-x86_64/pgdg-redhat-repo-42.0-38PGDG.noarch.rpm
+	...
+	PostgreSQL 11 for RHEL / Rocky 9 - x86_64       187  B/s | 146  B     00:00    
+	Errors during downloading metadata for repository 'pgdg11':
+	- Status code: 404 for https://download.postgresql.org/pub/repos/yum/11/redhat/rhel-9-x86_64/repodata/repomd.xml (IP: 217.196.149.55)
+	Ошибка: Не удалось загрузить метаданные для репозитория «pgdg11»: Cannot download repomd.xml: Cannot download repodata/repomd.xml: All mirrors were tried
+
 	$ docker run busybox echo "Hello world"
 	Unable to find image 'busybox:latest' locally
 	latest: Pulling from library/busybox
@@ -355,8 +365,7 @@ Engineer
 	$ gcloud container clusters create kubia --num-nodes 3 --machine-type f1-micro
 	$ kubectl get nodes
 
-
-gcloud container clusters create kubia --num-nodes 3 --machine-type f1-micro
+	gcloud container clusters create kubia --num-nodes 3 --machine-type f1-micro
 
 Windows vs Linux, Криптография
 	Task:
