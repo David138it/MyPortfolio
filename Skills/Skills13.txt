@@ -1009,6 +1009,7 @@ Backend, Webpack
 	Source:
 	1. https://losst.ru/ustanovka-node-js-ubuntu-18-04
 
+
 Frontend, разработка сайта django rest api
 	Task:
 	Установка Django Rest Framework
