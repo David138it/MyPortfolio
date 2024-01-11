@@ -1008,3 +1008,137 @@ Backend, Webpack
 	$ nvm uninstall 14.0
 	Source:
 	1. https://losst.ru/ustanovka-node-js-ubuntu-18-04
+
+Frontend, разработка сайта django rest api
+	Task:
+	Установка Django Rest Framework
+	Decision:
+	$ mkdir drf
+	$ cd drf/
+	$ vim requirements.txt
+	$ cat requirements.txt 
+	django
+	djangorestframework
+	$ pip install -r requirements.txt
+	$ django-admin startproject drfsite
+	$ cd drfsite/
+	$ google-chrome http://127.0.0.1:8000 &
+	$ python3 manage.py runserver
+	$ python3 manage.py migrate
+	$ vim settings.py
+	$ cat settings.py
+	... 
+	#LANGUAGE_CODE = 'en-us'
+	LANGUAGE_CODE = 'ru'
+	#TIME_ZONE = 'UTC'
+	TIME_ZONE = 'Europe/Moscow'
+	...
+	$ python3 manage.py startapp women
+	$ cat settings.txt
+	... 
+	INSTALLED_APPS = [
+		'django.contrib.admin',
+		'django.contrib.auth',
+		'django.contrib.contenttypes',
+		'django.contrib.sessions',
+		'django.contrib.messages',
+		'django.contrib.staticfiles',
+		'women.apps.WomenConfig',
+	]
+	...
+	$ vim women\models.py
+	$ cat women\models.py
+	from django.db import models
+	class Women(models.Model):
+		title=models.CharField(max_length=255, verbose_name="Заголовок")
+		content=models.TextField(blank=True, verbose_name="Текст статьи")
+		time_create=models.DateTimeField(auto_now_add=True, verbose_name="Время создания")
+		time_update=models.DateTimeField(auto_now=True, verbose_name="Время изменения")
+		is_published=models.BooleanField(default=True, verbose_name="Публикация")
+		cat=models.ForeignKey('Category', on_delete=models.PROTECT, null=True, verbose_name="Категории")
+		def __str__(self):
+			return self.title
+	class Category(models.Model):
+		name=models.CharField(max_length=100, db_index=True, verbose_name="Категория")
+		def __str__(self):
+			return self.name
+	$ python3 manage.py makemigrations
+	$ python3 manage.py migrate
+	$ python3 manage.py createsuperuser
+	Имя пользователя (leave blank to use 'YOUR-USER'): YOUR-USER
+	Адрес электронной почты: YOUR-MAIL
+	Password: 
+	Password (again): 
+	$ vim women\admin.py
+	$ cat women\admin.py
+	from django.contrib import admin
+	from .models import Women
+	admin.site.register(Women)
+	$ sudo apt install sqlite3
+	$ sqlite3 db.sqlite3
+	sqlite> SELECT name from sqlite_master where type= "table";
+	django_migrations
+	sqlite_sequence
+	auth_group_permissions
+	auth_user_groups
+	auth_user_user_permissions
+	django_admin_log
+	django_content_type
+	auth_permission
+	auth_group
+	auth_user
+	django_session
+	women_category
+	women_women
+	sqlite> INSERT INTO women_category (name)
+	VALUES ("Актрисы"), ("Певицы");
+	sqlite> select * from women_category;
+	1|Актрисы
+	2|Певицы
+	$ python3 manage.py startapp women
+	$ cat settings.txt
+	... 
+	INSTALLED_APPS = [
+		'django.contrib.admin',
+		'django.contrib.auth',
+		'django.contrib.contenttypes',
+		'django.contrib.sessions',
+		'django.contrib.messages',
+		'django.contrib.staticfiles',
+		'women.apps.WomenConfig',
+		'rest_framework',    
+	]
+	...
+	$ python3 manage.py runserver
+	$ vim women\views.py
+	$ cat women\views.py
+	from django.shortcuts import render
+	from rest_framework import generics
+	from .models import Women
+	from .serializers import WomenSerializer
+	class WomenAPIView(generics.ListAPIView):
+		queryset = Women.objects.all()
+		serializer_class = WomenSerializer
+	$ vim women\serializers.py
+	$ cat women\serializers.py
+	from rest_framework import serializers
+	from .models import Women
+	class WomenSerializer(serializers.ModelSerializer):
+		class Meta:
+			model = Women
+			fields = ('title', 'cat_id')
+	$ vim drfsite\urls.py
+	$ cat drfsite\urls.py
+	from django.contrib import admin
+	from django.urls import path
+	from women.views import WomenAPIView
+	urlpatterns = [
+		path('admin/', admin.site.urls),
+		path('api/v1/womenlist/', WomenAPIView.as_view()),
+	]
+	$ google-chrome http://127.0.0.1:8000/api/v1/womenlist/ &
+
+	Source:
+	https://www.freecodecamp.org/news/python-requirementstxt-explained/
+	https://timeweb.cloud/tutorials/sqlite/rukovodstvo-po-nastrojke-sqlite
+	https://itfy.org/threads/kak-poluchit-spisok-tablic-v-sqlite3.695/
