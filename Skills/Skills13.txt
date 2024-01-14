@@ -1065,8 +1065,8 @@ Frontend, разработка сайта django rest api
 	$ python3 manage.py makemigrations
 	$ python3 manage.py migrate
 	$ python3 manage.py createsuperuser
-	Имя пользователя (leave blank to use 'YOUR-USER'): YOUR-USER
-	Адрес электронной почты: YOUR-MAIL
+	Имя пользователя (leave blank to use 'tuser'): tuser
+	Адрес электронной почты: tmail138@yandex.ru
 	Password: 
 	Password (again): 
 	$ vim women\admin.py
@@ -1137,8 +1137,212 @@ Frontend, разработка сайта django rest api
 		path('api/v1/womenlist/', WomenAPIView.as_view()),
 	]
 	$ google-chrome http://127.0.0.1:8000/api/v1/womenlist/ &
+	Task:
+	Базовый класс APIView для представлений
+	Decision:
+	$ vim women\views.py
+	$ cat women\views.py
+	from django.shortcuts import render
+	from rest_framework import generics
+	from .models import Women
+	from .serializers import WomenSerializer
+	from rest_framework.views import APIView
+	from rest_framework.response import Response
+	from django.forms import model_to_dict
+	#class WomenAPIView(generics.ListAPIView):
+	#   queryset = Women.objects.all()
+	#   serializer_class = WomenSerializer
+	class WomenAPIView(APIView):
+		def get(self, request):
+			lst=Women.objects.all().values()
+			#return Response({'title':'Актриса1'})
+			return Response({'posts':list(lst)})
+		def post(self, request):
+			#return Response({'title':'Актриса2'})
+			post_new=Women.objects.create(
+				title=request.data['title'],
+				content=request.data['content'],
+				cat_id=request.data['cat_id']
+			)
+			return Response({'post':model_to_dict(post_new)})
+	$ google-chrome https://web.postman.co/workspace/ &
+	Task:
+	Класс Serializer
+	Decision:
+	$ vim women\serializers.py
+	$ cat women\serializers.py
+	from rest_framework import serializers
+	from .models import Women
+	from rest_framework.renderers import JSONRenderer
+	class WomenModel:
+		def __init__(self, title, content):
+			self.title = title
+			self.content = content
+	#class WomenSerializer(serializers.ModelSerializer):
+	#   class Meta:
+	#       model = Women
+	#       fields = ('title', 'cat_id')
+	class WomenSerializer(serializers.Serializer):
+		title = serializers.CharField(max_length=255)
+		content = serializers.CharField()
+	def encode():
+		model = WomenModel('Actrice1', 'Content: Actrice1')
+		model_sr = WomenSerializer(model)
+		print(model_sr.data, type(model_sr.data), sep='\n')
+		json = JSONRenderer().render(model_sr.data)
+		print(json)
+	$ python3 manage.py shell
+	>>> from women.serializers import encode
+	>>> encode()
+	{'title': 'Actrice1', 'content': 'Content: Actrice1'}
+	<class 'rest_framework.utils.serializer_helpers.ReturnDict'>
+	b'{"title":"Actrice1","content":"Content: Actrice1"}'
+	>>> quit()
+	$ vim women\serializers.py
+	$ cat women\serializers.py
+	from rest_framework import serializers
+	from .models import Women
+	from rest_framework.renderers import JSONRenderer
+	from rest_framework.parsers import JSONParser
+	import io
+	...
+	def decode():
+		stream = io.BytesIO(b'{"title":"Actrice1", "content":"Content: Actrice1"}')
+		data = JSONParser().parse(stream)
+		serializer = WomenSerializer(data=data)
+		serializer.is_valid()
+		print(serializer.validated_data)
+	$ python3 manage.py shell
+	>>> from women.serializers import decode
+	>>> decode()
+	OrderedDict([('title', 'Actrice1'), ('content', 'Content: Actrice1')])
+	>>> quit()
+	$ vim women\serializers.py
+	$ cat women\serializers.py
+	from rest_framework import serializers
+	from .models import Women
+	from rest_framework.renderers import JSONRenderer
+	from rest_framework.parsers import JSONParser
+	import io
+	#class WomenModel:
+	#   def __init__(self, title, content):
+	#       self.title = title
+	#       self.content = content
+	#class WomenSerializer(serializers.ModelSerializer):
+	#   class Meta:
+	#       model = Women
+	#       fields = ('title', 'cat_id')
+	class WomenSerializer(serializers.Serializer):
+		title = serializers.CharField(max_length=255)
+		content = serializers.CharField()
+		time_create=serializers.DateTimeField(read_only=True)
+		time_update=serializers.DateTimeField(read_only=True)
+		is_published=serializers.BooleanField(default=True)
+		cat_id=serializers.IntegerField()   
+	#def encode():
+	#   model = WomenModel('Actrice1', 'Content: Actrice1')
+	#   model_sr = WomenSerializer(model)
+	#   print(model_sr.data, type(model_sr.data), sep='\n')
+	#   json = JSONRenderer().render(model_sr.data)
+	#   print(json)
+	#def decode():
+	#   stream = io.BytesIO(b'{"title":"Actrice1", "content":"Content: Actrice1"}')
+	#   data = JSONParser().parse(stream)
+	#   serializer = WomenSerializer(data=data)
+	#   serializer.is_valid()
+	#   print(serializer.validated_data)
+	$ vim women\views.py
+	$ cat women\views.py
+	...
+	class WomenAPIView(APIView):
+		def get(self, request):
+			#lst=Women.objects.all().values()
+			#return Response({'title':'Актриса1'})
+			#return Response({'posts':list(lst)})
+			w = Women.objects.all()
+			return Response({'posts':WomenSerializer(w, many=True).data})
+		def post(self, request):
+			#return Response({'title':'Актриса2'})
+			serializer=WomenSerializer(data=request.data)
+			serializer.is_valid(raise_exception=True)
+			post_new=Women.objects.create(
+				title=request.data['title'],
+				content=request.data['content'],
+				cat_id=request.data['cat_id']
+			)
+			#return Response({'post':model_to_dict(post_new)})
+			return Response({'post':WomenSerializer(post_new).data})
+	$ python3 manage.py runserver
+	Task:
+	Методы save(), create() и update() класса Serializer
+	Decision:
+	$ vim women\serializers.py
+	$ cat women\serializers.py
+	...
+	class WomenSerializer(serializers.Serializer):
+		title = serializers.CharField(max_length=255)
+		content = serializers.CharField()
+		time_create=serializers.DateTimeField(read_only=True)
+		time_update=serializers.DateTimeField(read_only=True)
+		is_published=serializers.BooleanField(default=True)
+		cat_id=serializers.IntegerField()
+		def create(self, validated_data):
+			return Women.objects.create(**validated_data)
+		def update(self, instance, validated_data):
+			instance.title=validated_data.get("title", instance.title)
+			instance.content=validated_data.get("content", instance.content)
+			instance.time_update=validated_data.get("time_update", instance.time_update)
+			instance.is_published=validated_data.get("is_published", instance.is_published)
+			instance.cat_id=validated_data.get("cat_id", instance.cat_id)
+			instance.save()
+			return instance
+	...
+	$ vim women\serializers.py
+	$ cat women\serializers.py
+	...
+		def post(self, request):
+			#return Response({'title':'Актриса2'})
+			serializer=WomenSerializer(data=request.data)
+			serializer.is_valid(raise_exception=True)
+			#post_new=Women.objects.create(
+			#   title=request.data['title'],
+			#   content=request.data['content'],
+			#   cat_id=request.data['cat_id']
+			#)
+			#return Response({'post':model_to_dict(post_new)})
+			#return Response({'post':WomenSerializer(post_new).data})
+			serializer.save()
+			return Response({'post':serializer.data})
+		def put(self, request, *args, **kwargs):
+			pk = kwargs.get("pk", None)
+			if not pk:
+				return Response({"error": "Method PUT not allowed"})
+			try:
+				instance = Women.objects.get(pk=pk)
+			except:
+				return Response({"error": "Object does not exists"})
+			serializer = WomenSerializer(data=request.data, instance=instance)
+			serializer.is_valid(raise_exception=True)
+			serializer.save()
+			return Response({"post": serializer.data})
+		def delete(self, request, *args, **kwargs):
+			pk = kwargs.get("pk", None)
+			if not pk:
+				return Response({"error": "Method DELETE not allowed"})
+			return Response({"post":"delete post "+str(pk)})
+	$ vim drfsite\urls.py
+	$ cat drfsite\urls.py
+	...
+	urlpatterns = [
+		path('admin/', admin.site.urls),
+		path('api/v1/womenlist/', WomenAPIView.as_view()),
+		path('api/v1/womenlist/<int:pk>/', WomenAPIView.as_view()),
+	]
 
+	$ python3 manage.py runserver
 	Source:
 	https://www.freecodecamp.org/news/python-requirementstxt-explained/
 	https://timeweb.cloud/tutorials/sqlite/rukovodstvo-po-nastrojke-sqlite
 	https://itfy.org/threads/kak-poluchit-spisok-tablic-v-sqlite3.695/
+	https://linuxgenie.net/how-to-install-postman-on-ubuntu-22-04/
+	https://pyonlycode.com/post/how-to-solve-nameerror-name-io-is-not-defined/
