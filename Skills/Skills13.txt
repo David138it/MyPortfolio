@@ -1339,7 +1339,125 @@ Frontend, разработка сайта django rest api
 		path('api/v1/womenlist/', WomenAPIView.as_view()),
 		path('api/v1/womenlist/<int:pk>/', WomenAPIView.as_view()),
 	]
-
+	$ python3 manage.py runserver
+	Task:
+	Класс ModelSerializer и представление ListCreateAPIView 
+	Decision:
+	$ vim women\serializers.py
+	$ cat women\serializers.py
+	...
+	#class WomenSerializer(serializers.Serializer):
+	#	title = serializers.CharField(max_length=255)
+	#	content = serializers.CharField()
+	#	time_create=serializers.DateTimeField(read_only=True)
+	#	time_update=serializers.DateTimeField(read_only=True)
+	#	is_published=serializers.BooleanField(default=True)
+	#	cat_id=serializers.IntegerField()
+	#	def create(self, validated_data):
+	#		return Women.objects.create(**validated_data)
+	#	def update(self, instance, validated_data):
+	#		instance.title=validated_data.get("title", instance.title)
+	#		instance.content=validated_data.get("content", instance.content)
+	#		instance.time_update=validated_data.get("time_update", instance.time_update)
+	#		instance.is_published=validated_data.get("is_published", instance.is_published)
+	#		instance.cat_id=validated_data.get("cat_id", instance.cat_id)
+	#		instance.save()
+	#		return instance
+	class WomenSerializer(serializers.ModelSerializer):
+		class Meta:
+			model=Women
+			#fields = ("title", "content", "cat")
+			fields="__all__"
+	...
+	$ vim women\views.py
+	$ cat women\views.py
+	...
+	#class WomenAPIView(generics.ListAPIView):
+	class WomenAPIList(generics.ListCreateAPIView):
+		queryset=Women.objects.all()
+		serializer_class=WomenSerializer
+	...
+	$ vim drfsite\urls.py
+	$ cat drfsite\urls.py
+	...
+	#from women.views import WomenAPIView
+	from women.views import *
+	urlpatterns = [
+		path('admin/', admin.site.urls),
+		#path('api/v1/womenlist/', WomenAPIView.as_view()),
+		path('api/v1/womenlist/', WomenAPIList.as_view()),
+		path('api/v1/womenlist/<int:pk>/', WomenAPIView.as_view()),
+	]
+	$ python3 manage.py runserver
+	Task:
+	Представления UpdateAPIView и RetrieveUpdateDestroyAPIView
+	Decision:
+	$ vim women\views.py
+	$ cat women\views.py
+	...
+	#class WomenAPIView(APIView):
+	#	def get(self, request):
+			#lst=Women.objects.all().values()
+			#return Response({'title':'Актриса1'})
+			#return Response({'posts':list(lst)})
+	#		w = Women.objects.all()
+	#		return Response({'posts':WomenSerializer(w, many=True).data})
+	#	def post(self, request):
+			#return Response({'title':'Актриса2'})
+	#		serializer=WomenSerializer(data=request.data)
+	#		serializer.is_valid(raise_exception=True)
+			#post_new=Women.objects.create(
+			#	title=request.data['title'],
+			#	content=request.data['content'],
+			#	cat_id=request.data['cat_id']
+			#)
+			#return Response({'post':model_to_dict(post_new)})
+			#return Response({'post':WomenSerializer(post_new).data})
+	#		serializer.save()
+	#		return Response({'post':serializer.data})
+	#	def put(self, request, *args, **kwargs):
+	#		pk = kwargs.get("pk", None)
+	#		if not pk:
+	#			return Response({"error": "Method PUT not allowed"})
+	#		try:
+	#			instance = Women.objects.get(pk=pk)
+	#		except:
+	#			return Response({"error": "Object does not exists"})
+	#		serializer = WomenSerializer(data=request.data, instance=instance)
+	#		serializer.is_valid(raise_exception=True)
+	#		serializer.save()
+	#		return Response({"post": serializer.data})
+	#	def delete(self, request, *args, **kwargs):
+	#		pk = kwargs.get("pk", None)
+	#		if not pk:
+	#			return Response({"error": "Method DELETE not allowed"})
+	#		return Response({"post":"delete post "+str(pk)})
+	class WomenAPIUpdate(generics.UpdateAPIView):
+		queryset = Women.objects.all()
+		serializer_class = WomenSerializer
+	class WomenAPIDetailView(generics.RetrieveUpdateDestroyAPIView):
+		queryset = Women.objects.all()
+		serializer_class = WomenSerializer
+	$ vim drfsite\urls.py
+	$ cat drfsite\urls.py
+	...
+	urlpatterns = [
+		path('admin/', admin.site.urls),
+		#path('api/v1/womenlist/', WomenAPIView.as_view()),
+		path('api/v1/womenlist/', WomenAPIList.as_view()),
+		#path('api/v1/womenlist/<int:pk>/', WomenAPIView.as_view()),
+		path('api/v1/womenlist/<int:pk>/', WomenAPIUpdate.as_view()),
+		path('api/v1/womendetail/<int:pk>/', WomenAPIDetailView.as_view()),
+	]
+	$ vim drfsite\settings.py
+	$ cat drfsite\settings.py
+	...
+	REST_FRAMEWORK = {
+		'DEFAULT_RENDERER_CLASSES':[
+			'rest_framework.renderers.JSONRenderer',
+			#'rest_framework.renderers.BrowsableAPIRenderer',
+		]
+	}
 	$ python3 manage.py runserver
 	Source:
 	https://www.freecodecamp.org/news/python-requirementstxt-explained/
