@@ -1459,6 +1459,49 @@ Frontend, разработка сайта django rest api
 		]
 	}
 	$ python3 manage.py runserver
+	Task:
+	Viewsets и ModelViewSet
+	Decision:
+	$ vim women\views.py
+	$ cat women\views.py
+	from django.shortcuts import render
+	from rest_framework import generics, viewsets
+	...
+	#class WomenAPIList(generics.ListCreateAPIView):
+	#	queryset=Women.objects.all()
+	#	serializer_class=WomenSerializer
+	...
+	#class WomenAPIUpdate(generics.UpdateAPIView):
+	#	queryset = Women.objects.all()
+	#	serializer_class = WomenSerializer
+	#class WomenAPIDetailView(generics.RetrieveUpdateDestroyAPIView):
+	#	queryset = Women.objects.all()
+	#	serializer_class = WomenSerializer
+	#class WomenViewSet(viewsets.ModelViewSet):
+	class WomenViewSet(viewsets.ReadOnlyModelViewSet):
+		queryset = Women.objects.all()
+		serializer_class = WomenSerializer
+	$ vim drfsite\urls.py
+	$ cat drfsite\urls.py
+	from django.contrib import admin
+	from django.urls import path, include
+	#from women.views import WomenAPIView
+	from women.views import *
+	from rest_framework import routers
+	router=routers.SimpleRouter()
+	router.register(r'women', WomenViewSet)
+	urlpatterns = [
+	    path('admin/', admin.site.urls),
+	    #path('api/v1/womenlist/', WomenAPIView.as_view()),
+	    #path('api/v1/womenlist/', WomenAPIList.as_view()),
+	    #path('api/v1/womenlist/<int:pk>/', WomenAPIView.as_view()),
+	    #path('api/v1/womenlist/<int:pk>/', WomenAPIUpdate.as_view()),
+	    #path('api/v1/womendetail/<int:pk>/', WomenAPIDetailView.as_view()),
+	    #path('api/v1/womenlist/', WomenViewSet.as_view({'get':'list'})),
+	    #path('api/v1/womendetail/<int:pk>/', WomenViewSet.as_view({'put':'update'})),
+	    path('api/v1/', include(router.urls)),
+	]
+	$ python3 manage.py runserver
 	Source:
 	https://www.freecodecamp.org/news/python-requirementstxt-explained/
 	https://timeweb.cloud/tutorials/sqlite/rukovodstvo-po-nastrojke-sqlite

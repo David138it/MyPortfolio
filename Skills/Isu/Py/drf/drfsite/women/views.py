@@ -1,14 +1,14 @@
 from django.shortcuts import render
-from rest_framework import generics
+from rest_framework import generics, viewsets
 from .models import Women
 from .serializers import WomenSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.forms import model_to_dict
 #class WomenAPIView(generics.ListAPIView):
-class WomenAPIList(generics.ListCreateAPIView):
-	queryset=Women.objects.all()
-	serializer_class=WomenSerializer
+#class WomenAPIList(generics.ListCreateAPIView):
+#	queryset=Women.objects.all()
+#	serializer_class=WomenSerializer
 #class WomenAPIView(APIView):
 #	def get(self, request):
 		#lst=Women.objects.all().values()
@@ -46,9 +46,13 @@ class WomenAPIList(generics.ListCreateAPIView):
 #		if not pk:
 #			return Response({"error": "Method DELETE not allowed"})
 #		return Response({"post":"delete post "+str(pk)})
-class WomenAPIUpdate(generics.UpdateAPIView):
-	queryset = Women.objects.all()
-	serializer_class = WomenSerializer
-class WomenAPIDetailView(generics.RetrieveUpdateDestroyAPIView):
+#class WomenAPIUpdate(generics.UpdateAPIView):
+#	queryset = Women.objects.all()
+#	serializer_class = WomenSerializer
+#class WomenAPIDetailView(generics.RetrieveUpdateDestroyAPIView):
+#	queryset = Women.objects.all()
+#	serializer_class = WomenSerializer
+#class WomenViewSet(viewsets.ModelViewSet):
+class WomenViewSet(viewsets.ReadOnlyModelViewSet):
 	queryset = Women.objects.all()
 	serializer_class = WomenSerializer
