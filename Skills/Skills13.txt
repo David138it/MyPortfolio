@@ -1009,7 +1009,6 @@ Backend, Webpack
 	Source:
 	1. https://losst.ru/ustanovka-node-js-ubuntu-18-04
 
-
 Frontend, разработка сайта django rest api
 	Task:
 	Установка Django Rest Framework
@@ -1020,6 +1019,8 @@ Frontend, разработка сайта django rest api
 	$ cat requirements.txt 
 	django
 	djangorestframework
+	djoser
+	djangorestframework-simplejwt
 	$ pip install -r requirements.txt
 	$ django-admin startproject drfsite
 	$ cd drfsite/
@@ -1465,7 +1466,13 @@ Frontend, разработка сайта django rest api
 	$ vim women\views.py
 	$ cat women\views.py
 	from django.shortcuts import render
-	from rest_framework import generics, viewsets
+	from rest_framework import generics, viewsets, mixins
+	from .models import Women
+	from .serializers import WomenSerializer
+	from rest_framework.views import APIView
+	from rest_framework.response import Response
+	from django.forms import model_to_dict
+	from rest_framework.viewsets import GenericViewSet
 	...
 	#class WomenAPIList(generics.ListCreateAPIView):
 	#	queryset=Women.objects.all()
@@ -1478,7 +1485,12 @@ Frontend, разработка сайта django rest api
 	#	queryset = Women.objects.all()
 	#	serializer_class = WomenSerializer
 	#class WomenViewSet(viewsets.ModelViewSet):
-	class WomenViewSet(viewsets.ReadOnlyModelViewSet):
+	#class WomenViewSet(viewsets.ReadOnlyModelViewSet):
+	class WomenViewSet(mixins.CreateModelMixin,
+		mixins.RetrieveModelMixin,
+		mixins.UpdateModelMixin,
+		mixins.ListModelMixin,
+		GenericViewSet):
 		queryset = Women.objects.all()
 		serializer_class = WomenSerializer
 	$ vim drfsite\urls.py
@@ -1502,9 +1514,354 @@ Frontend, разработка сайта django rest api
 	    path('api/v1/', include(router.urls)),
 	]
 	$ python3 manage.py runserver
+	Task:
+	Роутеры: SimpleRouter и DefaultRouter 
+	Decision:
+	$ vim drfsite\urls.py
+	$ cat drfsite\urls.py
+	...
+	class MyCustomRouter(routers.SimpleRouter):
+		routes = [
+			routers.Route(url=r'^{prefix}$',
+						mapping={'get': 'list'},
+						name='{basename}-list',
+						detail=False,
+						initkwargs={'suffix': 'List'}),
+			routers.Route(url=r'^{prefix}/{lookup}$',
+						mapping={'get': 'retrieve'},
+						name='{basename}-detail',
+						detail=True,
+						initkwargs={'suffix': 'Detail'})
+		]
+	#router=routers.SimpleRouter()
+	#router=routers.DefaultRouter()
+	router=MyCustomRouter()
+	#router.register(r'women', WomenViewSet)
+	#router.register(r'women', WomenViewSet, basename='men')
+	router.register(r'women', WomenViewSet, basename='women')
+	print(router.urls)
+	...
+	$ vim women\views.py
+	$ cat women\views.py
+	from django.shortcuts import render
+	from rest_framework import generics, viewsets, mixins
+	from .models import Women, Category
+	from .serializers import WomenSerializer
+	from rest_framework.views import APIView
+	from rest_framework.response import Response
+	from django.forms import model_to_dict
+	from rest_framework.viewsets import GenericViewSet
+	from rest_framework.decorators import action
+	...
+	class WomenViewSet(mixins.CreateModelMixin,
+		mixins.RetrieveModelMixin,
+		mixins.UpdateModelMixin,
+		mixins.ListModelMixin,
+		GenericViewSet):
+		#queryset = Women.objects.all()
+		serializer_class = WomenSerializer
+		def get_queryset(self):
+			#return Women.objects.all()[:3]
+			pk=self.kwargs.get("pk")
+			if not pk:
+				return Women.objects.all()[:3]
+			return Women.objects.filter(pk=pk)
+		@action(methods=['get'], detail=True)
+		def category(self, request, pk=None):
+			#cats = Category.objects.all()
+			#return Response({'cats': [c.name for c in cats]})
+			cats = Category.objects.get(pk=pk)
+			return Response({'cats': cats.name})
+	$ python3 manage.py runserver
+	Task:
+	Ограничения доступа (permissions)
+	Decision:
+	$ vim women\models.py
+	$ cat women\models.py
+	from django.db import models
+	from django.contrib.auth.models import User
+	...
+		cat=models.ForeignKey('Category', on_delete=models.PROTECT, null=True, verbose_name="Категории")
+		user=models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+		def __str__(self):
+	...
+	$ python3 manage.py makemigrations
+	Select an option: 1
+	>>> 1
+	$ python3 manage.py migrate
+	$ vim women/views.py
+	$ cat women/views.py
+	from django.shortcuts import render
+	from rest_framework import generics, viewsets, mixins
+	from .models import Women, Category
+	from .serializers import WomenSerializer
+	from rest_framework.views import APIView
+	from rest_framework.response import Response
+	from django.forms import model_to_dict
+	from rest_framework.viewsets import GenericViewSet
+	from rest_framework.decorators import action
+	from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
+	from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
+	class WomenAPIList(generics.ListCreateAPIView):
+		queryset=Women.objects.all()
+		serializer_class=WomenSerializer
+		#permissions_classes=(IsAuthenticatedOrReadOnly, )
+	class WomenAPIUpdate(generics.RetrieveUpdateAPIView):
+		queryset = Women.objects.all()
+		serializer_class = WomenSerializer
+		permissions_classes=(IsOwnerOrReadOnly, )
+	class WomenAPIDestroy(generics.RetrieveDestroyAPIView):
+		queryset = Women.objects.all()
+		serializer_class = WomenSerializer
+		permissions_classes=(IsAdminOrReadOnly, )
+	$ vim drfsite\urls.py
+	$ cat drfsite\urls.py
+	...
+	#class MyCustomRouter(routers.SimpleRouter):
+	#    routes = [
+	#        routers.Route(url=r'^{prefix}$',
+	#                      mapping={'get': 'list'},
+	#                      name='{basename}-list',
+	#                      detail=False,
+	#                      initkwargs={'suffix': 'List'}),
+	#        routers.Route(url=r'^{prefix}/{lookup}$',
+	#                      mapping={'get': 'retrieve'},
+	#                      name='{basename}-detail',
+	#                      detail=True,
+	#                      initkwargs={'suffix': 'Detail'})
+	#    ]
+	#router=routers.SimpleRouter()
+	#router=routers.DefaultRouter()
+	#router=MyCustomRouter()
+	#router.register(r'women', WomenViewSet)
+	#router.register(r'women', WomenViewSet, basename='men')
+	#router.register(r'women', WomenViewSet, basename='women')
+	#print(router.urls)
+	urlpatterns = [
+		path('admin/', admin.site.urls),
+		#path('api/v1/womenlist/', WomenAPIView.as_view()),
+		#path('api/v1/womenlist/', WomenAPIList.as_view()),
+		#path('api/v1/womenlist/<int:pk>/', WomenAPIView.as_view()),
+		#path('api/v1/womenlist/<int:pk>/', WomenAPIUpdate.as_view()),
+		#path('api/v1/womendetail/<int:pk>/', WomenAPIDetailView.as_view()),
+		#path('api/v1/womenlist/', WomenViewSet.as_view({'get':'list'})),
+		#path('api/v1/womendetail/<int:pk>/', WomenViewSet.as_view({'put':'update'})),
+		#path('api/v1/', include(router.urls)),
+		path('api/v1/women/', WomenAPIList.as_view()),
+		path('api/v1/women/<int:pk>/', WomenAPIUpdate.as_view()),
+		path('api/v1/womendelete/<int:pk>/', WomenAPIDestroy.as_view()),
+	]
+	$ vim women/serializers.py
+	$ cat women/serializers.py
+	...
+	class WomenSerializer(serializers.ModelSerializer):
+		user=serializers.HiddenField(default=serializers.CurrentUserDefault())
+		class Meta:
+			model=Women
+			#fields = ("title", "content", "cat")
+			fields="__all__"
+	...
+	$ touch women/permissions.py
+	$ vim women/permissions.py
+	$ cat women/permissions.py
+	from rest_framework import permissions
+	class IsAdminOrReadOnly(permissions.BasePermission):
+		def has_permission(self, request, view):
+			if request.method in permissions.SAFE_METHODS:
+				return True
+			return bool(request.user and request.user.is_staff)
+	class IsOwnerOrReadOnly(permissions.BasePermission):
+		def has_object_permission(self, request, view, obj):
+			if request.method in permissions.SAFE_METHODS:
+				return True
+			return obj.user == request.user
+	$ vim drfsite\settings.py
+	$ cat drfsite\settings.py
+	...
+	REST_FRAMEWORK = {
+		'DEFAULT_RENDERER_CLASSES':[
+			'rest_framework.renderers.JSONRenderer',
+			'rest_framework.renderers.BrowsableAPIRenderer',
+		],
+		'DEFAULT_PERMISSION_CLASSES':[
+			#'rest_framework.permissions.IsAuthenticated',
+			'rest_framework.permissions.AllowAny',
+		]
+	}
+	$ python3 manage.py runserver
+	Task:
+	Авторизация и аутентификация. Session-based authentication.
+	Decision:
+	$ vim drfsite\urls.py
+	$ cat drfsite\urls.py
+	...
+	[
+	...
+		path('api/v1/womendelete/<int:pk>/', WomenAPIDestroy.as_view()),
+		path('api/v1/drf-auth/', include('rest_framework.urls')),
+	]
+	$ python3 manage.py runserver
+	$ google-chrome http://127.0.0.1:8000/api/v1/drf-auth/ & 
+	Task:
+	Аутентификация по токенам. Пакет Djoser
+	Decision:
+	$ vim drfsite\settings.py
+	$ cat drfsite\settings.py
+	...
+	INSTALLED_APPS = [
+		'django.contrib.admin',
+		'django.contrib.auth',
+		'django.contrib.contenttypes',
+		'django.contrib.sessions',
+		'django.contrib.messages',
+		'django.contrib.staticfiles',
+		'women.apps.WomenConfig',
+		'rest_framework',
+		'rest_framework.authtoken',
+		'djoser',
+	]
+	...
+	$ python3 manage.py migrate
+	$ vim drfsite\urls.py
+	$ cat drfsite\urls.py
+	...
+	from django.urls import path, include, re_path
+	[
+		...
+		path('api/v1/drf-auth/', include('rest_framework.urls')),
+		path('api/v1/auth/', include('djoser.urls')),
+		re_path(r'^auth/', include('djoser.urls.authtoken')),
+	]
+	$ vim drfsite\settings.py
+	$ cat drfsite\settings.py
+	...
+	REST_FRAMEWORK = {
+		...
+		'DEFAULT_AUTHENTICATION_CLASSES':[
+			'rest_framework.authentication.TokenAuthentication',
+			'rest_framework.authentication.BasicAuthentication',
+			'rest_framework.authentication.SessionAuthentication',
+		],
+	}
+	$ vim women\views.py
+	$ cat women\views.py
+	...
+	from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
+	from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
+	from rest_framework.authentication import TokenAuthentication
+	...
+	class WomenAPIUpdate(generics.RetrieveUpdateAPIView):
+		queryset = Women.objects.all()
+		serializer_class = WomenSerializer
+		#permissions_classes=(IsOwnerOrReadOnly, )
+		permissions_classes=(IsAuthenticated, )
+		#authentication_classes = (TokenAuthentication, )
+	...
+	$ python3 manage.py runserver
+	$ google-chrome http://127.0.0.1:8000/api/v1/auth/ & 
+	Task:
+	Делаем авторизацию по JWT-токенам
+	Decision:
+	$ vim drfsite\settings.py
+	$ cat drfsite\settings.py
+	from pathlib import Path
+	from datetime import timedelta
+	...
+	REST_FRAMEWORK = {
+		...
+		'DEFAULT_AUTHENTICATION_CLASSES':[
+			#'rest_framework.authentication.TokenAuthentication',
+			'rest_framework_simplejwt.authentication.JWTAuthentication',
+			'rest_framework.authentication.BasicAuthentication',
+			'rest_framework.authentication.SessionAuthentication',        
+		],
+	}
+	SIMPLE_JWT = {
+		"ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+		"REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+		"ROTATE_REFRESH_TOKENS": False,
+		"BLACKLIST_AFTER_ROTATION": False,
+		"UPDATE_LAST_LOGIN": False,
+		"ALGORITHM": "HS256",
+		"SIGNING_KEY": SECRET_KEY,
+		"VERIFYING_KEY": "",
+		"AUDIENCE": None,
+		"ISSUER": None,
+		"JSON_ENCODER": None,
+		"JWK_URL": None,
+		"LEEWAY": 0,
+		#"AUTH_HEADER_TYPES": ("Bearer",),
+		"AUTH_HEADER_TYPES": ("JWT",),
+		"AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+		"USER_ID_FIELD": "id",
+		"USER_ID_CLAIM": "user_id",
+		"USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
+		"AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+		"TOKEN_TYPE_CLAIM": "token_type",
+		"TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+		"JTI_CLAIM": "jti",
+		"SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+		"SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
+		"SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+		"TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
+		"TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
+		"TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
+		"TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
+		"SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
+		"SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
+	}
+	$ vim drfsite\urls.py
+	$ cat drfsite\urls.py
+	from django.contrib import admin
+	from django.urls import path, include, re_path
+	#from women.views import WomenAPIView
+	from women.views import *
+	from rest_framework import routers
+	from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+	...
+	urlpatterns = [
+		...
+		re_path(r'^auth/', include('djoser.urls.authtoken')),
+		path('api/v1/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+		path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+		path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+	]
+	$ python3 manage.py runserver
+	$ google-chrome http://127.0.0.1:8000/api/v1/token/ & 
+	Task:
+	Добавляем пагинацию (pagination)
+	Decision:
+	$ vim drfsite\settings.py
+	$ cat drfsite\settings.py
+	...
+	REST_FRAMEWORK = {
+		'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+		'PAGE_SIZE': 2,
+		...
+	}
+	$ vim women\views.py
+	$ cat women\views.py
+	...
+	from rest_framework.pagination import PageNumberPagination
+	#class WomenAPIView(generics.ListAPIView):
+	class WomenAPIListPagination(PageNumberPagination):
+		page_size=3
+		page_size_query_param='page_size'
+		max_page_size=10000
+	class WomenAPIList(generics.ListCreateAPIView):
+		queryset=Women.objects.all()
+		serializer_class=WomenSerializer
+		permissions_classes=(IsAuthenticatedOrReadOnly, )
+		pagination_class=WomenAPIListPagination
+	...
+	$ python3 manage.py runserver
+	$ google-chrome http://127.0.0.1:8000/api/v1/women/ & 
 	Source:
+	https://www.youtube.com/playlist?list=PLA0M1Bcd0w8xZA3Kl1fYmOH_MfLpiYMRs
 	https://www.freecodecamp.org/news/python-requirementstxt-explained/
 	https://timeweb.cloud/tutorials/sqlite/rukovodstvo-po-nastrojke-sqlite
 	https://itfy.org/threads/kak-poluchit-spisok-tablic-v-sqlite3.695/
 	https://linuxgenie.net/how-to-install-postman-on-ubuntu-22-04/
 	https://pyonlycode.com/post/how-to-solve-nameerror-name-io-is-not-defined/
+	https://django-rest-framework-simplejwt.readthedocs.io/en/latest/index.html
+	https://jwt.io/
